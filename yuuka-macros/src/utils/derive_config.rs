@@ -2,10 +2,10 @@ use std::collections::HashMap;
 use syn::{
     braced,
     parse::{Parse, ParseStream},
-    Ident, Token,
+    token, Ident, Token,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DeriveConfig {
     pub ident: Ident,
     pub structs: Structs,
@@ -26,7 +26,7 @@ impl Parse for DeriveConfig {
             let key = content.parse::<Ident>()?;
             content.parse::<Token![:]>()?;
 
-            if content.peek(Ident) {
+            if !content.peek2(token::Brace) {
                 let ty = content.parse()?;
                 own_struct.insert(key, ty);
             } else {
@@ -43,8 +43,8 @@ impl Parse for DeriveConfig {
                 }
             }
 
-            if content.parse::<Token![,]>().is_err() {
-                break;
+            if content.peek(Token![,]) {
+                content.parse::<Token![,]>()?;
             }
         }
 
