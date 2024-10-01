@@ -6,7 +6,7 @@ use syn::{
 };
 
 #[derive(Debug, Clone)]
-pub struct DeriveConfig {
+pub struct DeriveStruct {
     pub ident: Ident,
     pub structs: Structs,
     pub enums: Enums,
@@ -42,7 +42,7 @@ fn merge_enums(source: &Enums, target: &mut Enums) {
     }
 }
 
-impl Parse for DeriveConfig {
+impl Parse for DeriveStruct {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let mut sub_structs: Structs = HashMap::new();
         let mut sub_enums: Enums = HashMap::new();
@@ -81,7 +81,7 @@ impl Parse for DeriveConfig {
                             let item_content;
                             braced!(item_content in sub_content);
 
-                            let content: DeriveConfig = item_content.parse()?;
+                            let content: DeriveStruct = item_content.parse()?;
                             struct_members.insert(
                                 key,
                                 syn::parse_str::<TypePath>(&content.ident.to_string())?,
@@ -104,7 +104,7 @@ impl Parse for DeriveConfig {
                             let item_content;
                             braced!(item_content in sub_content);
 
-                            let content: DeriveConfig = item_content.parse()?;
+                            let content: DeriveStruct = item_content.parse()?;
                             merge_structs(&content.structs, &mut sub_structs);
                             merge_enums(&content.enums, &mut sub_enums);
                         } else {
@@ -125,7 +125,7 @@ impl Parse for DeriveConfig {
             }
 
             sub_enums.insert(ident.clone(), own_enum);
-            Ok(DeriveConfig {
+            Ok(DeriveStruct {
                 ident,
                 structs: sub_structs,
                 enums: sub_enums,
@@ -145,7 +145,7 @@ impl Parse for DeriveConfig {
                     // sth: [...]
                     let bracket_level_content;
                     bracketed!(bracket_level_content in content);
-                    let content: DeriveConfig = bracket_level_content.parse()?;
+                    let content: DeriveStruct = bracket_level_content.parse()?;
                     own_struct.insert(
                         key,
                         syn::parse_str::<TypePath>(&format!("Vec<{}>", content.ident))?,
@@ -155,7 +155,7 @@ impl Parse for DeriveConfig {
                     merge_enums(&content.enums, &mut sub_enums);
                 } else if content.peek(Token![enum]) {
                     // sth: enum { ... }
-                    let content: DeriveConfig = content.parse()?;
+                    let content: DeriveStruct = content.parse()?;
 
                     own_struct.insert(key, syn::parse_str::<TypePath>(&content.ident.to_string())?);
                     merge_structs(&content.structs, &mut sub_structs);
@@ -166,7 +166,7 @@ impl Parse for DeriveConfig {
                     own_struct.insert(key, ty);
                 } else {
                     // sth: Ident { ... }
-                    let content: DeriveConfig = content.parse()?;
+                    let content: DeriveStruct = content.parse()?;
                     own_struct.insert(key, syn::parse_str::<TypePath>(&content.ident.to_string())?);
                     merge_structs(&content.structs, &mut sub_structs);
                     merge_enums(&content.enums, &mut sub_enums);
@@ -178,7 +178,7 @@ impl Parse for DeriveConfig {
             }
 
             sub_structs.insert(ident.clone(), own_struct);
-            Ok(DeriveConfig {
+            Ok(DeriveStruct {
                 ident,
                 structs: sub_structs,
                 enums: sub_enums,

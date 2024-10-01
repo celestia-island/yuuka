@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod test {
-    use yuuka::derive_config;
+    use yuuka::derive_struct;
 
     #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
     struct C {
@@ -9,7 +9,7 @@ mod test {
 
     #[test]
     fn reference_type_struct() {
-        derive_config!(Root {
+        derive_struct!(Root {
             a_b: String,
             B: i32,
             c: super::C,
