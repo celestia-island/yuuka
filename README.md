@@ -1,5 +1,8 @@
 <img src="splash.png" alt="yuuka" />
 
+![GitHub License](https://img.shields.io/github/license/celestia-island/yuuka)
+![Crates.io Version](https://img.shields.io/crates/v/yuuka)
+
 ## Introduction
 
 This is a helper library to generate complex and nested structures by a simple macro. It is based on the `serde` library that is used to serialize and deserialize data in Rust.
