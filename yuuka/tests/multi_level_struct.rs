@@ -13,15 +13,13 @@ mod test {
             },
         });
 
-        // let _ = Root {
-        //     a: "Hello".to_string(),
-        //     b: 42,
-        //     c: {
-        //         d: 3.14,
-        //         e: {
-        //             f: true,
-        //         },
-        //     },
-        // };
+        let _ = Root {
+            a: "Hello".to_string(),
+            b: 42,
+            c: C {
+                d: 3.14,
+                e: E { f: true },
+            },
+        };
     }
 }
