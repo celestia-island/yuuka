@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use syn::{
     braced,
     parse::{Parse, ParseStream},
-    token, Ident, Token,
+    token, Ident, Token, TypePath,
 };
 
 #[derive(Debug, Clone)]
@@ -12,7 +12,7 @@ pub struct DeriveConfig {
 }
 
 type Structs = HashMap<Ident, StructMembers>;
-type StructMembers = HashMap<Ident, Ident>;
+type StructMembers = HashMap<Ident, TypePath>;
 
 impl Parse for DeriveConfig {
     fn parse(input: ParseStream) -> syn::Result<Self> {
@@ -31,7 +31,7 @@ impl Parse for DeriveConfig {
                 own_struct.insert(key, ty);
             } else {
                 let content: DeriveConfig = content.parse()?;
-                own_struct.insert(key, content.ident.clone());
+                own_struct.insert(key, syn::parse_str::<TypePath>(&content.ident.to_string())?);
 
                 // Merge the sub-structs into the current struct
                 for (k, v) in content.structs {
