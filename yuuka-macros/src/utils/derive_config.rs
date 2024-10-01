@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use syn::{
-    braced,
+    braced, bracketed,
     parse::{Parse, ParseStream},
     token, Ident, Token, TypePath,
 };
@@ -26,7 +26,26 @@ impl Parse for DeriveConfig {
             let key = content.parse::<Ident>()?;
             content.parse::<Token![:]>()?;
 
-            if !content.peek2(token::Brace) {
+            if content.peek(token::Bracket) {
+                dbg!("bracketed");
+                let bracket_level_content;
+                let _ = bracketed!(bracket_level_content in content);
+                let content: DeriveConfig = bracket_level_content.parse()?;
+                dbg!(content.ident.clone());
+                own_struct.insert(
+                    key,
+                    syn::parse_str::<TypePath>(&format!("Vec<{}>", content.ident))?,
+                );
+
+                // Merge the sub-structs into the current struct
+                for (k, v) in content.structs {
+                    // If there is a duplicate key, an error is reported
+                    if own_struct.contains_key(&k) {
+                        return Err(syn::Error::new(k.span(), format!("duplicate key `{}`", k)));
+                    }
+                    sub_structs.insert(k, v);
+                }
+            } else if !content.peek2(token::Brace) {
                 let ty = content.parse()?;
                 own_struct.insert(key, ty);
             } else {
