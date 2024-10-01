@@ -1,7 +1,7 @@
 <img src="splash.png" alt="yuuka" />
 
 ![GitHub License](https://img.shields.io/github/license/celestia-island/yuuka)
-![Crates.io Version](https://img.shields.io/crates/v/yuuka)
+[![Crates.io Version](https://img.shields.io/crates/v/yuuka)](https://docs.rs/yuuka)
 
 ## Introduction
 
