@@ -22,19 +22,10 @@ derive_config!(GameDevelopment {
         programmer: String,
         tester: Vec<String>,
     },
-    projects: ProjectMap {
-        rust: RustProjectMap {
-            game_launcher: String,
-            forum_app: String,
-        },
-        typescript: TypeScriptProjectMap {
-            website: String,
-            backend_entry: String,
-        },
-        cpp: CppProjectMap {
-            rpg_maker: String,
-        },
-    },
+    projects: [Project {
+        project_name: String,
+        engine: String,
+    }],
 });
 
 let config = GameDevelopment {
@@ -45,28 +36,22 @@ let config = GameDevelopment {
         programmer: "Yuzu".to_string(),
         tester: vec!["Arisu".to_string(), "Key".to_string()],
     },
-    projects: ProjectMap {
-        rust: RustProjectMap {
-            game_launcher: "777 Game Launcher".to_string(),
-            forum_app: "777 Forum App".to_string(),
+    projects: vec![
+        Project {
+            project_name: "777 Game Launcher".to_string(),
+            engine: "Tauri".to_string(),
         },
-        typescript: TypeScriptProjectMap {
-            website: "777 Website".to_string(),
-            backend_entry: "777 Control Center".to_string(),
+        Project {
+            project_name: "Blue Archive".to_string(),
+            engine: "Unity".to_string(),
         },
-        cpp: CppProjectMap {
-            rpg_maker: "RPG Maker".to_string(),
-        },
-    },
+    ]
 };
-
-let serialized = serde_json::to_string(&config).unwrap();
-println!("{}", serialized);
 ```
 
 ## TODO
 
-- [ ] Array type support
+- [x] Array type support
 - [ ] Enum type support
 - [ ] `strum` integration, including control the case of the field name (e.g. `snake_case`, `camelCase`, `PascalCase`)
 - [ ] Write a homepage for this library
