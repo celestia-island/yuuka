@@ -53,6 +53,7 @@ let config = GameDevelopment {
 
 - [x] Array type support
 - [ ] Enum type support
+- [ ] Anonymous struct support
 - [ ] `strum` integration, including control the case of the field name (e.g. `snake_case`, `camelCase`, `PascalCase`)
 - [ ] Write a homepage for this library
 - [ ] Upload to `crates.io`

@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod test {
-    use yuuka::derive_config;
+    use yuuka::derive_struct;
 
     #[test]
     fn enum_type_struct() {
-        derive_config!(Root {
+        derive_struct!(Root {
             a: enum Member {
                 Momoi,
                 Midori,
@@ -18,7 +18,7 @@ mod test {
 
     #[test]
     fn enum_type_struct_with_braces() {
-        derive_config!(Root {
+        derive_struct!(Root {
             a: enum Member {
                 Momoi { skill: Skill {
                     name: String
@@ -44,7 +44,7 @@ mod test {
 
     #[test]
     fn enum_type_struct_with_parentheses() {
-        derive_config!(Root {
+        derive_struct!(Root {
             a: enum Member {
                 Momoi (Skill {
                     name: String
@@ -67,7 +67,7 @@ mod test {
 
     #[test]
     fn enum_type_struct_with_enum_in_braces() {
-        derive_config!(Root {
+        derive_struct!(Root {
             a: enum Member {
                 Momoi,
                 Midori,
@@ -86,7 +86,7 @@ mod test {
 
     #[test]
     fn enum_type_struct_with_enum_in_parentheses() {
-        derive_config!(Root {
+        derive_struct!(Root {
             a: enum Member {
                 Momoi,
                 Midori,
