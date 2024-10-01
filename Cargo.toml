@@ -10,7 +10,7 @@ panic = "abort"
 
 [workspace.package]
 authors = ["langyo <langyo.china@gmail.com>"]
-publish = false
+publish = true
 
 version = "0.1.0"
 edition = "2021"
