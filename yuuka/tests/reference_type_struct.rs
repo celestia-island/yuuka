@@ -8,7 +8,7 @@ mod test {
     }
 
     #[test]
-    fn complex_type_struct() {
+    fn reference_type_struct() {
         derive_config!(Root {
             a_b: String,
             B: i32,
