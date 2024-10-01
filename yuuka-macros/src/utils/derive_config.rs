@@ -49,10 +49,10 @@ impl Parse for DeriveConfig {
 
         if input.peek(Token![enum]) {
             // enum Ident { ... }
-            let _ = input.parse::<Token![enum]>()?;
+            input.parse::<Token![enum]>()?;
             let ident: Ident = input.parse()?;
             let content;
-            let _ = braced!(content in input);
+            braced!(content in input);
 
             let mut own_enum: EnumMembers = HashMap::new();
 
@@ -65,7 +65,7 @@ impl Parse for DeriveConfig {
                 } else if content.peek(token::Brace) {
                     // Ident { ... }
                     let sub_content;
-                    let _ = braced!(sub_content in content);
+                    braced!(sub_content in content);
                     let mut struct_members: StructMembers = HashMap::new();
 
                     while !sub_content.is_empty() {
@@ -79,7 +79,7 @@ impl Parse for DeriveConfig {
                         } else {
                             // ident: Ident { ... }
                             let item_content;
-                            let _ = braced!(item_content in sub_content);
+                            braced!(item_content in sub_content);
 
                             let content: DeriveConfig = item_content.parse()?;
                             struct_members.insert(
@@ -95,14 +95,14 @@ impl Parse for DeriveConfig {
                 } else {
                     // Ident(...),
                     let sub_content;
-                    let _ = parenthesized!(sub_content in content);
+                    parenthesized!(sub_content in content);
                     let mut tuple: Vec<TypePath> = Vec::new();
 
                     while !sub_content.is_empty() {
                         if content.peek2(Token![:]) {
                             // Ident: { ... }, ...
                             let item_content;
-                            let _ = braced!(item_content in sub_content);
+                            braced!(item_content in sub_content);
 
                             let content: DeriveConfig = item_content.parse()?;
                             merge_structs(&content.structs, &mut sub_structs);
@@ -133,7 +133,7 @@ impl Parse for DeriveConfig {
         } else {
             let ident: Ident = input.parse()?;
             let content;
-            let _ = braced!(content in input);
+            braced!(content in input);
 
             let mut own_struct: StructMembers = HashMap::new();
 
@@ -144,7 +144,7 @@ impl Parse for DeriveConfig {
                 if content.peek(token::Bracket) {
                     // sth: [...]
                     let bracket_level_content;
-                    let _ = bracketed!(bracket_level_content in content);
+                    bracketed!(bracket_level_content in content);
                     let content: DeriveConfig = bracket_level_content.parse()?;
                     own_struct.insert(
                         key,
