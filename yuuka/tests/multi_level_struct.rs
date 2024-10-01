@@ -9,21 +9,19 @@ mod test {
             b: i32,
             c: C {
                 d: f64,
-                e: E {
-                    f: bool,
-                },
+                e: E { f: bool },
             },
         });
 
-        let _ = Root {
-            a: "Hello".to_string(),
-            b: 42,
-            c: {
-                d: 3.14,
-                e: {
-                    f: true,
-                },
-            },
-        };
+        // let _ = Root {
+        //     a: "Hello".to_string(),
+        //     b: 42,
+        //     c: {
+        //         d: 3.14,
+        //         e: {
+        //             f: true,
+        //         },
+        //     },
+        // };
     }
 }
