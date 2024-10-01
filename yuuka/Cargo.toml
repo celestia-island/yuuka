@@ -4,12 +4,14 @@ authors.workspace = true
 publish.workspace = true
 version.workspace = true
 edition.workspace = true
+description.workspace = true
+license.workspace = true
 
 [lib]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-_macros = { path = "../yuuka-macros", package = "yuuka-macros" }
+_macros = { path = "../yuuka-macros", package = "yuuka-macros", version = "0.1.0" }
 
 anyhow = { workspace = true }
 async-trait = { workspace = true }
