@@ -215,18 +215,4 @@ dependencies = [
  "serde_json",
  "strum",
  "syn",
- "yuuka-macros-types",
-]
-
-[[package]]
-name = "yuuka-macros-types"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "base64",
- "derive_more",
- "serde",
- "serde_json",
- "strum",
 ]

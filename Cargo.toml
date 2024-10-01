@@ -1,5 +1,5 @@
 [workspace]
-members = ["yuuka", "yuuka-macros", "yuuka-macros-types"]
+members = ["yuuka", "yuuka-macros"]
 resolver = "2"
 
 [profile.release]
