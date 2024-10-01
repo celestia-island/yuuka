@@ -9,8 +9,6 @@ edition.workspace = true
 proc-macro = true
 
 [dependencies]
-_macros_types = { path = "../yuuka-macros-types", package = "yuuka-macros-types" }
-
 anyhow = { workspace = true }
 async-trait = { workspace = true }
 base64 = { workspace = true }
