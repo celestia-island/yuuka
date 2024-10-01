@@ -10,14 +10,14 @@ mod test {
     #[test]
     fn complex_type_struct() {
         derive_config!(Root {
-            a: String,
-            b: i32,
+            a_b: String,
+            B: i32,
             c: super::C,
         });
 
         let _ = Root {
-            a: "Hello".to_string(),
-            b: 42,
+            a_b: "Hello".to_string(),
+            B: 42,
             c: C { d: 3.14 },
         };
     }
