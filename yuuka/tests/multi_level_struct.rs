@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod test {
-    use yuuka::derive_config;
+    use yuuka::derive_struct;
 
     #[test]
     fn multi_level_struct() {
-        derive_config!(Root {
+        derive_struct!(Root {
             a: String,
             b: i32,
             c: C {

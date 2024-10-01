@@ -5,8 +5,8 @@ use syn::parse_macro_input;
 mod utils;
 
 #[proc_macro]
-pub fn derive_config(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as utils::derive_config::DeriveConfig);
+pub fn derive_struct(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as utils::derive_struct::DeriveStruct);
 
     let root_ident = input.ident;
     let mod_ident = syn::Ident::new(&format!("__{}", root_ident), root_ident.span());
@@ -40,12 +40,12 @@ pub fn derive_config(input: TokenStream) -> TokenStream {
             let v = v.iter().map(|(k, v)| {
                 let k = k;
                 let v = match v {
-                    utils::derive_config::EnumValue::Empty => {
+                    utils::derive_struct::EnumValue::Empty => {
                         quote! {
                             #k,
                         }
                     }
-                    utils::derive_config::EnumValue::Tuple(v) => {
+                    utils::derive_struct::EnumValue::Tuple(v) => {
                         let v = v.iter().map(|v| {
                             quote! {
                                 #v,
@@ -55,7 +55,7 @@ pub fn derive_config(input: TokenStream) -> TokenStream {
                             #k(#(#v)*),
                         }
                     }
-                    utils::derive_config::EnumValue::Struct(v) => {
+                    utils::derive_struct::EnumValue::Struct(v) => {
                         let v = v.iter().map(|(k, v)| {
                             quote! {
                                 pub #k: #v,
@@ -92,4 +92,16 @@ pub fn derive_config(input: TokenStream) -> TokenStream {
         use #mod_ident::*;
     };
     ret.into()
+}
+
+#[proc_macro]
+pub fn derive_struct_anonymously(input: TokenStream) -> TokenStream {
+    // TODO: Implement derive_struct_anonymously macro
+    input
+}
+
+#[proc_macro]
+pub fn auto(input: TokenStream) -> TokenStream {
+    // TODO: Implement auto macro
+    input
 }
