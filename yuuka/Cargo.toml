@@ -1,17 +1,18 @@
 [package]
 name = "yuuka"
-authors.workspace = true
-publish.workspace = true
 version.workspace = true
 edition.workspace = true
-description.workspace = true
-license.workspace = true
+
+publish = true
+description = "A helper library to generate complex and nested structures by a simple macro"
+license = "Apache-2.0"
+repository = "https://github.com/celestia-island/yuuka"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-_macros = { path = "../yuuka-macros", package = "yuuka-macros", version = "0.1.0" }
+_macros = { path = "../yuuka-macros", package = "yuuka-macros" }
 
 anyhow = { workspace = true }
 async-trait = { workspace = true }

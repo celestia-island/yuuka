@@ -10,12 +10,8 @@ panic = "abort"
 
 [workspace.package]
 authors = ["langyo <langyo.china@gmail.com>"]
-publish = true
-description = "A helper library to generate complex and nested structures by a simple macro"
-license = "Apache-2.0"
-repository = "https://github.com/celestia-island/yuuka"
 
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 [workspace.dependencies]
