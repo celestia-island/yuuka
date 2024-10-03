@@ -41,4 +41,37 @@ mod test {
             }
         };
     }
+
+    #[test]
+    fn create_default_struct() {
+        derive_struct!(Profile {
+            id: uuid::Uuid,
+            name: String,
+            email: String,
+            extra_profile: {
+                age: Option<usize>,
+                sex: enum {
+                    Male, Female, Other(String)
+                },
+                points: usize
+            }
+        });
+
+        impl Default for Profile {
+            fn default() -> {
+                auto! {
+                    Profile {
+                        id: uuid::Uuid::new_v4(),
+                        name: "HOMO",
+                        email: "114514@homo.io",
+                        extra_profile: {
+                            age: Some(24),
+                            sex: Male,
+                            points: 1919810
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
