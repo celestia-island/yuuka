@@ -6,12 +6,14 @@ pub(crate) mod derive_enum;
 pub(crate) mod derive_enum_items;
 pub(crate) mod derive_struct_items;
 
+pub mod auto;
 pub mod derive_struct;
 
 pub(crate) use derive_enum::DeriveEnum;
 pub(crate) use derive_enum_items::DeriveEnumItems;
 pub(crate) use derive_struct_items::DeriveStructItems;
 
+pub use auto::Auto;
 pub use derive_struct::DeriveStruct;
 
 #[derive(Debug, Clone)]
