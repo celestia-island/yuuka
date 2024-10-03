@@ -94,11 +94,12 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
 
         pub use #mod_ident::*;
     };
+    // TODO: Provide a macro_rules! at #mod_ident::auto! to generate the struct automatically
     ret.into()
 }
 
 #[proc_macro]
 pub fn auto(input: TokenStream) -> TokenStream {
-    // TODO: Implement auto macro
+    // TODO: Implement auto macro that calls #mod_ident::auto!
     input
 }
