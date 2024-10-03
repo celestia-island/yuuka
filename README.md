@@ -54,6 +54,7 @@ let config = GameDevelopment {
 - [x] Array type support
 - [x] Enum type support
 - [ ] Anonymous struct support that can use `auto!` macro to confirm the auto-generated field name
+- [ ] Default value support that can use `=` to assign the default value
 - [ ] `pub` and `pub(crate)` identifier support
 - [ ] `strum` integration, including control the case of the field name (e.g. `snake_case`, `camelCase`, `PascalCase`)
 - [ ] Write a homepage for this library

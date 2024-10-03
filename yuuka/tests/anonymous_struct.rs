@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod test {
-    use yuuka::{auto, derive_struct};
+    use yuuka::derive_struct;
 
     #[test]
     fn derive_struct_anonymously() {
@@ -8,7 +8,7 @@ mod test {
             a: [{ b: String }]
         });
 
-        let _ = auto! {
+        let _ = Root::auto! {
             Root {
                 a: vec![{
                     b: "hello".to_string(),
@@ -41,7 +41,7 @@ mod test {
             }
         };
     }
-
+    
     #[test]
     fn create_default_struct() {
         derive_struct!(Profile {
