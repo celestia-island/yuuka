@@ -3,11 +3,11 @@ use quote::quote;
 use syn::parse_macro_input;
 
 mod utils;
-use utils::{DeriveStruct, EnumValue};
+use utils::{derive_struct::DeriveStructVisibility, DeriveStruct, EnumValue};
 
 #[proc_macro]
 pub fn derive_struct(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as utils::derive_struct::DeriveStruct);
+    let input = parse_macro_input!(input as DeriveStruct);
 
     let root_ident = input.ident.expect("Anonymous struct is not support yet.");
     let mod_ident = syn::Ident::new(&format!("__{}", root_ident), root_ident.span());
@@ -25,7 +25,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                 }
             });
             quote! {
-                #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+                #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
                 pub struct #k {
                     #(#v)*
                 }
@@ -75,7 +75,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                 v
             });
             quote! {
-                #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+                #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
                 pub enum #k {
                     #(#v)*
                 }
@@ -83,17 +83,32 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
         })
         .collect::<Vec<_>>();
 
-    let ret = quote! {
-        #[allow(non_camel_case_types, non_snake_case, non_upper_case_globals, dead_code)]
-        pub mod #mod_ident {
-            use super::*;
+    let ret = if input.visibility == DeriveStructVisibility::Public {
+        quote! {
+            #[allow(non_camel_case_types, non_snake_case, non_upper_case_globals, dead_code)]
+            pub mod #mod_ident {
+                use super::*;
 
-            #( #structs )*
-            #( #enums )*
+                #( #structs )*
+                #( #enums )*
+            }
+
+            pub use #mod_ident::*;
         }
+    } else {
+        quote! {
+            #[allow(non_camel_case_types, non_snake_case, non_upper_case_globals, dead_code)]
+            pub(crate) mod #mod_ident {
+                use super::*;
 
-        pub use #mod_ident::*;
+                #( #structs )*
+                #( #enums )*
+            }
+
+            pub(crate) use #mod_ident::*;
+        }
     };
+
     // TODO: Provide a macro_rules! at #mod_ident::auto! to generate the struct automatically
     ret.into()
 }
