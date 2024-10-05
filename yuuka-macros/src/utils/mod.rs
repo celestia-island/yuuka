@@ -21,8 +21,15 @@ pub enum EnumValue {
     Struct(StructMembers),
 }
 
+#[derive(Debug, Clone)]
+pub enum DefaultValue {
+    None,
+    Single(Expr),
+    Array(Vec<Expr>),
+}
+
 pub(crate) type Structs = HashMap<Ident, StructMembers>;
-pub(crate) type StructMembers = HashMap<Ident, (TypePath, Option<Expr>)>;
+pub(crate) type StructMembers = HashMap<Ident, (TypePath, DefaultValue)>;
 pub(crate) type Enums = HashMap<Ident, (EnumMembers, Option<Expr>)>;
 pub(crate) type EnumMembers = HashMap<Ident, EnumValue>;
 
