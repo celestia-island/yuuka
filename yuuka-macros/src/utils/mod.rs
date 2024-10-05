@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use syn::{Ident, TypePath};
+use syn::{Expr, Ident, TypePath};
 
 pub(crate) mod derive_enum;
 pub(crate) mod derive_enum_items;
@@ -22,8 +22,8 @@ pub enum EnumValue {
 }
 
 pub(crate) type Structs = HashMap<Ident, StructMembers>;
-pub(crate) type StructMembers = HashMap<Ident, TypePath>;
-pub(crate) type Enums = HashMap<Ident, EnumMembers>;
+pub(crate) type StructMembers = HashMap<Ident, (TypePath, Option<Expr>)>;
+pub(crate) type Enums = HashMap<Ident, (EnumMembers, Option<Expr>)>;
 pub(crate) type EnumMembers = HashMap<Ident, EnumValue>;
 
 pub(crate) fn merge_structs(source: &Structs, target: &mut Structs) {

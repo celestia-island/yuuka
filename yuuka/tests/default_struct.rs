@@ -46,4 +46,23 @@ mod test {
         let val = Root::default();
         assert_eq!(val.a, Member::Midori);
     }
+
+    #[test]
+    fn default_enum_array() {
+        derive_struct!(Root {
+            a: [enum Member {
+                Momoi,
+                Midori,
+                Yuzu,
+                Arisu,
+            } = Midori] = vec![Member::Arisu]
+        });
+
+        let mut val = Root::default();
+        assert_eq!(val.a.len(), 1);
+        val.a.push(Default::default());
+        assert_eq!(val.a.len(), 2);
+        assert_eq!(val.a[0], Member::Arisu);
+        assert_eq!(val.a[1], Member::Midori);
+    }
 }
