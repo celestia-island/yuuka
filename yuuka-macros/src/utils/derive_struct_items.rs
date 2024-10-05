@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use syn::{
     bracketed,
     parse::{Parse, ParseStream},
-    token, Ident, Token, TypePath,
+    token, Expr, Ident, Token, TypePath,
 };
 
 use crate::utils::DeriveStruct;
@@ -40,19 +40,44 @@ impl Parse for DeriveStructItems {
                     merge_structs(&content.sub_structs, &mut sub_structs);
                     merge_enums(&content.sub_enums, &mut sub_enums);
 
-                    own_struct.insert(
-                        key,
-                        syn::parse_str::<TypePath>(&format!(
-                            "Vec<{}>",
-                            content
-                                .ident
-                                .ok_or(syn::Error::new(
-                                    bracket_level_content.span(),
-                                    "Anonymous struct is not support yet."
-                                ))?
-                                .to_string()
-                        ))?,
-                    );
+                    if bracket_level_content.peek(Token![=]) {
+                        bracket_level_content.parse::<Token![=]>()?;
+                        let default_value = bracket_level_content.parse::<Expr>()?;
+
+                        own_struct.insert(
+                            key,
+                            (
+                                syn::parse_str::<TypePath>(&format!(
+                                    "Vec<{}>",
+                                    content
+                                        .ident
+                                        .ok_or(syn::Error::new(
+                                            bracket_level_content.span(),
+                                            "Anonymous struct is not support yet."
+                                        ))?
+                                        .to_string()
+                                ))?,
+                                Some(default_value),
+                            ),
+                        );
+                    } else {
+                        own_struct.insert(
+                            key,
+                            (
+                                syn::parse_str::<TypePath>(&format!(
+                                    "Vec<{}>",
+                                    content
+                                        .ident
+                                        .ok_or(syn::Error::new(
+                                            bracket_level_content.span(),
+                                            "Anonymous struct is not support yet."
+                                        ))?
+                                        .to_string()
+                                ))?,
+                                None,
+                            ),
+                        );
+                    }
                 } else {
                     // sth: [Ident { ... }],
                     let content: DeriveStruct = bracket_level_content.parse()?;
@@ -61,13 +86,16 @@ impl Parse for DeriveStructItems {
 
                     own_struct.insert(
                         key,
-                        syn::parse_str::<TypePath>(&format!(
-                            "Vec<{}>",
-                            content.ident.ok_or(syn::Error::new(
-                                bracket_level_content.span(),
-                                "Anonymous struct is not support yet."
-                            ))?
-                        ))?,
+                        (
+                            syn::parse_str::<TypePath>(&format!(
+                                "Vec<{}>",
+                                content.ident.ok_or(syn::Error::new(
+                                    bracket_level_content.span(),
+                                    "Anonymous struct is not support yet."
+                                ))?
+                            ))?,
+                            None,
+                        ),
                     );
                 }
             } else if input.peek(Token![enum]) {
@@ -76,18 +104,42 @@ impl Parse for DeriveStructItems {
                 merge_structs(&content.sub_structs, &mut sub_structs);
                 merge_enums(&content.sub_enums, &mut sub_enums);
 
-                own_struct.insert(
-                    key,
-                    syn::parse_str::<TypePath>(
-                        &content
-                            .ident
-                            .ok_or(syn::Error::new(
-                                input.span(),
-                                "Anonymous struct is not support yet.",
-                            ))?
-                            .to_string(),
-                    )?,
-                );
+                if input.peek(Token![=]) {
+                    input.parse::<Token![=]>()?;
+                    let default_value = input.parse::<Expr>()?;
+
+                    own_struct.insert(
+                        key,
+                        (
+                            syn::parse_str::<TypePath>(
+                                &content
+                                    .ident
+                                    .ok_or(syn::Error::new(
+                                        input.span(),
+                                        "Anonymous struct is not support yet.",
+                                    ))?
+                                    .to_string(),
+                            )?,
+                            Some(default_value),
+                        ),
+                    );
+                } else {
+                    own_struct.insert(
+                        key,
+                        (
+                            syn::parse_str::<TypePath>(
+                                &content
+                                    .ident
+                                    .ok_or(syn::Error::new(
+                                        input.span(),
+                                        "Anonymous struct is not support yet.",
+                                    ))?
+                                    .to_string(),
+                            )?,
+                            None,
+                        ),
+                    );
+                }
             } else if input.peek2(token::Brace) {
                 // sth: Ident { ... },
                 let content: DeriveStruct = input.parse()?;
@@ -96,20 +148,31 @@ impl Parse for DeriveStructItems {
 
                 own_struct.insert(
                     key,
-                    syn::parse_str::<TypePath>(
-                        &content
-                            .ident
-                            .ok_or(syn::Error::new(
-                                input.span(),
-                                "Anonymous struct is not support yet.",
-                            ))?
-                            .to_string(),
-                    )?,
+                    (
+                        syn::parse_str::<TypePath>(
+                            &content
+                                .ident
+                                .ok_or(syn::Error::new(
+                                    input.span(),
+                                    "Anonymous struct is not support yet.",
+                                ))?
+                                .to_string(),
+                        )?,
+                        None,
+                    ),
                 );
             } else {
                 // sth: TypePath,
-                let ty = input.parse()?;
-                own_struct.insert(key, ty);
+                let ty: TypePath = input.parse()?;
+
+                if input.peek(Token![=]) {
+                    input.parse::<Token![=]>()?;
+                    let default_value = input.parse::<Expr>()?;
+
+                    own_struct.insert(key, (ty, Some(default_value)));
+                } else {
+                    own_struct.insert(key, (ty, None));
+                }
             }
 
             if input.peek(Token![,]) {
