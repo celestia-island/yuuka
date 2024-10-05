@@ -5,7 +5,7 @@ use syn::{
     token, Expr, Ident, Token, TypePath,
 };
 
-use crate::utils::DeriveStruct;
+use crate::utils::{DefaultValue, DeriveStruct};
 
 use super::{merge_enums, merge_structs, DeriveEnum, Enums, StructMembers, Structs};
 
@@ -34,69 +34,51 @@ impl Parse for DeriveStructItems {
                 let bracket_level_content;
                 bracketed!(bracket_level_content in input);
 
-                if bracket_level_content.peek(Token![enum]) {
+                let ident = if bracket_level_content.peek(Token![enum]) {
                     // sth: [enum Ident { ... }],
                     let content: DeriveEnum = bracket_level_content.parse()?;
                     merge_structs(&content.sub_structs, &mut sub_structs);
                     merge_enums(&content.sub_enums, &mut sub_enums);
 
-                    if bracket_level_content.peek(Token![=]) {
-                        bracket_level_content.parse::<Token![=]>()?;
-                        let default_value = bracket_level_content.parse::<Expr>()?;
-
-                        own_struct.insert(
-                            key,
-                            (
-                                syn::parse_str::<TypePath>(&format!(
-                                    "Vec<{}>",
-                                    content
-                                        .ident
-                                        .ok_or(syn::Error::new(
-                                            bracket_level_content.span(),
-                                            "Anonymous struct is not support yet."
-                                        ))?
-                                        .to_string()
-                                ))?,
-                                Some(default_value),
-                            ),
-                        );
-                    } else {
-                        own_struct.insert(
-                            key,
-                            (
-                                syn::parse_str::<TypePath>(&format!(
-                                    "Vec<{}>",
-                                    content
-                                        .ident
-                                        .ok_or(syn::Error::new(
-                                            bracket_level_content.span(),
-                                            "Anonymous struct is not support yet."
-                                        ))?
-                                        .to_string()
-                                ))?,
-                                None,
-                            ),
-                        );
-                    }
+                    content.ident
                 } else {
                     // sth: [Ident { ... }],
                     let content: DeriveStruct = bracket_level_content.parse()?;
                     merge_structs(&content.sub_structs, &mut sub_structs);
                     merge_enums(&content.sub_enums, &mut sub_enums);
 
-                    own_struct.insert(
-                        key,
-                        (
-                            syn::parse_str::<TypePath>(&format!(
-                                "Vec<{}>",
-                                content.ident.ok_or(syn::Error::new(
-                                    bracket_level_content.span(),
-                                    "Anonymous struct is not support yet."
-                                ))?
-                            ))?,
-                            None,
-                        ),
-                    );
+                    content.ident
+                };
+                let ty = syn::parse_str::<TypePath>(&format!(
+                    "Vec<{}>",
+                    ident
+                        .ok_or(syn::Error::new(
+                            input.span(),
+                            "Anonymous struct is not support yet.",
+                        ))?
+                        .to_string()
+                ))?;
+
+                if input.peek(Token![=]) {
+                    // sth: [...] = ...,
+                    input.parse::<Token![=]>()?;
+
+                    let bracket_level_content;
+                    bracketed!(bracket_level_content in input);
+                    let mut default_value = vec![];
+
+                    while !bracket_level_content.is_empty() {
+                        default_value.push(bracket_level_content.parse::<Expr>()?);
+
+                        if bracket_level_content.peek(Token![,]) {
+                            bracket_level_content.parse::<Token![,]>()?;
+                        }
+                    }
+
+                    own_struct.insert(key, (ty, DefaultValue::Array(default_value)));
+                } else {
+                    // sth: [...],
+                    own_struct.insert(key, (ty, DefaultValue::None));
                 }
             } else if input.peek(Token![enum]) {
                 // sth: enum Ident { ... },
@@ -120,7 +102,7 @@ impl Parse for DeriveStructItems {
                                     ))?
                                     .to_string(),
                             )?,
-                            Some(default_value),
+                            DefaultValue::Single(default_value),
                         ),
                     );
                 } else {
@@ -136,7 +118,7 @@ impl Parse for DeriveStructItems {
                                     ))?
                                     .to_string(),
                             )?,
-                            None,
+                            DefaultValue::None,
                         ),
                     );
                 }
@@ -158,7 +140,7 @@ impl Parse for DeriveStructItems {
                                 ))?
                                 .to_string(),
                         )?,
-                        None,
+                        DefaultValue::None,
                     ),
                 );
             } else {
@@ -169,9 +151,9 @@ impl Parse for DeriveStructItems {
                     input.parse::<Token![=]>()?;
                     let default_value = input.parse::<Expr>()?;
 
-                    own_struct.insert(key, (ty, Some(default_value)));
+                    own_struct.insert(key, (ty, DefaultValue::Single(default_value)));
                 } else {
-                    own_struct.insert(key, (ty, None));
+                    own_struct.insert(key, (ty, DefaultValue::None));
                 }
             }
 
