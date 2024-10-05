@@ -1,7 +1,7 @@
 use syn::{
     braced,
     parse::{Parse, ParseStream},
-    Ident, Token,
+    Expr, Ident, Token,
 };
 
 use super::{DeriveEnumItems, Enums, Structs};
@@ -22,13 +22,27 @@ impl Parse for DeriveEnum {
         braced!(content in input);
         let content: DeriveEnumItems = content.parse()?;
 
-        let mut enums = content.sub_enums;
-        enums.insert(ident.clone(), content.items);
+        if input.peek(Token![=]) {
+            input.parse::<Token![=]>()?;
+            let default_value: Expr = input.parse()?;
 
-        Ok(DeriveEnum {
-            ident: Some(ident),
-            sub_structs: content.sub_structs,
-            sub_enums: enums,
-        })
+            let mut enums = content.sub_enums;
+            enums.insert(ident.clone(), (content.items, Some(default_value)));
+
+            Ok(DeriveEnum {
+                ident: Some(ident),
+                sub_structs: content.sub_structs,
+                sub_enums: enums,
+            })
+        } else {
+            let mut enums = content.sub_enums;
+            enums.insert(ident.clone(), (content.items, None));
+
+            Ok(DeriveEnum {
+                ident: Some(ident),
+                sub_structs: content.sub_structs,
+                sub_enums: enums,
+            })
+        }
     }
 }

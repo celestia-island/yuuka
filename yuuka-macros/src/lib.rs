@@ -17,17 +17,47 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
         .iter()
         .map(|(k, v)| {
             let k = k;
-            let v = v.iter().map(|(k, v)| {
+            let default_value_decl = v.iter().map(|(k, (_, default_value))| {
+                let k = k;
+
+                if let Some(default_value) = default_value {
+                    quote! {
+                        #k: #default_value,
+                    }
+                } else {
+                    quote! {}
+                }
+            }).collect::<Vec<_>>();
+            let v = v.iter().map(|(k, (v, _default_value))| {
                 let k = k;
                 let v = v;
                 quote! {
                     pub #k: #v,
                 }
-            });
-            quote! {
-                #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
-                pub struct #k {
-                    #(#v)*
+            }).collect::<Vec<_>>();
+
+            if default_value_decl.is_empty() {
+                quote! {
+                    #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize, Default)]
+                    pub struct #k {
+                        #(#v)*
+                    }
+                }
+            } else {
+                quote! {
+                    #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
+                    pub struct #k {
+                        #(#v)*
+                    }
+
+                    impl Default for #k {
+                        fn default() -> Self {
+                            Self {
+                                #(#default_value_decl)*
+                                ..Default::default()
+                            }
+                        }
+                    }
                 }
             }
         })
@@ -36,7 +66,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
     let enums = input.sub_enums;
     let enums = enums
         .iter()
-        .map(|(k, v)| {
+        .map(|(k, (v, default_value))| {
             let k = k;
             let v = v.iter().map(|(k, v)| {
                 let k = k;
@@ -59,7 +89,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                     EnumValue::Struct(ident) => {
                         let v = ident
                             .iter()
-                            .map(|(k, v)| {
+                            .map(|(k, (v, _))| {
                                 let k = k;
                                 let v = v;
                                 quote! {
@@ -74,10 +104,32 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                 };
                 v
             });
-            quote! {
-                #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
-                pub enum #k {
-                    #(#v)*
+
+            if let Some(default_value) = default_value {
+                quote! {
+                    #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
+                    pub enum #k {
+                        #(#v)*
+                    }
+
+                    impl Default for #k {
+                        fn default() -> Self {
+                            Self::#default_value
+                        }
+                    }
+                }
+            } else {
+                quote! {
+                    #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
+                    pub enum #k {
+                        #(#v)*
+                    }
+
+                    impl Default for #k {
+                        fn default() -> Self {
+                            unimplemented!()
+                        }
+                    }
                 }
             }
         })
