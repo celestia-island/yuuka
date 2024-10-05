@@ -5,7 +5,7 @@ mod test {
     #[test]
     fn empty_default_array() {
         derive_struct!(Root {
-            a: [{
+            a: [Item {
                 b: String = "hello".to_string()
             }]
         });
@@ -17,9 +17,9 @@ mod test {
     #[test]
     fn default_array() {
         derive_struct!(Root {
-            a: [{
+            a: [Item {
                 b: String = "hello".to_string()
-            }] = vec![{
+            }] = [Item {
                 b: "world".to_string()
             }]
         });
@@ -55,7 +55,7 @@ mod test {
                 Midori,
                 Yuzu,
                 Arisu,
-            } = Midori] = vec![Member::Arisu]
+            } = Midori] = [Member::Arisu]
         });
 
         let mut val = Root::default();

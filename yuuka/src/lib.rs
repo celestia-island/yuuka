@@ -53,4 +53,4 @@
 //! # println!("{}", serialized);
 //! # }
 //! ```
-pub use _macros::{auto, derive_struct};
+pub use _macros::derive_struct;

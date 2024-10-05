@@ -3,7 +3,7 @@ use quote::quote;
 use syn::parse_macro_input;
 
 mod utils;
-use utils::{derive_struct::DeriveStructVisibility, DeriveStruct, EnumValue};
+use utils::{derive_struct::DeriveStructVisibility, DefaultValue, DeriveStruct, EnumValue};
 
 #[proc_macro]
 pub fn derive_struct(input: TokenStream) -> TokenStream {
@@ -20,12 +20,22 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
             let default_value_decl = v.iter().map(|(k, (_, default_value))| {
                 let k = k;
 
-                if let Some(default_value) = default_value {
-                    quote! {
-                        #k: #default_value,
+                match default_value {
+                    DefaultValue::None => {
+                        quote! {
+                            #k: Default::default(),
+                        }
                     }
-                } else {
-                    quote! {}
+                    DefaultValue::Single(v) => {
+                        quote! {
+                            #k: #v,
+                        }
+                    }
+                    DefaultValue::Array(v) => {
+                        quote! {
+                            #k: vec![#(#v),*],
+                        }
+                    }
                 }
             }).collect::<Vec<_>>();
             let v = v.iter().map(|(k, (v, _default_value))| {
@@ -161,12 +171,5 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
         }
     };
 
-    // TODO: Provide a macro_rules! at #mod_ident::auto! to generate the struct automatically
     ret.into()
-}
-
-#[proc_macro]
-pub fn auto(input: TokenStream) -> TokenStream {
-    // TODO: Implement auto macro that calls #mod_ident::auto!
-    input
 }
