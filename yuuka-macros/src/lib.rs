@@ -3,20 +3,28 @@ use quote::quote;
 use syn::parse_macro_input;
 
 mod utils;
-use utils::{derive_struct::DeriveStructVisibility, DefaultValue, DeriveStruct, EnumValue};
+use utils::{
+    derive_struct::DeriveStructVisibility, DefaultValue, DeriveStruct, EnumValue, StructName,
+};
 
 #[proc_macro]
 pub fn derive_struct(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveStruct);
+    dbg!(input.clone());
 
-    let root_ident = input.ident.expect("Anonymous struct is not support yet.");
+    let root_ident = match input.ident.clone() {
+        StructName::Named(v) => v,
+        StructName::Unnamed(_) => {
+            panic!("Unnamed root struct is not supported");
+        }
+    };
     let mod_ident = syn::Ident::new(&format!("__{}", root_ident), root_ident.span());
 
     let structs = input.sub_structs;
     let structs = structs
         .iter()
         .map(|(k, v)| {
-            let k = k;
+            let k = k.to_ident().expect("Invalid struct name");
             let default_value_decl = v.iter().map(|(k, (_, default_value))| {
                 let k = k;
 
@@ -92,7 +100,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
     let enums = enums
         .iter()
         .map(|(k, (v, default_value))| {
-            let k = k;
+            let k = k.to_ident().expect("Invalid struct name");
             let v = v.iter().map(|(k, v)| {
                 let k = k;
                 let v = match v {

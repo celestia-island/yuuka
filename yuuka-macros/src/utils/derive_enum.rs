@@ -4,11 +4,13 @@ use syn::{
     Expr, Ident, Token,
 };
 
-use super::{DeriveEnumItems, Enums, Structs};
+use crate::utils::{append_prefix_to_enums, append_prefix_to_structs};
+
+use super::{DeriveEnumItems, Enums, StructName, Structs};
 
 #[derive(Debug, Clone)]
 pub struct DeriveEnum {
-    pub ident: Option<Ident>,
+    pub ident: StructName,
 
     pub sub_structs: Structs,
     pub sub_enums: Enums,
@@ -17,32 +19,41 @@ pub struct DeriveEnum {
 impl Parse for DeriveEnum {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         input.parse::<Token![enum]>()?;
-        let ident: Ident = input.parse()?;
+        let ident: StructName = if input.peek(Ident) {
+            StructName::Named(input.parse()?)
+        } else {
+            StructName::Unnamed(vec![])
+        };
         let content;
         braced!(content in input);
         let content: DeriveEnumItems = content.parse()?;
+
+        let structs = append_prefix_to_structs(
+            ident.to_ident().map_err(|err| {
+                syn::Error::new(input.span(), format!("Invalid enum name: {}", err))
+            })?,
+            content.sub_structs,
+        );
+        let mut enums = append_prefix_to_enums(
+            ident.to_ident().map_err(|err| {
+                syn::Error::new(input.span(), format!("Invalid enum name: {}", err))
+            })?,
+            content.sub_enums,
+        );
 
         if input.peek(Token![=]) {
             input.parse::<Token![=]>()?;
             let default_value: Expr = input.parse()?;
 
-            let mut enums = content.sub_enums;
             enums.insert(ident.clone(), (content.items, Some(default_value)));
-
-            Ok(DeriveEnum {
-                ident: Some(ident),
-                sub_structs: content.sub_structs,
-                sub_enums: enums,
-            })
         } else {
-            let mut enums = content.sub_enums;
             enums.insert(ident.clone(), (content.items, None));
-
-            Ok(DeriveEnum {
-                ident: Some(ident),
-                sub_structs: content.sub_structs,
-                sub_enums: enums,
-            })
         }
+
+        Ok(DeriveEnum {
+            ident,
+            sub_structs: structs,
+            sub_enums: enums,
+        })
     }
 }
