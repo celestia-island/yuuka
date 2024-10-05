@@ -5,14 +5,26 @@ mod test {
     #[test]
     fn derive_struct_anonymously() {
         derive_struct!(Root {
-            a: [{ b: String }]
+            a: [{ b: String }],
+            b: {
+                c: i32,
+                d: {
+                    e: String,
+                }
+            },
         });
 
-        let _ = Root::auto! {
+        let _ = auto! {
             Root {
                 a: vec![{
                     b: "hello".to_string(),
                 }],
+                b: {
+                    c: 42,
+                    d: {
+                        e: "world".to_string(),
+                    },
+                },
             }
         };
     }
@@ -24,20 +36,20 @@ mod test {
                 Momoi,
                 Midori,
                 Yuzu,
-                Arisu [{
+                Arisu([{
                     r#type: enum {
                         AL1S,
                         Key,
                     }
-                }],
+                }]),
             }
         });
 
         let _ = auto! {
             Root {
-                a: Arisu {
+                a: Arisu (vec![{
                     r#type: vec![Key, AL1S],
-                },
+                }]),
             }
         };
     }
