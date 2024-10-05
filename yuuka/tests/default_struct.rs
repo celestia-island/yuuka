@@ -3,6 +3,20 @@ mod test {
     use yuuka::derive_struct;
 
     #[test]
+    fn default_struct() {
+        derive_struct!(Root {
+            a: String = "hello".to_string(),
+            b: i32 = 42,
+            c: String,
+        });
+
+        let val = Root::default();
+        assert_eq!(val.a, "hello".to_string());
+        assert_eq!(val.b, 42);
+        assert_eq!(val.c, String::default());
+    }
+
+    #[test]
     fn empty_default_array() {
         derive_struct!(Root {
             a: [Item {

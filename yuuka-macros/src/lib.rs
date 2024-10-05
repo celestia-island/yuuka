@@ -53,7 +53,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                         #(#v)*
                     }
                 }
-            } else {
+            } else if default_value_decl.len() != v.len() {
                 quote! {
                     #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
                     pub struct #k {
@@ -65,6 +65,21 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                             Self {
                                 #(#default_value_decl)*
                                 ..Default::default()
+                            }
+                        }
+                    }
+                }
+            } else {
+                quote! {
+                    #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
+                    pub struct #k {
+                        #(#v)*
+                    }
+
+                    impl Default for #k {
+                        fn default() -> Self {
+                            Self {
+                                #(#default_value_decl)*
                             }
                         }
                     }
