@@ -56,6 +56,6 @@ let config = GameDevelopment {
 - [ ] Anonymous struct support that can use `auto!` macro to confirm the auto-generated field name
 - [x] Default value support that can use `=` to assign the default value
 - [x] `pub` and `pub(crate)` identifier support
-- [ ] ~~`strum` integration, including control the case of the field name (e.g. `snake_case`, `camelCase`, `PascalCase`)~~
+- [ ] Support custom derive macro.
 - [ ] Write a homepage for this library
 - [x] Upload to `crates.io`

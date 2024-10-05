@@ -57,10 +57,7 @@ impl Parse for DeriveEnumItems {
 
                             tuple.push(syn::parse_str::<TypePath>(&format!(
                                 "Vec<{}>",
-                                content.ident.ok_or(syn::Error::new(
-                                    bracket_level_content.span(),
-                                    "Anonymous struct is not support yet."
-                                ))?
+                                content.ident.to_ident()?,
                             ))?);
                         } else {
                             // Ident([Ident { ... }], ...),
@@ -70,10 +67,7 @@ impl Parse for DeriveEnumItems {
 
                             tuple.push(syn::parse_str::<TypePath>(&format!(
                                 "Vec<{}>",
-                                content.ident.ok_or(syn::Error::new(
-                                    bracket_level_content.span(),
-                                    "Anonymous struct is not support yet."
-                                ))?
+                                content.ident.to_ident()?,
                             ))?);
                         }
                     } else if sub_content.peek(Token![enum]) {
@@ -83,13 +77,7 @@ impl Parse for DeriveEnumItems {
                         merge_enums(&content.sub_enums, &mut sub_enums);
 
                         tuple.push(syn::parse_str::<TypePath>(
-                            &content
-                                .ident
-                                .ok_or(syn::Error::new(
-                                    sub_content.span(),
-                                    "Anonymous struct is not support yet.",
-                                ))?
-                                .to_string(),
+                            &content.ident.to_ident()?.to_string(),
                         )?);
                     } else if sub_content.peek2(token::Brace) {
                         // Ident(Ident { ... }, ...),
@@ -98,13 +86,7 @@ impl Parse for DeriveEnumItems {
                         merge_enums(&content.sub_enums, &mut sub_enums);
 
                         tuple.push(syn::parse_str::<TypePath>(
-                            &content
-                                .ident
-                                .ok_or(syn::Error::new(
-                                    sub_content.span(),
-                                    "Anonymous struct is not support yet.",
-                                ))?
-                                .to_string(),
+                            &content.ident.to_ident()?.to_string(),
                         )?);
                     } else {
                         // Ident (Ident, ...),

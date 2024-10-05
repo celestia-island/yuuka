@@ -4,7 +4,7 @@ use syn::{
     Ident, Token,
 };
 
-use super::{DeriveStructItems, Enums, Structs};
+use super::{DeriveStructItems, Enums, StructName, Structs};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum DeriveStructVisibility {
@@ -15,7 +15,7 @@ pub enum DeriveStructVisibility {
 #[derive(Debug, Clone)]
 pub struct DeriveStruct {
     pub visibility: DeriveStructVisibility,
-    pub ident: Option<Ident>,
+    pub ident: StructName,
 
     pub sub_structs: Structs,
     pub sub_enums: Enums,
@@ -30,7 +30,11 @@ impl Parse for DeriveStruct {
             DeriveStructVisibility::PublicOnCrate
         };
 
-        let ident: Ident = input.parse()?;
+        let ident: StructName = if input.peek(Ident) {
+            StructName::Named(input.parse()?)
+        } else {
+            StructName::Unnamed(vec![])
+        };
         let content;
         braced!(content in input);
         let content: DeriveStructItems = content.parse()?;
@@ -40,7 +44,7 @@ impl Parse for DeriveStruct {
 
         Ok(DeriveStruct {
             visibility,
-            ident: Some(ident),
+            ident,
             sub_structs: structs,
             sub_enums: content.sub_enums,
         })
