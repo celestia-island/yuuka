@@ -7,7 +7,7 @@ use syn::{
 
 use super::{
     merge_enums, merge_structs, DeriveEnum, DeriveStruct, DeriveStructItems, EnumMembers,
-    EnumValue, Enums, Structs,
+    EnumValue, Enums, StructType, Structs,
 };
 
 #[derive(Debug, Clone)]
@@ -41,7 +41,7 @@ impl Parse for DeriveEnumItems {
                 // Ident(...),
                 let sub_content;
                 parenthesized!(sub_content in input);
-                let mut tuple: Vec<TypePath> = Vec::new();
+                let mut tuple: Vec<StructType> = Vec::new();
 
                 while !sub_content.is_empty() {
                     if sub_content.peek(token::Bracket) {
@@ -56,10 +56,7 @@ impl Parse for DeriveEnumItems {
                             merge_structs(&content.sub_structs, &mut sub_structs);
                             merge_enums(&content.sub_enums, &mut sub_enums);
 
-                            tuple.push(syn::parse_str::<TypePath>(&format!(
-                                "Vec<{}>",
-                                content.ident.to_ident()?,
-                            ))?);
+                            tuple.push(StructType::InlineVector(content.ident));
                         } else {
                             // Ident([Ident { ... }], ...),
                             // Ident([{ ... }], ...),
@@ -67,10 +64,7 @@ impl Parse for DeriveEnumItems {
                             merge_structs(&content.sub_structs, &mut sub_structs);
                             merge_enums(&content.sub_enums, &mut sub_enums);
 
-                            tuple.push(syn::parse_str::<TypePath>(&format!(
-                                "Vec<{}>",
-                                content.ident.to_ident()?,
-                            ))?);
+                            tuple.push(StructType::InlineVector(content.ident));
                         }
                     } else if sub_content.peek(Token![enum]) {
                         // Ident(enum Ident { ... }, ...),
@@ -79,9 +73,7 @@ impl Parse for DeriveEnumItems {
                         merge_structs(&content.sub_structs, &mut sub_structs);
                         merge_enums(&content.sub_enums, &mut sub_enums);
 
-                        tuple.push(syn::parse_str::<TypePath>(
-                            &content.ident.to_ident()?.to_string(),
-                        )?);
+                        tuple.push(StructType::Inline(content.ident));
                     } else if sub_content.peek2(token::Brace) {
                         // Ident(Ident { ... }, ...),
                         // Ident({ ... }, ...),
@@ -89,13 +81,11 @@ impl Parse for DeriveEnumItems {
                         merge_structs(&content.sub_structs, &mut sub_structs);
                         merge_enums(&content.sub_enums, &mut sub_enums);
 
-                        tuple.push(syn::parse_str::<TypePath>(
-                            &content.ident.to_ident()?.to_string(),
-                        )?);
+                        tuple.push(StructType::InlineVector(content.ident));
                     } else {
                         // Ident (TypePath, ...),
                         let ty: TypePath = sub_content.parse()?;
-                        tuple.push(ty);
+                        tuple.push(StructType::Static(ty));
                     }
 
                     if sub_content.peek(Token![,]) {

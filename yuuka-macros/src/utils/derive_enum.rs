@@ -30,7 +30,7 @@ impl Parse for DeriveEnum {
 
         let structs = append_prefix_to_structs(
             ident.to_ident().map_err(|err| {
-                syn::Error::new(input.span(), format!("Invalid enum name: {}", err))
+                syn::Error::new(input.span(), format!("Invalid struct name: {}", err))
             })?,
             content.sub_structs,
         );
