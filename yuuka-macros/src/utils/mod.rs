@@ -1,4 +1,5 @@
 use anyhow::Result;
+use quote::ToTokens;
 use std::collections::HashMap;
 
 use syn::{Expr, Ident, TypePath};
@@ -22,18 +23,24 @@ pub(crate) enum DefaultValue {
     Array(Vec<Expr>),
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Default)]
+pub struct StructParentPath {
+    pub parents: Vec<(Ident, usize)>,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub(crate) enum StructName {
     Named(Ident),
-    Unnamed(Vec<(Ident, usize)>),
+    Unnamed(StructParentPath),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub(crate) enum StructType {
     Static(TypePath),
-    StaticVector(StructName),
-    Inline(StructName),
-    InlineVector(StructName),
+    Inline(Ident),
+    InlineVector(Ident),
+    UnnamedInline(StructParentPath),
+    UnnamedInlineVector(StructParentPath),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -43,14 +50,50 @@ pub(crate) enum EnumValue {
     Struct(StructMembers),
 }
 
+impl StructParentPath {
+    pub(crate) fn unshift(&self, prefix: Ident, index: usize) -> StructParentPath {
+        let mut parents = self.parents.clone();
+        parents.insert(0, (prefix, index));
+        StructParentPath { parents }
+    }
+
+    pub(crate) fn to_type_path(&self) -> Result<TypePath, syn::Error> {
+        syn::parse_str(&format!(
+            "{}_anonymous",
+            self.parents
+                .iter()
+                .fold(String::new(), |acc, (ident, index)| format!(
+                    "{}_{}_{}",
+                    acc, ident, index
+                )),
+        ))
+    }
+}
+
 impl StructType {
     pub(crate) fn to_type_path(&self) -> Result<TypePath, syn::Error> {
         Ok(match self {
             StructType::Static(v) => v.clone(),
-            StructType::StaticVector(v) => syn::parse_str(&format!("Vec<{}>", v.to_ident()?))?,
-            StructType::Inline(v) => syn::parse_str(&format!("{}", v.to_ident()?))?,
-            StructType::InlineVector(v) => syn::parse_str(&format!("Vec<{}>", v.to_ident()?))?,
+            StructType::Inline(v) => syn::parse_str(&format!("{}", v))?,
+            StructType::InlineVector(v) => syn::parse_str(&format!("Vec<{}>", v))?,
+            StructType::UnnamedInline(v) => v.to_type_path()?,
+            StructType::UnnamedInlineVector(v) => syn::parse_str(&format!(
+                "Vec<{}>",
+                v.to_type_path()?.to_token_stream().to_string()
+            ))?,
         })
+    }
+
+    pub(crate) fn push_prefix(&self, prefix: Ident, index: usize) -> StructType {
+        match self {
+            StructType::Static(v) => StructType::Static(v.clone()),
+            StructType::Inline(v) => StructType::Inline(v.clone()),
+            StructType::InlineVector(v) => StructType::InlineVector(v.clone()),
+            StructType::UnnamedInline(v) => StructType::UnnamedInline(v.unshift(prefix, index)),
+            StructType::UnnamedInlineVector(v) => {
+                StructType::UnnamedInlineVector(v.unshift(prefix, index))
+            }
+        }
     }
 }
 
@@ -59,11 +102,8 @@ impl StructName {
         Ok(match self {
             StructName::Named(v) => v.clone(),
             StructName::Unnamed(v) => syn::parse_str(&format!(
-                "{}_anonymous",
-                v.iter().fold(String::new(), |acc, (ident, index)| format!(
-                    "{}_{}_{}",
-                    acc, ident, index
-                )),
+                "{}",
+                v.to_type_path()?.to_token_stream().to_string()
             ))?,
         })
     }
@@ -71,11 +111,7 @@ impl StructName {
     pub(crate) fn push_prefix(&self, prefix: Ident, index: usize) -> StructName {
         match self {
             StructName::Named(v) => StructName::Named(v.clone()),
-            StructName::Unnamed(v) => {
-                let mut v = v.clone();
-                v.insert(0, (prefix, index));
-                StructName::Unnamed(v)
-            }
+            StructName::Unnamed(v) => StructName::Unnamed(v.unshift(prefix, index)),
         }
     }
 }
@@ -114,19 +150,7 @@ pub(crate) fn append_prefix_to_structs(prefix: Ident, structs: Structs) -> Struc
                 let k = k.clone();
                 (
                     k,
-                    (
-                        match v {
-                            StructType::Static(v) => StructType::Static(v.clone()),
-                            StructType::StaticVector(v) => StructType::StaticVector(v.clone()),
-                            StructType::Inline(v) => {
-                                StructType::Inline(v.push_prefix(prefix.clone(), index))
-                            }
-                            StructType::InlineVector(v) => {
-                                StructType::InlineVector(v.push_prefix(prefix.clone(), index))
-                            }
-                        },
-                        default_value.clone(),
-                    ),
+                    (v.push_prefix(prefix.clone(), index), default_value.clone()),
                 )
             })
             .collect();
@@ -151,18 +175,7 @@ pub(crate) fn append_prefix_to_enums(prefix: Ident, enums: Enums) -> Enums {
                             EnumValue::Empty => EnumValue::Empty,
                             EnumValue::Tuple(v) => EnumValue::Tuple(
                                 v.iter()
-                                    .map(|v| match v {
-                                        StructType::Static(v) => StructType::Static(v.clone()),
-                                        StructType::StaticVector(v) => {
-                                            StructType::StaticVector(v.clone())
-                                        }
-                                        StructType::Inline(v) => {
-                                            StructType::Inline(v.push_prefix(prefix.clone(), index))
-                                        }
-                                        StructType::InlineVector(v) => StructType::InlineVector(
-                                            v.push_prefix(prefix.clone(), index),
-                                        ),
-                                    })
+                                    .map(|v| v.push_prefix(prefix.clone(), index))
                                     .collect(),
                             ),
                             EnumValue::Struct(v) => EnumValue::Struct(
@@ -172,22 +185,7 @@ pub(crate) fn append_prefix_to_enums(prefix: Ident, enums: Enums) -> Enums {
                                         (
                                             k,
                                             (
-                                                match v {
-                                                    StructType::Static(v) => {
-                                                        StructType::Static(v.clone())
-                                                    }
-                                                    StructType::StaticVector(v) => {
-                                                        StructType::StaticVector(v.clone())
-                                                    }
-                                                    StructType::Inline(v) => StructType::Inline(
-                                                        v.push_prefix(prefix.clone(), index),
-                                                    ),
-                                                    StructType::InlineVector(v) => {
-                                                        StructType::InlineVector(
-                                                            v.push_prefix(prefix.clone(), index),
-                                                        )
-                                                    }
-                                                },
+                                                v.push_prefix(prefix.clone(), index),
                                                 default_value.clone(),
                                             ),
                                         )
