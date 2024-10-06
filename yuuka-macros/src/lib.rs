@@ -48,7 +48,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
             }).collect::<Vec<_>>();
             let v = v.iter().map(|(k, (v, _default_value))| {
                 let k = k;
-                let v = v;
+                let v = v.to_type_path().expect("Invalid type path");
                 quote! {
                     pub #k: #v,
                 }
@@ -111,6 +111,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                     }
                     EnumValue::Tuple(v) => {
                         let v = v.iter().map(|v| {
+                            let v = v.to_type_path().expect("Invalid type path");
                             quote! {
                                 #v,
                             }
@@ -123,8 +124,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                         let v = ident
                             .iter()
                             .map(|(k, (v, _))| {
-                                let k = k;
-                                let v = v;
+                                let v = v.to_type_path().expect("Invalid type path");
                                 quote! {
                                     #k: #v,
                                 }
