@@ -56,7 +56,6 @@ impl Parse for DeriveStruct {
 
         structs.insert(ident.clone(), content.items);
 
-        dbg!(structs.clone());
         Ok(DeriveStruct {
             visibility,
             ident,

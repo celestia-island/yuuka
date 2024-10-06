@@ -7,7 +7,7 @@ use syn::{
 
 use super::{
     merge_enums, merge_structs, DefaultValue, DeriveEnum, DeriveStruct, Enums, StructMembers,
-    Structs,
+    StructType, Structs,
 };
 
 #[derive(Debug, Clone)]
@@ -52,7 +52,6 @@ impl Parse for DeriveStructItems {
 
                     content.ident
                 };
-                let ty = syn::parse_str::<TypePath>(&format!("Vec<{}>", ident.to_ident()?,))?;
 
                 if input.peek(Token![=]) {
                     // sth: [...] = ...,
@@ -70,10 +69,16 @@ impl Parse for DeriveStructItems {
                         }
                     }
 
-                    own_struct.insert(key, (ty, DefaultValue::Array(default_value)));
+                    own_struct.insert(
+                        key,
+                        (
+                            StructType::StaticVector(ident),
+                            DefaultValue::Array(default_value),
+                        ),
+                    );
                 } else {
                     // sth: [...],
-                    own_struct.insert(key, (ty, DefaultValue::None));
+                    own_struct.insert(key, (StructType::StaticVector(ident), DefaultValue::None));
                 }
             } else if input.peek(Token![enum]) {
                 // sth: enum Ident { ... },
@@ -89,17 +94,14 @@ impl Parse for DeriveStructItems {
                     own_struct.insert(
                         key.clone(),
                         (
-                            syn::parse_str::<TypePath>(&content.ident.to_ident()?.to_string())?,
+                            StructType::Inline(content.ident),
                             DefaultValue::Single(default_value),
                         ),
                     );
                 } else {
                     own_struct.insert(
                         key.clone(),
-                        (
-                            syn::parse_str::<TypePath>(&content.ident.to_ident()?.to_string())?,
-                            DefaultValue::None,
-                        ),
+                        (StructType::Inline(content.ident), DefaultValue::None),
                     );
                 }
             } else if input.peek(token::Brace) || input.peek2(token::Brace) {
@@ -111,10 +113,7 @@ impl Parse for DeriveStructItems {
 
                 own_struct.insert(
                     key.clone(),
-                    (
-                        syn::parse_str::<TypePath>(&content.ident.to_ident()?.to_string())?,
-                        DefaultValue::None,
-                    ),
+                    (StructType::Inline(content.ident), DefaultValue::None),
                 );
             } else {
                 // sth: TypePath,
@@ -124,9 +123,12 @@ impl Parse for DeriveStructItems {
                     input.parse::<Token![=]>()?;
                     let default_value = input.parse::<Expr>()?;
 
-                    own_struct.insert(key, (ty, DefaultValue::Single(default_value)));
+                    own_struct.insert(
+                        key,
+                        (StructType::Static(ty), DefaultValue::Single(default_value)),
+                    );
                 } else {
-                    own_struct.insert(key, (ty, DefaultValue::None));
+                    own_struct.insert(key, (StructType::Static(ty), DefaultValue::None));
                 }
             }
 
