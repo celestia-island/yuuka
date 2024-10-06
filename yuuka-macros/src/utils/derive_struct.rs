@@ -4,6 +4,8 @@ use syn::{
     Ident, Token,
 };
 
+use crate::utils::{append_prefix_to_enums, append_prefix_to_structs};
+
 use super::{DeriveStructItems, Enums, StructName, Structs};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -39,14 +41,27 @@ impl Parse for DeriveStruct {
         braced!(content in input);
         let content: DeriveStructItems = content.parse()?;
 
-        let mut structs = content.sub_structs;
+        let mut structs = append_prefix_to_structs(
+            ident.to_ident().map_err(|err| {
+                syn::Error::new(input.span(), format!("Invalid struct name: {}", err))
+            })?,
+            content.sub_structs,
+        );
+        let enums = append_prefix_to_enums(
+            ident.to_ident().map_err(|err| {
+                syn::Error::new(input.span(), format!("Invalid struct name: {}", err))
+            })?,
+            content.sub_enums,
+        );
+
         structs.insert(ident.clone(), content.items);
 
+        dbg!(structs.clone());
         Ok(DeriveStruct {
             visibility,
             ident,
             sub_structs: structs,
-            sub_enums: content.sub_enums,
+            sub_enums: enums,
         })
     }
 }

@@ -37,6 +37,7 @@ impl Parse for DeriveStructItems {
 
                 let ident = if bracket_level_content.peek(Token![enum]) {
                     // sth: [enum Ident { ... }],
+                    // sth: [enum { ... }],
                     let content: DeriveEnum = bracket_level_content.parse()?;
                     merge_structs(&content.sub_structs, &mut sub_structs);
                     merge_enums(&content.sub_enums, &mut sub_enums);
@@ -44,6 +45,7 @@ impl Parse for DeriveStructItems {
                     content.ident
                 } else {
                     // sth: [Ident { ... }],
+                    // sth: [{ ... }],
                     let content: DeriveStruct = bracket_level_content.parse()?;
                     merge_structs(&content.sub_structs, &mut sub_structs);
                     merge_enums(&content.sub_enums, &mut sub_enums);
@@ -75,6 +77,7 @@ impl Parse for DeriveStructItems {
                 }
             } else if input.peek(Token![enum]) {
                 // sth: enum Ident { ... },
+                // sth: enum { ... },
                 let content: DeriveEnum = input.parse()?;
                 merge_structs(&content.sub_structs, &mut sub_structs);
                 merge_enums(&content.sub_enums, &mut sub_enums);
