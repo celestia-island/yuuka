@@ -77,10 +77,8 @@ pub(crate) fn append_prefix_to_structs(prefix: Ident, structs: Structs) -> Struc
         let k = match k {
             StructName::Named(v) => StructName::Named(v.clone()),
             StructName::Unnamed(v) => {
-                let v = v
-                    .iter()
-                    .map(|v| Ident::new(&format!("{}_{}", prefix, v), v.span()))
-                    .collect();
+                let mut v = v.clone();
+                v.insert(0, prefix.clone());
                 StructName::Unnamed(v)
             }
         };
@@ -97,10 +95,8 @@ pub(crate) fn append_prefix_to_enums(prefix: Ident, enums: Enums) -> Enums {
         let k = match k {
             StructName::Named(v) => StructName::Named(v.clone()),
             StructName::Unnamed(v) => {
-                let v = v
-                    .iter()
-                    .map(|v| Ident::new(&format!("{}_{}", prefix, v), v.span()))
-                    .collect();
+                let mut v = v.clone();
+                v.insert(0, prefix.clone());
                 StructName::Unnamed(v)
             }
         };
