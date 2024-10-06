@@ -50,6 +50,7 @@ impl Parse for DeriveEnumItems {
                         bracketed!(bracket_level_content in sub_content);
 
                         if bracket_level_content.peek(Token![enum]) {
+                            // Ident([enum Ident { ... }], ...),
                             // Ident([enum { ... }], ...),
                             let content: DeriveEnum = bracket_level_content.parse()?;
                             merge_structs(&content.sub_structs, &mut sub_structs);
@@ -61,6 +62,7 @@ impl Parse for DeriveEnumItems {
                             ))?);
                         } else {
                             // Ident([Ident { ... }], ...),
+                            // Ident([{ ... }], ...),
                             let content: DeriveStruct = bracket_level_content.parse()?;
                             merge_structs(&content.sub_structs, &mut sub_structs);
                             merge_enums(&content.sub_enums, &mut sub_enums);
@@ -72,6 +74,7 @@ impl Parse for DeriveEnumItems {
                         }
                     } else if sub_content.peek(Token![enum]) {
                         // Ident(enum Ident { ... }, ...),
+                        // Ident(enum { ... }, ...),
                         let content: DeriveEnum = sub_content.parse()?;
                         merge_structs(&content.sub_structs, &mut sub_structs);
                         merge_enums(&content.sub_enums, &mut sub_enums);
@@ -81,6 +84,7 @@ impl Parse for DeriveEnumItems {
                         )?);
                     } else if sub_content.peek2(token::Brace) {
                         // Ident(Ident { ... }, ...),
+                        // Ident({ ... }, ...),
                         let content: DeriveStruct = sub_content.parse()?;
                         merge_structs(&content.sub_structs, &mut sub_structs);
                         merge_enums(&content.sub_enums, &mut sub_enums);
@@ -89,7 +93,7 @@ impl Parse for DeriveEnumItems {
                             &content.ident.to_ident()?.to_string(),
                         )?);
                     } else {
-                        // Ident (Ident, ...),
+                        // Ident (TypePath, ...),
                         let ty: TypePath = sub_content.parse()?;
                         tuple.push(ty);
                     }
