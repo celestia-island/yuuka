@@ -35,24 +35,14 @@ impl Parse for DeriveStruct {
         let ident: StructName = if input.peek(Ident) {
             StructName::Named(input.parse()?)
         } else {
-            StructName::Unnamed(vec![])
+            StructName::Unnamed(Default::default())
         };
         let content;
         braced!(content in input);
         let content: DeriveStructItems = content.parse()?;
 
-        let mut structs = append_prefix_to_structs(
-            ident.to_ident().map_err(|err| {
-                syn::Error::new(input.span(), format!("Invalid struct name: {}", err))
-            })?,
-            content.sub_structs,
-        );
-        let enums = append_prefix_to_enums(
-            ident.to_ident().map_err(|err| {
-                syn::Error::new(input.span(), format!("Invalid struct name: {}", err))
-            })?,
-            content.sub_enums,
-        );
+        let mut structs = append_prefix_to_structs(ident.to_ident()?, content.sub_structs);
+        let enums = append_prefix_to_enums(ident.to_ident()?, content.sub_enums);
 
         structs.insert(ident.clone(), content.items);
 
