@@ -22,33 +22,28 @@ impl Parse for DeriveEnum {
         let ident: StructName = if input.peek(Ident) {
             StructName::Named(input.parse()?)
         } else {
-            StructName::Unnamed(vec![])
+            StructName::Unnamed(Default::default())
         };
         let content;
         braced!(content in input);
         let content: DeriveEnumItems = content.parse()?;
 
-        let structs = append_prefix_to_structs(
-            ident.to_ident().map_err(|err| {
-                syn::Error::new(input.span(), format!("Invalid struct name: {}", err))
-            })?,
-            content.sub_structs,
-        );
-        let mut enums = append_prefix_to_enums(
-            ident.to_ident().map_err(|err| {
-                syn::Error::new(input.span(), format!("Invalid enum name: {}", err))
-            })?,
-            content.sub_enums,
-        );
+        let structs = append_prefix_to_structs(ident.to_ident()?, content.sub_structs);
+        let mut enums = append_prefix_to_enums(ident.to_ident()?, content.sub_enums);
 
-        if input.peek(Token![=]) {
-            input.parse::<Token![=]>()?;
-            let default_value: Expr = input.parse()?;
+        enums.insert(
+            ident.clone(),
+            (content.items, {
+                if input.peek(Token![=]) {
+                    input.parse::<Token![=]>()?;
+                    let default_value: Expr = input.parse()?;
 
-            enums.insert(ident.clone(), (content.items, Some(default_value)));
-        } else {
-            enums.insert(ident.clone(), (content.items, None));
-        }
+                    Some(default_value)
+                } else {
+                    None
+                }
+            }),
+        );
 
         Ok(DeriveEnum {
             ident,

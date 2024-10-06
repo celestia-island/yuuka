@@ -7,7 +7,7 @@ use syn::{
 
 use super::{
     merge_enums, merge_structs, DefaultValue, DeriveEnum, DeriveStruct, Enums, StructMembers,
-    StructType, Structs,
+    StructName, StructType, Structs,
 };
 
 #[derive(Debug, Clone)]
@@ -53,33 +53,37 @@ impl Parse for DeriveStructItems {
                     content.ident
                 };
 
-                if input.peek(Token![=]) {
-                    // sth: [...] = ...,
-                    input.parse::<Token![=]>()?;
+                own_struct.insert(
+                    key,
+                    (
+                        match ident {
+                            StructName::Named(ident) => StructType::InlineVector(ident),
+                            StructName::Unnamed(v) => StructType::UnnamedInlineVector(v),
+                        },
+                        {
+                            if input.peek(Token![=]) {
+                                // sth: [...] = ...,
+                                input.parse::<Token![=]>()?;
 
-                    let bracket_level_content;
-                    bracketed!(bracket_level_content in input);
-                    let mut default_value = vec![];
+                                let bracket_level_content;
+                                bracketed!(bracket_level_content in input);
+                                let mut default_value = vec![];
 
-                    while !bracket_level_content.is_empty() {
-                        default_value.push(bracket_level_content.parse::<Expr>()?);
+                                while !bracket_level_content.is_empty() {
+                                    default_value.push(bracket_level_content.parse::<Expr>()?);
 
-                        if bracket_level_content.peek(Token![,]) {
-                            bracket_level_content.parse::<Token![,]>()?;
-                        }
-                    }
+                                    if bracket_level_content.peek(Token![,]) {
+                                        bracket_level_content.parse::<Token![,]>()?;
+                                    }
+                                }
 
-                    own_struct.insert(
-                        key,
-                        (
-                            StructType::StaticVector(ident),
-                            DefaultValue::Array(default_value),
-                        ),
-                    );
-                } else {
-                    // sth: [...],
-                    own_struct.insert(key, (StructType::StaticVector(ident), DefaultValue::None));
-                }
+                                DefaultValue::Array(default_value)
+                            } else {
+                                DefaultValue::None
+                            }
+                        },
+                    ),
+                );
             } else if input.peek(Token![enum]) {
                 // sth: enum Ident { ... },
                 // sth: enum { ... },
@@ -87,23 +91,26 @@ impl Parse for DeriveStructItems {
                 merge_structs(&content.sub_structs, &mut sub_structs);
                 merge_enums(&content.sub_enums, &mut sub_enums);
 
-                if input.peek(Token![=]) {
-                    input.parse::<Token![=]>()?;
-                    let default_value = input.parse::<Expr>()?;
-
-                    own_struct.insert(
-                        key.clone(),
-                        (
-                            StructType::Inline(content.ident),
-                            DefaultValue::Single(default_value),
-                        ),
-                    );
-                } else {
-                    own_struct.insert(
-                        key.clone(),
-                        (StructType::Inline(content.ident), DefaultValue::None),
-                    );
-                }
+                own_struct.insert(
+                    key.clone(),
+                    (
+                        {
+                            match content.ident {
+                                StructName::Named(ident) => StructType::Inline(ident),
+                                StructName::Unnamed(v) => StructType::UnnamedInline(v),
+                            }
+                        },
+                        {
+                            if input.peek(Token![=]) {
+                                input.parse::<Token![=]>()?;
+                                let default_value = input.parse::<Expr>()?;
+                                DefaultValue::Single(default_value)
+                            } else {
+                                DefaultValue::None
+                            }
+                        },
+                    ),
+                );
             } else if input.peek(token::Brace) || input.peek2(token::Brace) {
                 // sth: Ident { ... },
                 // sth: { ... },
@@ -113,23 +120,33 @@ impl Parse for DeriveStructItems {
 
                 own_struct.insert(
                     key.clone(),
-                    (StructType::Inline(content.ident), DefaultValue::None),
+                    (
+                        {
+                            match content.ident {
+                                StructName::Named(ident) => StructType::Inline(ident),
+                                StructName::Unnamed(v) => StructType::UnnamedInline(v),
+                            }
+                        },
+                        DefaultValue::None,
+                    ),
                 );
             } else {
                 // sth: TypePath,
                 let ty: TypePath = input.parse()?;
 
-                if input.peek(Token![=]) {
-                    input.parse::<Token![=]>()?;
-                    let default_value = input.parse::<Expr>()?;
+                own_struct.insert(
+                    key,
+                    (StructType::Static(ty), {
+                        if input.peek(Token![=]) {
+                            input.parse::<Token![=]>()?;
+                            let default_value = input.parse::<Expr>()?;
 
-                    own_struct.insert(
-                        key,
-                        (StructType::Static(ty), DefaultValue::Single(default_value)),
-                    );
-                } else {
-                    own_struct.insert(key, (StructType::Static(ty), DefaultValue::None));
-                }
+                            DefaultValue::Single(default_value)
+                        } else {
+                            DefaultValue::None
+                        }
+                    }),
+                );
             }
 
             if input.peek(Token![,]) {
