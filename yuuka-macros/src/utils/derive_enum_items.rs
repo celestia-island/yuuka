@@ -23,7 +23,7 @@ impl Parse for DeriveEnumItems {
         let mut sub_structs: Structs = HashMap::new();
         let mut sub_enums: Enums = HashMap::new();
 
-        let mut own_enum: EnumMembers = HashMap::new();
+        let mut own_enum: EnumMembers = Vec::new();
 
         while !input.is_empty() {
             let key = input.parse::<Ident>()?;
@@ -123,7 +123,7 @@ impl Parse for DeriveEnumItems {
                 EnumValue::Empty
             };
 
-            own_enum.insert(key, value);
+            own_enum.push((key, value));
 
             if input.peek(Token![,]) {
                 input.parse::<Token![,]>()?;

@@ -12,6 +12,18 @@ mod test {
     }
 
     #[test]
+    fn derive_struct_anonymously_multiple() {
+        derive_struct!(Root {
+            a: {
+                b: String
+            },
+            c: {
+                d: f64
+            }
+        });
+    }
+
+    #[test]
     fn derive_enum_anonymously() {
         derive_struct!(Root {
             a: enum {
@@ -19,6 +31,24 @@ mod test {
                 Midori,
                 Yuzu,
                 Arisu,
+            }
+        });
+    }
+
+    #[test]
+    fn derive_enum_anonymously_multiple() {
+        derive_struct!(Root {
+            a: enum {
+                Momoi,
+                Midori,
+                Yuzu,
+                Arisu,
+            },
+            b: enum {
+                Apple,
+                Pen,
+                Pineapple,
+                ApplePen,
             }
         });
     }
@@ -34,6 +64,12 @@ mod test {
                         f: bool,
                     },
                 },
+                g: {
+                    h: i32,
+                }
+            },
+            i: {
+                j: String,
             }
         });
     }
@@ -71,7 +107,7 @@ mod test {
     #[test]
     fn derive_struct_anonymously_with_default_array() {
         derive_struct!(Root {
-            a: [String] = ["Hello".to_string()],
+            a: Vec<String> = vec!["Hello".to_string()],
         });
     }
 
@@ -85,6 +121,14 @@ mod test {
                 Arisu,
             } = Midori,
         });
+        derive_struct!(Root2 {
+            a: [enum {
+                Momoi,
+                Midori,
+                Yuzu,
+                Arisu,
+            } = Midori],
+        });
     }
 
     #[test]
@@ -96,6 +140,14 @@ mod test {
                 Yuzu,
                 Arisu,
             } = Midori] = [Arisu],
+        });
+        derive_struct!(Root2 {
+            a: [enum {
+                Momoi,
+                Midori,
+                Yuzu,
+                Arisu(usize),
+            } = Midori] = [Arisu(233)],
         });
     }
 }
