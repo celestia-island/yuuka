@@ -23,52 +23,63 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
     let structs = input.sub_structs;
     let structs = structs
         .iter()
-        .map(|(k, v)| {
-            let k = k.to_ident().expect("Invalid struct name");
-            let default_value_decl = v.iter().map(|(k, (_, default_value))| {
-                let k = k;
-
+        .map(|(key_raw, v)| {
+            let key = key_raw.to_ident().expect("Invalid struct name");
+            let default_value_decl = v.iter().map(|(key, _ty, default_value)| {
                 match default_value {
                     DefaultValue::None => {
                         quote! {
-                            #k: Default::default(),
+                            #key: Default::default(),
                         }
                     }
                     DefaultValue::Single(v) => {
                         quote! {
-                            #k: #v,
+                            #key: #v,
                         }
                     }
                     DefaultValue::Array(v) => {
-                        quote! {
-                            #k: vec![#(#v),*],
+                        match key_raw {
+                            StructName::Unnamed(_) => {
+                                let v = v.iter().map(|v| {
+                                    quote! {
+                                        #key::#v
+                                    }
+                                }).collect::<Vec<_>>();
+                                quote! {
+                                    #key: vec![#(#v),*],
+                                }
+                            }
+                            StructName::Named(_) => {
+                                quote! {
+                                    #key: vec![#(#v),*],
+                                }
+                            }
                         }
                     }
                 }
             }).collect::<Vec<_>>();
-            let v = v.iter().map(|(k, (v, _default_value))| {
-                let k = k;
-                let v = v.to_type_path().expect("Invalid type path");
+            let v = v.iter().map(|(key, ty, _default_value)| {
+                let ty = ty.to_type_path().expect("Invalid type path");
                 quote! {
-                    pub #k: #v,
+                    pub #key: #ty,
                 }
             }).collect::<Vec<_>>();
 
             if default_value_decl.is_empty() {
                 quote! {
                     #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize, Default)]
-                    pub struct #k {
+                    pub struct #key {
                         #(#v)*
                     }
                 }
             } else if default_value_decl.len() != v.len() {
                 quote! {
                     #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
-                    pub struct #k {
+                    pub struct #key {
                         #(#v)*
                     }
 
-                    impl Default for #k {
+                    impl Default for #key {
                         fn default() -> Self {
                             Self {
                                 #(#default_value_decl)*
@@ -80,11 +91,11 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
             } else {
                 quote! {
                     #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
-                    pub struct #k {
+                    pub struct #key {
                         #(#v)*
                     }
 
-                    impl Default for #k {
+                    impl Default for #key {
                         fn default() -> Self {
                             Self {
                                 #(#default_value_decl)*
@@ -99,8 +110,8 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
     let enums = input.sub_enums;
     let enums = enums
         .iter()
-        .map(|(k, (v, default_value))| {
-            let k = k.to_ident().expect("Invalid struct name");
+        .map(|(k_raw, (v, default_value))| {
+            let k = k_raw.to_ident().expect("Invalid struct name");
             let v = v.iter().map(|(k, v)| {
                 let k = k;
                 let v = match v {
@@ -123,10 +134,10 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                     EnumValue::Struct(ident) => {
                         let v = ident
                             .iter()
-                            .map(|(k, (v, _))| {
-                                let v = v.to_type_path().expect("Invalid type path");
+                            .map(|(key, ty, _default_value)| {
+                                let ty = ty.to_type_path().expect("Invalid type path");
                                 quote! {
-                                    #k: #v,
+                                    #key: #ty,
                                 }
                             })
                             .collect::<Vec<_>>();
