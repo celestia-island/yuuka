@@ -1,7 +1,7 @@
 use anyhow::Result;
-use quote::ToTokens;
 use std::collections::HashMap;
 
+use quote::ToTokens;
 use syn::{Expr, Ident, TypePath};
 
 pub(crate) mod derive_enum;
@@ -23,9 +23,38 @@ pub(crate) enum DefaultValue {
     Array(Vec<Expr>),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Default)]
-pub struct StructParentPath {
-    pub parents: Vec<(Ident, usize)>,
+#[derive(Debug, Clone)]
+pub enum StructParentPath {
+    Path(Vec<(Ident, usize)>),
+    Empty(proc_macro2::Span),
+}
+
+impl PartialEq for StructParentPath {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (StructParentPath::Path(v1), StructParentPath::Path(v2)) => v1 == v2,
+            (StructParentPath::Empty(v1), StructParentPath::Empty(v2)) => {
+                v1.start() == v2.start() && v1.end() == v2.end()
+            }
+            _ => false,
+        }
+    }
+}
+impl Eq for StructParentPath {}
+
+impl std::hash::Hash for StructParentPath {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        match self {
+            StructParentPath::Path(v) => v.hash(state),
+            StructParentPath::Empty(v) => format!(
+                "{},line:{:?},column:{:?}",
+                v.source_text().unwrap_or_default(),
+                v.start(),
+                v.end()
+            )
+            .hash(&mut std::hash::DefaultHasher::new()),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -52,21 +81,33 @@ pub(crate) enum EnumValue {
 
 impl StructParentPath {
     pub(crate) fn unshift(&self, prefix: Ident, index: usize) -> StructParentPath {
-        let mut parents = self.parents.clone();
-        parents.insert(0, (prefix, index));
-        StructParentPath { parents }
+        match self {
+            StructParentPath::Path(v) => {
+                let mut v = v.clone();
+                v.insert(0, (prefix, index));
+                StructParentPath::Path(v)
+            }
+            StructParentPath::Empty(_) => StructParentPath::Path(vec![(prefix, index)]),
+        }
     }
 
     pub(crate) fn to_type_path(&self) -> Result<TypePath, syn::Error> {
-        syn::parse_str(&format!(
-            "{}_anonymous",
-            self.parents
-                .iter()
-                .fold(String::new(), |acc, (ident, index)| format!(
-                    "{}_{}_{}",
-                    acc, ident, index
-                )),
-        ))
+        Ok(match self {
+            StructParentPath::Path(v) => {
+                let v = v
+                    .iter()
+                    .map(|(ident, index)| format!("{}_{}", ident, index))
+                    .collect::<Vec<_>>()
+                    .join("_");
+                syn::parse_str(&format!("{}_anonymous", v))?
+            }
+            StructParentPath::Empty(v) => {
+                return Err(syn::Error::new(
+                    *v,
+                    "Empty parent path is not allowed in this context",
+                ))
+            }
+        })
     }
 }
 
@@ -117,9 +158,9 @@ impl StructName {
 }
 
 pub(crate) type Structs = HashMap<StructName, StructMembers>;
-pub(crate) type StructMembers = HashMap<Ident, (StructType, DefaultValue)>;
+pub(crate) type StructMembers = Vec<(Ident, StructType, DefaultValue)>;
 pub(crate) type Enums = HashMap<StructName, (EnumMembers, Option<Expr>)>;
-pub(crate) type EnumMembers = HashMap<Ident, EnumValue>;
+pub(crate) type EnumMembers = Vec<(Ident, EnumValue)>;
 
 pub(crate) fn merge_structs(source: &Structs, target: &mut Structs) {
     for (k, v) in source.iter() {
@@ -146,11 +187,11 @@ pub(crate) fn append_prefix_to_structs(prefix: Ident, structs: Structs) -> Struc
         let k = k.push_prefix(prefix.clone(), index);
         let v = v
             .iter()
-            .map(|(k, (v, default_value))| {
-                let k = k.clone();
+            .map(|(key, ty, default_value)| {
                 (
-                    k,
-                    (v.push_prefix(prefix.clone(), index), default_value.clone()),
+                    key.clone(),
+                    ty.push_prefix(prefix.clone(), index),
+                    default_value.clone(),
                 )
             })
             .collect();
@@ -167,11 +208,10 @@ pub(crate) fn append_prefix_to_enums(prefix: Ident, enums: Enums) -> Enums {
         let k = k.push_prefix(prefix.clone(), index);
         let v = (
             v.0.iter()
-                .map(|(k, v)| {
-                    let k = k.clone();
+                .map(|(key, value)| {
                     (
-                        k,
-                        match v {
+                        key.clone(),
+                        match value {
                             EnumValue::Empty => EnumValue::Empty,
                             EnumValue::Tuple(v) => EnumValue::Tuple(
                                 v.iter()
@@ -180,14 +220,11 @@ pub(crate) fn append_prefix_to_enums(prefix: Ident, enums: Enums) -> Enums {
                             ),
                             EnumValue::Struct(v) => EnumValue::Struct(
                                 v.iter()
-                                    .map(|(k, (v, default_value))| {
-                                        let k = k.clone();
+                                    .map(|(key, ty, default_value)| {
                                         (
-                                            k,
-                                            (
-                                                v.push_prefix(prefix.clone(), index),
-                                                default_value.clone(),
-                                            ),
+                                            key.clone(),
+                                            ty.push_prefix(prefix.clone(), index),
+                                            default_value.clone(),
                                         )
                                     })
                                     .collect(),
