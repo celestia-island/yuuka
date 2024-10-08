@@ -43,7 +43,27 @@ impl Parse for DeriveStructItems {
                                 input.parse::<Token![=]>()?;
                                 let default_value = input.parse::<Expr>()?;
 
-                                DefaultValue::Single(default_value)
+                                if input.peek(token::Brace) {
+                                    // sth: [enum Ident { ... } = { ... }],
+                                    // sth: [enum { ... } = { ... }],
+
+                                    let sub_content;
+                                    bracketed!(sub_content in input);
+
+                                    let mut default_values = Vec::new();
+                                    while !sub_content.is_empty() {
+                                        default_values.push(sub_content.parse::<Expr>()?);
+                                        if sub_content.peek(Token![,]) {
+                                            sub_content.parse::<Token![,]>()?;
+                                        }
+                                    }
+
+                                    DefaultValue::Array(default_values)
+                                } else {
+                                    // sth: [enum Ident { ... } = ...],
+                                    // sth: [enum { ... } = ...],
+                                    DefaultValue::Single(default_value)
+                                }
                             } else {
                                 DefaultValue::None
                             }
@@ -62,7 +82,36 @@ impl Parse for DeriveStructItems {
                             }
                             StructName::Unnamed => StructType::InlineStructVector(content),
                         },
-                        DefaultValue::None,
+                        {
+                            if input.peek(Token![=]) {
+                                input.parse::<Token![=]>()?;
+                                let default_value = input.parse::<Expr>()?;
+
+                                if input.peek(token::Brace) {
+                                    // sth: [Ident { ... } = { ... }],
+                                    // sth: [{ ... } = { ... }],
+
+                                    let sub_content;
+                                    bracketed!(sub_content in input);
+
+                                    let mut default_values = Vec::new();
+                                    while !sub_content.is_empty() {
+                                        default_values.push(sub_content.parse::<Expr>()?);
+                                        if sub_content.peek(Token![,]) {
+                                            sub_content.parse::<Token![,]>()?;
+                                        }
+                                    }
+
+                                    DefaultValue::Array(default_values)
+                                } else {
+                                    // sth: [Ident { ... } = ...],
+                                    // sth: [{ ... } = ...],
+                                    DefaultValue::Single(default_value)
+                                }
+                            } else {
+                                DefaultValue::None
+                            }
+                        },
                     ));
                 };
             } else if input.peek(Token![enum]) {

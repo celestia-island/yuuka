@@ -1,7 +1,7 @@
 use syn::{
     braced,
     parse::{Parse, ParseStream},
-    Ident, Token,
+    Expr, Ident, Token,
 };
 
 use super::{DeriveEnumItems, EnumMembers, StructName};
@@ -10,6 +10,7 @@ use super::{DeriveEnumItems, EnumMembers, StructName};
 pub struct DeriveEnum {
     pub ident: StructName,
     pub items: EnumMembers,
+    pub default_value: Option<Expr>,
 }
 
 impl Parse for DeriveEnum {
@@ -24,9 +25,21 @@ impl Parse for DeriveEnum {
         braced!(content in input);
         let content: DeriveEnumItems = content.parse()?;
 
-        Ok(DeriveEnum {
-            ident,
-            items: content.items,
-        })
+        if input.peek(Token![=]) {
+            input.parse::<Token![=]>()?;
+            let default_value = input.parse::<Expr>()?;
+
+            Ok(DeriveEnum {
+                ident,
+                items: content.items,
+                default_value: Some(default_value),
+            })
+        } else {
+            Ok(DeriveEnum {
+                ident,
+                items: content.items,
+                default_value: None,
+            })
+        }
     }
 }
