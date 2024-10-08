@@ -33,7 +33,7 @@ mod test {
         derive_struct!(Root {
             a: [Item {
                 b: String = "hello".to_string()
-            }] = [Item {
+            }] = vec![Item {
                 b: "world".to_string()
             }]
         });
@@ -69,7 +69,7 @@ mod test {
                 Midori,
                 Yuzu,
                 Arisu,
-            } = Midori] = [Member::Arisu]
+            } = Midori] = vec![Member::Arisu]
         });
 
         let mut val = Root::default();

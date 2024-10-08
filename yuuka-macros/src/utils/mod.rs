@@ -78,8 +78,16 @@ pub(crate) fn flatten(
                         structs.extend(sub_structs);
                         enums.extend(sub_enums);
 
-                        let ty = Ident::new(&format!("_{}_{}", key, unique_id_count), key.span());
-                        *unique_id_count += 1;
+                        let ty = if let StructName::Named(ident) = v.ident.clone() {
+                            ident
+                        } else {
+                            let ident = Ident::new(
+                                &format!("_{}_anonymous", unique_id_count),
+                                proc_macro2::Span::call_site(),
+                            );
+                            *unique_id_count += 1;
+                            ident
+                        };
                         items.push((key.clone(), parse_quote! { #ty }, default_value.clone()));
                     }
                     StructType::InlineStructVector(v) => {
@@ -88,8 +96,16 @@ pub(crate) fn flatten(
                         structs.extend(sub_structs);
                         enums.extend(sub_enums);
 
-                        let ty = Ident::new(&format!("_{}_{}", key, unique_id_count), key.span());
-                        *unique_id_count += 1;
+                        let ty = if let StructName::Named(ident) = v.ident.clone() {
+                            ident
+                        } else {
+                            let ident = Ident::new(
+                                &format!("_{}_anonymous", unique_id_count),
+                                proc_macro2::Span::call_site(),
+                            );
+                            *unique_id_count += 1;
+                            ident
+                        };
                         items.push((
                             key.clone(),
                             parse_quote! { Vec<#ty> },
@@ -102,8 +118,16 @@ pub(crate) fn flatten(
                         structs.extend(sub_structs);
                         enums.extend(sub_enums);
 
-                        let ty = Ident::new(&format!("_{}_{}", key, unique_id_count), key.span());
-                        *unique_id_count += 1;
+                        let ty = if let StructName::Named(ident) = v.ident.clone() {
+                            ident
+                        } else {
+                            let ident = Ident::new(
+                                &format!("_{}_anonymous", unique_id_count),
+                                proc_macro2::Span::call_site(),
+                            );
+                            *unique_id_count += 1;
+                            ident
+                        };
                         items.push((key.clone(), parse_quote! { #ty }, default_value.clone()));
                     }
                     StructType::InlineEnumVector(v) => {
@@ -112,8 +136,16 @@ pub(crate) fn flatten(
                         structs.extend(sub_structs);
                         enums.extend(sub_enums);
 
-                        let ty = Ident::new(&format!("_{}_{}", key, unique_id_count), key.span());
-                        *unique_id_count += 1;
+                        let ty = if let StructName::Named(ident) = v.ident.clone() {
+                            ident
+                        } else {
+                            let ident = Ident::new(
+                                &format!("_{}_anonymous", unique_id_count),
+                                proc_macro2::Span::call_site(),
+                            );
+                            *unique_id_count += 1;
+                            ident
+                        };
                         items.push((
                             key.clone(),
                             parse_quote! { Vec<#ty> },
@@ -127,7 +159,7 @@ pub(crate) fn flatten(
                 ident
             } else {
                 let ident = Ident::new(
-                    &format!("_{}", unique_id_count),
+                    &format!("_{}_anonymous", unique_id_count),
                     proc_macro2::Span::call_site(),
                 );
                 *unique_id_count += 1;
@@ -160,11 +192,16 @@ pub(crate) fn flatten(
                                     structs.extend(sub_structs);
                                     enums.extend(sub_enums);
 
-                                    let ty = Ident::new(
-                                        &format!("_{}_{}", key, unique_id_count),
-                                        key.span(),
-                                    );
-                                    *unique_id_count += 1;
+                                    let ty = if let StructName::Named(ident) = v.ident.clone() {
+                                        ident
+                                    } else {
+                                        let ret = Ident::new(
+                                            &format!("_{}_anonymous", unique_id_count),
+                                            key.span(),
+                                        );
+                                        *unique_id_count += 1;
+                                        ret
+                                    };
                                     tuple.push(parse_quote! { #ty });
                                 }
                                 StructType::InlineStructVector(v) => {
@@ -173,11 +210,16 @@ pub(crate) fn flatten(
                                     structs.extend(sub_structs);
                                     enums.extend(sub_enums);
 
-                                    let ty = Ident::new(
-                                        &format!("_{}_{}", key, unique_id_count),
-                                        key.span(),
-                                    );
-                                    *unique_id_count += 1;
+                                    let ty = if let StructName::Named(ident) = v.ident.clone() {
+                                        ident
+                                    } else {
+                                        let ret = Ident::new(
+                                            &format!("_{}_anonymous", unique_id_count),
+                                            key.span(),
+                                        );
+                                        *unique_id_count += 1;
+                                        ret
+                                    };
                                     tuple.push(parse_quote! { Vec<#ty> });
                                 }
                                 StructType::InlineEnum(v) => {
@@ -186,11 +228,16 @@ pub(crate) fn flatten(
                                     structs.extend(sub_structs);
                                     enums.extend(sub_enums);
 
-                                    let ty = Ident::new(
-                                        &format!("_{}_{}", key, unique_id_count),
-                                        key.span(),
-                                    );
-                                    *unique_id_count += 1;
+                                    let ty = if let StructName::Named(ident) = v.ident.clone() {
+                                        ident
+                                    } else {
+                                        let ret = Ident::new(
+                                            &format!("_{}_anonymous", unique_id_count),
+                                            key.span(),
+                                        );
+                                        *unique_id_count += 1;
+                                        ret
+                                    };
                                     tuple.push(parse_quote! { #ty });
                                 }
                                 StructType::InlineEnumVector(v) => {
@@ -199,11 +246,16 @@ pub(crate) fn flatten(
                                     structs.extend(sub_structs);
                                     enums.extend(sub_enums);
 
-                                    let ty = Ident::new(
-                                        &format!("_{}_{}", key, unique_id_count),
-                                        key.span(),
-                                    );
-                                    *unique_id_count += 1;
+                                    let ty = if let StructName::Named(ident) = v.ident.clone() {
+                                        ident
+                                    } else {
+                                        let ret = Ident::new(
+                                            &format!("_{}_anonymous", unique_id_count),
+                                            key.span(),
+                                        );
+                                        *unique_id_count += 1;
+                                        ret
+                                    };
                                     tuple.push(parse_quote! { Vec<#ty> });
                                 }
                             }
@@ -211,11 +263,11 @@ pub(crate) fn flatten(
                         items.push((key.clone(), EnumValueFlatten::Tuple(tuple)));
                     }
                     EnumValue::Struct(v) => {
-                        let mut items = vec![];
+                        let mut sub_items = vec![];
                         for (key, ty, default_value) in v.iter() {
                             match ty {
                                 StructType::Static(v) => {
-                                    items.push((key.clone(), v.clone(), default_value.clone()));
+                                    sub_items.push((key.clone(), v.clone(), default_value.clone()));
                                 }
                                 StructType::InlineStruct(v) => {
                                     let (sub_structs, sub_enums) =
@@ -223,12 +275,17 @@ pub(crate) fn flatten(
                                     structs.extend(sub_structs);
                                     enums.extend(sub_enums);
 
-                                    let ty = Ident::new(
-                                        &format!("_{}_{}", key, unique_id_count),
-                                        key.span(),
-                                    );
-                                    *unique_id_count += 1;
-                                    items.push((
+                                    let ty = if let StructName::Named(ident) = v.ident.clone() {
+                                        ident
+                                    } else {
+                                        let ret = Ident::new(
+                                            &format!("_{}_anonymous", unique_id_count),
+                                            key.span(),
+                                        );
+                                        *unique_id_count += 1;
+                                        ret
+                                    };
+                                    sub_items.push((
                                         key.clone(),
                                         parse_quote! { #ty },
                                         default_value.clone(),
@@ -240,12 +297,17 @@ pub(crate) fn flatten(
                                     structs.extend(sub_structs);
                                     enums.extend(sub_enums);
 
-                                    let ty = Ident::new(
-                                        &format!("_{}_{}", key, unique_id_count),
-                                        key.span(),
-                                    );
-                                    *unique_id_count += 1;
-                                    items.push((
+                                    let ty = if let StructName::Named(ident) = v.ident.clone() {
+                                        ident
+                                    } else {
+                                        let ret = Ident::new(
+                                            &format!("_{}_anonymous", unique_id_count),
+                                            key.span(),
+                                        );
+                                        *unique_id_count += 1;
+                                        ret
+                                    };
+                                    sub_items.push((
                                         key.clone(),
                                         parse_quote! { Vec<#ty> },
                                         default_value.clone(),
@@ -257,12 +319,17 @@ pub(crate) fn flatten(
                                     structs.extend(sub_structs);
                                     enums.extend(sub_enums);
 
-                                    let ty = Ident::new(
-                                        &format!("_{}_{}", key, unique_id_count),
-                                        key.span(),
-                                    );
-                                    *unique_id_count += 1;
-                                    items.push((
+                                    let ty = if let StructName::Named(ident) = v.ident.clone() {
+                                        ident
+                                    } else {
+                                        let ret = Ident::new(
+                                            &format!("_{}_anonymous", unique_id_count),
+                                            key.span(),
+                                        );
+                                        *unique_id_count += 1;
+                                        ret
+                                    };
+                                    sub_items.push((
                                         key.clone(),
                                         parse_quote! { #ty },
                                         default_value.clone(),
@@ -274,12 +341,17 @@ pub(crate) fn flatten(
                                     structs.extend(sub_structs);
                                     enums.extend(sub_enums);
 
-                                    let ty = Ident::new(
-                                        &format!("_{}_{}", key, unique_id_count),
-                                        key.span(),
-                                    );
-                                    *unique_id_count += 1;
-                                    items.push((
+                                    let ty = if let StructName::Named(ident) = v.ident.clone() {
+                                        ident
+                                    } else {
+                                        let ret = Ident::new(
+                                            &format!("_{}_anonymous", unique_id_count),
+                                            key.span(),
+                                        );
+                                        *unique_id_count += 1;
+                                        ret
+                                    };
+                                    sub_items.push((
                                         key.clone(),
                                         parse_quote! { Vec<#ty> },
                                         default_value.clone(),
@@ -287,6 +359,8 @@ pub(crate) fn flatten(
                                 }
                             }
                         }
+
+                        items.push((key.clone(), EnumValueFlatten::Struct(sub_items)));
                     }
                 }
             }
@@ -295,7 +369,7 @@ pub(crate) fn flatten(
                 ident
             } else {
                 let ident = Ident::new(
-                    &format!("_{}", unique_id_count),
+                    &format!("_{}_anonymous", unique_id_count),
                     proc_macro2::Span::call_site(),
                 );
                 *unique_id_count += 1;
@@ -305,7 +379,7 @@ pub(crate) fn flatten(
                 ident.clone(),
                 items,
                 if let Some(value) = parent.default_value {
-                    DefaultValue::Single(parse_quote! { #ident::#value })
+                    DefaultValue::Single(parse_quote! { Self::#value })
                 } else {
                     DefaultValue::None
                 },
