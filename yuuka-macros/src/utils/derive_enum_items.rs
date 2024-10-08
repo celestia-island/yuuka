@@ -1,28 +1,20 @@
-use std::collections::HashMap;
 use syn::{
     braced, bracketed, parenthesized,
     parse::{Parse, ParseStream},
-    token, Ident, Token, TypePath,
+    parse_quote, token, Ident, Token, TypePath,
 };
 
 use super::{
-    merge_enums, merge_structs, DeriveEnum, DeriveStruct, DeriveStructItems, EnumMembers,
-    EnumValue, Enums, StructName, StructType, Structs,
+    DeriveEnum, DeriveStruct, DeriveStructItems, EnumMembers, EnumValue, StructName, StructType,
 };
 
 #[derive(Debug, Clone)]
 pub struct DeriveEnumItems {
     pub items: EnumMembers,
-
-    pub sub_structs: Structs,
-    pub sub_enums: Enums,
 }
 
 impl Parse for DeriveEnumItems {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let mut sub_structs: Structs = HashMap::new();
-        let mut sub_enums: Enums = HashMap::new();
-
         let mut own_enum: EnumMembers = Vec::new();
 
         while !input.is_empty() {
@@ -33,8 +25,6 @@ impl Parse for DeriveEnumItems {
                 let sub_content;
                 braced!(sub_content in input);
                 let content: DeriveStructItems = sub_content.parse()?;
-                merge_structs(&content.sub_structs, &mut sub_structs);
-                merge_enums(&content.sub_enums, &mut sub_enums);
 
                 EnumValue::Struct(content.items)
             } else if input.peek(token::Paren) {
@@ -53,30 +43,26 @@ impl Parse for DeriveEnumItems {
                             // Ident([enum Ident { ... }], ...),
                             // Ident([enum { ... }], ...),
                             let content: DeriveEnum = bracket_level_content.parse()?;
-                            merge_structs(&content.sub_structs, &mut sub_structs);
-                            merge_enums(&content.sub_enums, &mut sub_enums);
 
                             tuple.push({
                                 match content.ident {
-                                    StructName::Named(ident) => StructType::InlineVector(ident),
-                                    StructName::Unnamed(ident) => {
-                                        StructType::UnnamedInlineVector(ident)
+                                    StructName::Named(ident) => {
+                                        StructType::Static(parse_quote! { Vec<#ident> })
                                     }
+                                    StructName::Unnamed => StructType::InlineEnumVector(content),
                                 }
                             });
                         } else {
                             // Ident([Ident { ... }], ...),
                             // Ident([{ ... }], ...),
                             let content: DeriveStruct = bracket_level_content.parse()?;
-                            merge_structs(&content.sub_structs, &mut sub_structs);
-                            merge_enums(&content.sub_enums, &mut sub_enums);
 
                             tuple.push({
                                 match content.ident {
-                                    StructName::Named(ident) => StructType::InlineVector(ident),
-                                    StructName::Unnamed(ident) => {
-                                        StructType::UnnamedInlineVector(ident)
+                                    StructName::Named(ident) => {
+                                        StructType::Static(parse_quote! { Vec<#ident> })
                                     }
+                                    StructName::Unnamed => StructType::InlineStructVector(content),
                                 }
                             });
                         }
@@ -84,26 +70,26 @@ impl Parse for DeriveEnumItems {
                         // Ident(enum Ident { ... }, ...),
                         // Ident(enum { ... }, ...),
                         let content: DeriveEnum = sub_content.parse()?;
-                        merge_structs(&content.sub_structs, &mut sub_structs);
-                        merge_enums(&content.sub_enums, &mut sub_enums);
 
                         tuple.push({
                             match content.ident {
-                                StructName::Named(ident) => StructType::Inline(ident),
-                                StructName::Unnamed(ident) => StructType::UnnamedInline(ident),
+                                StructName::Named(ident) => {
+                                    StructType::Static(parse_quote! { #ident })
+                                }
+                                StructName::Unnamed => StructType::InlineEnum(content),
                             }
                         });
                     } else if sub_content.peek2(token::Brace) {
                         // Ident(Ident { ... }, ...),
                         // Ident({ ... }, ...),
                         let content: DeriveStruct = sub_content.parse()?;
-                        merge_structs(&content.sub_structs, &mut sub_structs);
-                        merge_enums(&content.sub_enums, &mut sub_enums);
 
                         tuple.push({
                             match content.ident {
-                                StructName::Named(ident) => StructType::Inline(ident),
-                                StructName::Unnamed(ident) => StructType::UnnamedInline(ident),
+                                StructName::Named(ident) => {
+                                    StructType::Static(parse_quote! { #ident })
+                                }
+                                StructName::Unnamed => StructType::InlineStruct(content),
                             }
                         });
                     } else {
@@ -130,10 +116,6 @@ impl Parse for DeriveEnumItems {
             }
         }
 
-        Ok(DeriveEnumItems {
-            items: own_enum,
-            sub_structs,
-            sub_enums,
-        })
+        Ok(DeriveEnumItems { items: own_enum })
     }
 }

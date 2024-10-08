@@ -4,10 +4,7 @@ use syn::{
     Ident, Token,
 };
 
-use super::{
-    append_prefix_to_enums, append_prefix_to_structs, DeriveStructItems, Enums, StructName,
-    StructParentPath, StructType, Structs,
-};
+use super::{DeriveStructItems, StructMembers, StructName};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum DeriveStructVisibility {
@@ -15,13 +12,11 @@ pub enum DeriveStructVisibility {
     PublicOnCrate,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct DeriveStruct {
     pub visibility: DeriveStructVisibility,
     pub ident: StructName,
-
-    pub sub_structs: Structs,
-    pub sub_enums: Enums,
+    pub items: StructMembers,
 }
 
 impl Parse for DeriveStruct {
@@ -36,31 +31,16 @@ impl Parse for DeriveStruct {
         let ident: StructName = if input.peek(Ident) {
             StructName::Named(input.parse()?)
         } else {
-            StructName::Unnamed(StructParentPath::Empty(input.span()))
+            StructName::Unnamed
         };
         let content;
         braced!(content in input);
         let content: DeriveStructItems = content.parse()?;
 
-        let mut structs = append_prefix_to_structs(ident.to_ident()?, content.sub_structs);
-        let enums = append_prefix_to_enums(ident.to_ident()?, content.sub_enums);
-
-        let mut items = content.items;
-        for (index, (_key, ty, _default_value)) in items.iter_mut().enumerate() {
-            if let StructType::UnnamedInline(ty) = ty {
-                *ty = ty.unshift(ident.to_ident()?, index);
-            } else if let StructType::UnnamedInlineVector(ty) = ty {
-                *ty = ty.unshift(ident.to_ident()?, index);
-            }
-        }
-
-        structs.insert(ident.clone(), items);
-
         Ok(DeriveStruct {
             visibility,
             ident,
-            sub_structs: structs,
-            sub_enums: enums,
+            items: content.items,
         })
     }
 }
