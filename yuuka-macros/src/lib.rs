@@ -3,13 +3,17 @@ use quote::quote;
 use syn::parse_macro_input;
 
 mod utils;
-use utils::{derive_struct::DeriveStructVisibility, flatten, DeriveStruct, StructName};
+use utils::{
+    derive_struct::DeriveStructVisibility, flatten, DefaultValue, DeriveStruct, EnumValueFlatten,
+    StructName,
+};
 
 #[proc_macro]
 pub fn derive_struct(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveStruct);
     dbg!(input.clone());
 
+    let is_public = input.visibility == DeriveStructVisibility::Public;
     let root_ident = match input.ident.clone() {
         StructName::Named(v) => v,
         StructName::Unnamed => {
@@ -17,19 +21,108 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
         }
     };
     let mod_ident = syn::Ident::new(&format!("__{}", root_ident), root_ident.span());
-    let (structs, enums) = flatten(input).expect("Failed to flatten");
+    let (structs, enums) =
+        flatten(&mut 0, utils::DeriveBox::Struct(input)).expect("Failed to flatten");
 
     let structs = structs
         .iter()
-        .map(|(k, v, default_value)| todo!())
+        .map(|(ident, v)| {
+            let keys = v
+                .iter()
+                .map(|(key, ty, _default_value)| {
+                    quote! {
+                        pub #key: #ty,
+                    }
+                })
+                .collect::<Vec<_>>();
+            let default_values = v
+                .iter()
+                .map(|(key, _ty, default_value)| match default_value {
+                    DefaultValue::None => quote! {
+                        #key: Default::default(),
+                    },
+                    DefaultValue::Single(v) => quote! {
+                        #key: #v,
+                    },
+                    DefaultValue::Array(v) => quote! {
+                        #key: vec![#(#v),*],
+                    },
+                })
+                .collect::<Vec<_>>();
+
+            quote! {
+                #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
+                pub struct #ident {
+                    #( #keys )*
+                }
+
+                impl Default for #ident {
+                    fn default() -> Self {
+                        Self {
+                            #( #default_values )*
+                        }
+                    }
+                }
+            }
+        })
         .collect::<Vec<_>>();
 
     let enums = enums
         .iter()
-        .map(|(k, v, default_value)| todo!())
+        .map(|(k, v, default_value)| {
+            let keys = v
+                .iter()
+                .map(|(key, ty)| match ty {
+                    EnumValueFlatten::Empty => quote! {
+                        #key,
+                    },
+                    EnumValueFlatten::Tuple(v) => {
+                        quote! {
+                            #key(#(#v),*),
+                        }
+                    }
+                    EnumValueFlatten::Struct(v) => {
+                        let keys = v
+                            .iter()
+                            .map(|(key, ty, _default_value)| {
+                                quote! {
+                                    #key: #ty,
+                                }
+                            })
+                            .collect::<Vec<_>>();
+
+                        quote! {
+                            #key {
+                                #( #keys )*
+                            },
+                        }
+                    }
+                })
+                .collect::<Vec<_>>();
+            let default_value = if let DefaultValue::Single(default_value) = default_value {
+                quote! {
+                    impl Default for #k {
+                        fn default() -> Self {
+                            Self::#default_value
+                        }
+                    }
+                }
+            } else {
+                quote! {}
+            };
+
+            quote! {
+                #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
+                pub enum #k {
+                    #( #keys )*
+                }
+
+                #default_value
+            }
+        })
         .collect::<Vec<_>>();
 
-    let ret = if input.visibility == DeriveStructVisibility::Public {
+    let ret = if is_public {
         quote! {
             #[allow(non_camel_case_types, non_snake_case, non_upper_case_globals, dead_code)]
             pub mod #mod_ident {
