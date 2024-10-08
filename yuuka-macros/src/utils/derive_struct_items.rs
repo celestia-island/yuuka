@@ -1,10 +1,10 @@
 use syn::{
     bracketed,
     parse::{Parse, ParseStream},
-    parse_quote, token, Expr, Ident, Token, TypePath,
+    token, Expr, Ident, Token, TypePath,
 };
 
-use super::{DefaultValue, DeriveEnum, DeriveStruct, StructMembers, StructName, StructType};
+use super::{DefaultValue, DeriveEnum, DeriveStruct, StructMembers, StructType};
 
 #[derive(Debug, Clone)]
 pub struct DeriveStructItems {
@@ -30,113 +30,86 @@ impl Parse for DeriveStructItems {
                     // sth: [enum { ... }],
                     let content: DeriveEnum = bracket_level_content.parse()?;
 
-                    own_struct.push((
-                        key,
-                        match content.ident {
-                            StructName::Named(ident) => {
-                                StructType::Static(parse_quote! { Vec<#ident> })
-                            }
-                            StructName::Unnamed => StructType::InlineEnumVector(content),
-                        },
-                        {
-                            if input.peek(Token![=]) {
-                                input.parse::<Token![=]>()?;
-                                let default_value = input.parse::<Expr>()?;
+                    own_struct.push((key, StructType::InlineEnumVector(content), {
+                        if input.peek(Token![=]) {
+                            input.parse::<Token![=]>()?;
+                            let default_value = input.parse::<Expr>()?;
 
-                                if input.peek(token::Brace) {
-                                    // sth: [enum Ident { ... } = { ... }],
-                                    // sth: [enum { ... } = { ... }],
+                            if input.peek(token::Brace) {
+                                // sth: [enum Ident { ... } = { ... }],
+                                // sth: [enum { ... } = { ... }],
 
-                                    let sub_content;
-                                    bracketed!(sub_content in input);
+                                let sub_content;
+                                bracketed!(sub_content in input);
 
-                                    let mut default_values = Vec::new();
-                                    while !sub_content.is_empty() {
-                                        default_values.push(sub_content.parse::<Expr>()?);
-                                        if sub_content.peek(Token![,]) {
-                                            sub_content.parse::<Token![,]>()?;
-                                        }
+                                let mut default_values = Vec::new();
+                                while !sub_content.is_empty() {
+                                    default_values.push(sub_content.parse::<Expr>()?);
+                                    if sub_content.peek(Token![,]) {
+                                        sub_content.parse::<Token![,]>()?;
                                     }
-
-                                    DefaultValue::Array(default_values)
-                                } else {
-                                    // sth: [enum Ident { ... } = ...],
-                                    // sth: [enum { ... } = ...],
-                                    DefaultValue::Single(default_value)
                                 }
+
+                                DefaultValue::Array(default_values)
                             } else {
-                                DefaultValue::None
+                                // sth: [enum Ident { ... } = ...],
+                                // sth: [enum { ... } = ...],
+                                DefaultValue::Single(default_value)
                             }
-                        },
-                    ));
+                        } else {
+                            DefaultValue::None
+                        }
+                    }));
                 } else {
                     // sth: [Ident { ... }],
                     // sth: [{ ... }],
                     let content: DeriveStruct = bracket_level_content.parse()?;
 
-                    own_struct.push((
-                        key,
-                        match content.ident {
-                            StructName::Named(ident) => {
-                                StructType::Static(parse_quote! { Vec<#ident> })
-                            }
-                            StructName::Unnamed => StructType::InlineStructVector(content),
-                        },
-                        {
-                            if input.peek(Token![=]) {
-                                input.parse::<Token![=]>()?;
-                                let default_value = input.parse::<Expr>()?;
+                    own_struct.push((key, StructType::InlineStructVector(content), {
+                        if input.peek(Token![=]) {
+                            input.parse::<Token![=]>()?;
+                            let default_value = input.parse::<Expr>()?;
 
-                                if input.peek(token::Brace) {
-                                    // sth: [Ident { ... } = { ... }],
-                                    // sth: [{ ... } = { ... }],
+                            if input.peek(token::Brace) {
+                                // sth: [Ident { ... } = { ... }],
+                                // sth: [{ ... } = { ... }],
 
-                                    let sub_content;
-                                    bracketed!(sub_content in input);
+                                let sub_content;
+                                bracketed!(sub_content in input);
 
-                                    let mut default_values = Vec::new();
-                                    while !sub_content.is_empty() {
-                                        default_values.push(sub_content.parse::<Expr>()?);
-                                        if sub_content.peek(Token![,]) {
-                                            sub_content.parse::<Token![,]>()?;
-                                        }
+                                let mut default_values = Vec::new();
+                                while !sub_content.is_empty() {
+                                    default_values.push(sub_content.parse::<Expr>()?);
+                                    if sub_content.peek(Token![,]) {
+                                        sub_content.parse::<Token![,]>()?;
                                     }
-
-                                    DefaultValue::Array(default_values)
-                                } else {
-                                    // sth: [Ident { ... } = ...],
-                                    // sth: [{ ... } = ...],
-                                    DefaultValue::Single(default_value)
                                 }
+
+                                DefaultValue::Array(default_values)
                             } else {
-                                DefaultValue::None
+                                // sth: [Ident { ... } = ...],
+                                // sth: [{ ... } = ...],
+                                DefaultValue::Single(default_value)
                             }
-                        },
-                    ));
+                        } else {
+                            DefaultValue::None
+                        }
+                    }));
                 };
             } else if input.peek(Token![enum]) {
                 // sth: enum Ident { ... },
                 // sth: enum { ... },
                 let content: DeriveEnum = input.parse()?;
 
-                own_struct.push((
-                    key.clone(),
-                    {
-                        match content.ident {
-                            StructName::Named(ident) => StructType::Static(parse_quote! { #ident }),
-                            StructName::Unnamed => StructType::InlineEnum(content),
-                        }
-                    },
-                    {
-                        if input.peek(Token![=]) {
-                            input.parse::<Token![=]>()?;
-                            let default_value = input.parse::<Expr>()?;
-                            DefaultValue::Single(default_value)
-                        } else {
-                            DefaultValue::None
-                        }
-                    },
-                ));
+                own_struct.push((key.clone(), StructType::InlineEnum(content), {
+                    if input.peek(Token![=]) {
+                        input.parse::<Token![=]>()?;
+                        let default_value = input.parse::<Expr>()?;
+                        DefaultValue::Single(default_value)
+                    } else {
+                        DefaultValue::None
+                    }
+                }));
             } else if input.peek(token::Brace) || input.peek2(token::Brace) {
                 // sth: Ident { ... },
                 // sth: { ... },
@@ -144,12 +117,7 @@ impl Parse for DeriveStructItems {
 
                 own_struct.push((
                     key.clone(),
-                    {
-                        match content.ident {
-                            StructName::Named(ident) => StructType::Static(parse_quote! { #ident }),
-                            StructName::Unnamed => StructType::InlineStruct(content),
-                        }
-                    },
+                    StructType::InlineStruct(content),
                     DefaultValue::None,
                 ));
             } else {

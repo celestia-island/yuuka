@@ -1,12 +1,10 @@
 use syn::{
     braced, bracketed, parenthesized,
     parse::{Parse, ParseStream},
-    parse_quote, token, Ident, Token, TypePath,
+    token, Ident, Token, TypePath,
 };
 
-use super::{
-    DeriveEnum, DeriveStruct, DeriveStructItems, EnumMembers, EnumValue, StructName, StructType,
-};
+use super::{DeriveEnum, DeriveStruct, DeriveStructItems, EnumMembers, EnumValue, StructType};
 
 #[derive(Debug, Clone)]
 pub struct DeriveEnumItems {
@@ -44,54 +42,26 @@ impl Parse for DeriveEnumItems {
                             // Ident([enum { ... }], ...),
                             let content: DeriveEnum = bracket_level_content.parse()?;
 
-                            tuple.push({
-                                match content.ident {
-                                    StructName::Named(ident) => {
-                                        StructType::Static(parse_quote! { Vec<#ident> })
-                                    }
-                                    StructName::Unnamed => StructType::InlineEnumVector(content),
-                                }
-                            });
+                            tuple.push(StructType::InlineEnumVector(content));
                         } else {
                             // Ident([Ident { ... }], ...),
                             // Ident([{ ... }], ...),
                             let content: DeriveStruct = bracket_level_content.parse()?;
 
-                            tuple.push({
-                                match content.ident {
-                                    StructName::Named(ident) => {
-                                        StructType::Static(parse_quote! { Vec<#ident> })
-                                    }
-                                    StructName::Unnamed => StructType::InlineStructVector(content),
-                                }
-                            });
+                            tuple.push(StructType::InlineStructVector(content));
                         }
                     } else if sub_content.peek(Token![enum]) {
                         // Ident(enum Ident { ... }, ...),
                         // Ident(enum { ... }, ...),
                         let content: DeriveEnum = sub_content.parse()?;
 
-                        tuple.push({
-                            match content.ident {
-                                StructName::Named(ident) => {
-                                    StructType::Static(parse_quote! { #ident })
-                                }
-                                StructName::Unnamed => StructType::InlineEnum(content),
-                            }
-                        });
+                        tuple.push(StructType::InlineEnum(content));
                     } else if sub_content.peek2(token::Brace) {
                         // Ident(Ident { ... }, ...),
                         // Ident({ ... }, ...),
                         let content: DeriveStruct = sub_content.parse()?;
 
-                        tuple.push({
-                            match content.ident {
-                                StructName::Named(ident) => {
-                                    StructType::Static(parse_quote! { #ident })
-                                }
-                                StructName::Unnamed => StructType::InlineStruct(content),
-                            }
-                        });
+                        tuple.push(StructType::InlineStruct(content));
                     } else {
                         // Ident (TypePath, ...),
                         let ty: TypePath = sub_content.parse()?;

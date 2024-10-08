@@ -23,6 +23,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
     let mod_ident = syn::Ident::new(&format!("__{}", root_ident), root_ident.span());
     let (structs, enums) =
         flatten(&mut 0, utils::DeriveBox::Struct(input)).expect("Failed to flatten");
+    dbg!(structs.clone(), enums.clone());
 
     let structs = structs
         .iter()
@@ -35,31 +36,42 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                     }
                 })
                 .collect::<Vec<_>>();
-            let default_values = v
-                .iter()
-                .map(|(key, _ty, default_value)| match default_value {
-                    DefaultValue::None => quote! {
-                        #key: Default::default(),
-                    },
-                    DefaultValue::Single(v) => quote! {
-                        #key: #v,
-                    },
-                    DefaultValue::Array(v) => quote! {
-                        #key: vec![#(#v),*],
-                    },
-                })
-                .collect::<Vec<_>>();
 
-            quote! {
-                #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
-                pub struct #ident {
-                    #( #keys )*
+            if v.iter()
+                .all(|(_, _, default_value)| default_value == &DefaultValue::None)
+            {
+                quote! {
+                    #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize, Default)]
+                    pub struct #ident {
+                        #( #keys )*
+                    }
                 }
+            } else {
+                let default_values = v.iter()
+                    .map(|(key, _ty, default_value)| match default_value {
+                        DefaultValue::None => quote! {
+                            #key: Default::default(),
+                        },
+                        DefaultValue::Single(v) => quote! {
+                            #key: #v,
+                        },
+                        DefaultValue::Array(v) => quote! {
+                            #key: vec![#(#v),*],
+                        },
+                    })
+                    .collect::<Vec<_>>();
 
-                impl Default for #ident {
-                    fn default() -> Self {
-                        Self {
-                            #( #default_values )*
+                quote! {
+                    #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
+                    pub struct #ident {
+                        #( #keys )*
+                    }
+
+                    impl Default for #ident {
+                        fn default() -> Self {
+                            Self {
+                                #( #default_values )*
+                            }
                         }
                     }
                 }
@@ -103,12 +115,18 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                 quote! {
                     impl Default for #k {
                         fn default() -> Self {
-                            Self::#default_value
+                            #default_value
                         }
                     }
                 }
             } else {
-                quote! {}
+                quote! {
+                    impl Default for #k {
+                        fn default() -> Self {
+                            unimplemented!("Default value for enum is not implemented");
+                        }
+                    }
+                }
             };
 
             quote! {
