@@ -1,3 +1,4 @@
+use std::{cell::RefCell, rc::Rc};
 use syn::{
     braced,
     parse::{Parse, ParseStream},
@@ -13,13 +14,22 @@ pub struct DeriveEnum {
     pub default_value: Option<Expr>,
 }
 
+impl DeriveEnum {
+    pub fn pin_unique_id(&self, id: Rc<RefCell<usize>>) -> Self {
+        let mut ret = self.clone();
+        ret.ident = ret.ident.pin_unique_id(*id.borrow());
+        *id.borrow_mut() += 1;
+        ret
+    }
+}
+
 impl Parse for DeriveEnum {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         input.parse::<Token![enum]>()?;
         let ident: StructName = if input.peek(Ident) {
             StructName::Named(input.parse()?)
         } else {
-            StructName::Unnamed
+            StructName::Unnamed(None)
         };
         let content;
         braced!(content in input);

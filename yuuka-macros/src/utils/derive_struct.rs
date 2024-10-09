@@ -1,3 +1,4 @@
+use std::{cell::RefCell, rc::Rc};
 use syn::{
     braced,
     parse::{Parse, ParseStream},
@@ -19,6 +20,15 @@ pub struct DeriveStruct {
     pub items: StructMembers,
 }
 
+impl DeriveStruct {
+    pub fn pin_unique_id(&self, id: Rc<RefCell<usize>>) -> Self {
+        let mut ret = self.clone();
+        ret.ident = ret.ident.pin_unique_id(*id.borrow());
+        *id.borrow_mut() += 1;
+        ret
+    }
+}
+
 impl Parse for DeriveStruct {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let visibility = if input.peek(Token![pub]) {
@@ -31,7 +41,7 @@ impl Parse for DeriveStruct {
         let ident: StructName = if input.peek(Ident) {
             StructName::Named(input.parse()?)
         } else {
-            StructName::Unnamed
+            StructName::Unnamed(None)
         };
         let content;
         braced!(content in input);

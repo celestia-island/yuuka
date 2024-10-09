@@ -59,19 +59,26 @@ mod test {
             a: {
                 b: String,
                 c: {
-                    d: f64,
+                    d: f64 = 3.14,
                     e: {
-                        f: bool,
+                        f: bool = false,
                     },
                 },
                 g: {
-                    h: i32,
+                    h: i32 = -114514,
                 }
             },
             i: {
-                j: String,
+                j: String = "いいよ，こいよ".to_string(),
             }
         });
+
+        let root = Root::default();
+        assert_eq!(root.a.b, String::default());
+        assert_eq!(root.a.c.d, 3.14);
+        assert_eq!(root.a.c.e.f, false);
+        assert_eq!(root.a.g.h, -114514);
+        assert_eq!(root.i.j, "いいよ，こいよ".to_string());
     }
 
     #[test]
@@ -139,7 +146,7 @@ mod test {
                 Midori,
                 Yuzu,
                 Arisu,
-            } = Midori] = [Arisu],
+            } = Midori],
         });
         derive_struct!(Root2 {
             a: [enum {
@@ -147,7 +154,14 @@ mod test {
                 Midori,
                 Yuzu,
                 Arisu(usize),
-            } = Midori] = [Arisu(233)],
+            } = Arisu(233)],
         });
+
+        let mut root = Root::default();
+        root.a.push(Default::default());
+        assert_eq!(root.a, vec![__Root::_0_anonymous::Midori]);
+        let mut root2 = Root2::default();
+        root2.a.push(Default::default());
+        assert_eq!(root2.a, vec![__Root2::_0_anonymous::Arisu(233)]);
     }
 }
