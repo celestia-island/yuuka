@@ -1,5 +1,6 @@
 use proc_macro::TokenStream;
 use quote::quote;
+use std::{cell::RefCell, rc::Rc};
 use syn::parse_macro_input;
 
 mod utils;
@@ -11,19 +12,17 @@ use utils::{
 #[proc_macro]
 pub fn derive_struct(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveStruct);
-    dbg!(input.clone());
 
     let is_public = input.visibility == DeriveStructVisibility::Public;
     let root_ident = match input.ident.clone() {
         StructName::Named(v) => v,
-        StructName::Unnamed => {
+        StructName::Unnamed(_) => {
             panic!("Unnamed root struct is not supported");
         }
     };
     let mod_ident = syn::Ident::new(&format!("__{}", root_ident), root_ident.span());
-    let (structs, enums) =
-        flatten(&mut 0, utils::DeriveBox::Struct(input)).expect("Failed to flatten");
-    dbg!(structs.clone(), enums.clone());
+    let (structs, enums) = flatten(Rc::new(RefCell::new(0)), utils::DeriveBox::Struct(input))
+        .expect("Failed to flatten");
 
     let structs = structs
         .iter()
