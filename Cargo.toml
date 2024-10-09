@@ -11,7 +11,7 @@ panic = "abort"
 [workspace.package]
 authors = ["langyo <langyo.china@gmail.com>"]
 
-version = "0.2.2"
+version = "0.3.0"
 edition = "2021"
 
 [workspace.dependencies]
@@ -21,4 +21,3 @@ derive_more = { version = "^1", features = ["full"] }
 
 serde = { version = "^1", features = ["derive"] }
 strum = { version = "^0.26", features = ["derive"] }
-uuid = { version = "^1", features = ["v4"] }

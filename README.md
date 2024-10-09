@@ -53,7 +53,7 @@ let config = GameDevelopment {
 
 - [x] Array type support
 - [x] Enum type support
-- [ ] Anonymous struct support that can use `auto!` macro to confirm the auto-generated field name
+- [x] Anonymous struct support that can use `auto!` macro to confirm the auto-generated field name
 - [x] Default value support that can use `=` to assign the default value
 - [x] `pub` and `pub(crate)` identifier support
 - [ ] Support custom derive macro.
