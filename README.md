@@ -1,7 +1,8 @@
 <img src="splash.png" alt="yuuka" />
 
-![GitHub License](https://img.shields.io/github/license/celestia-island/yuuka)
+![Crates.io License](https://img.shields.io/crates/l/yuuka)
 [![Crates.io Version](https://img.shields.io/crates/v/yuuka)](https://docs.rs/yuuka)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/celestia-island/yuuka/test.yml)
 
 ## Introduction
 
@@ -56,6 +57,6 @@ let config = GameDevelopment {
 - [x] Anonymous struct support that can use `auto!` macro to confirm the auto-generated field name
 - [x] Default value support that can use `=` to assign the default value
 - [x] `pub` and `pub(crate)` identifier support
-- [ ] Support custom derive macro.
+- [x] Support custom derive macro.
 - [ ] Write a homepage for this library
 - [x] Upload to `crates.io`

@@ -1,0 +1,42 @@
+name: Clippy
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/clippy.yml'
+      - 'yuuka/**/*'
+      - 'yuuka-macros/**/*'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+  push:
+    branches: [master]
+
+jobs:
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain:
+          - stable
+          - nightly
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          components: clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Run clippy
+        run: |
+          cargo clippy \
+            --all-targets \
+            --all-features \
+            --workspace \
+            -- -D warnings
