@@ -73,20 +73,24 @@ pub(crate) enum EnumValue {
     Struct(StructMembers),
 }
 
-pub(crate) type StructMembers = Vec<(Ident, StructType, DefaultValue)>;
-pub(crate) type EnumMembers = Vec<(Ident, EnumValue)>;
+pub(crate) type StructMembers = Vec<(Ident, StructType, DefaultValue, ExtraMacros)>;
+pub(crate) type EnumMembers = Vec<(Ident, EnumValue, ExtraMacros)>;
 pub(crate) type ExtraMacros = Vec<TokenStream>;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub(crate) enum EnumValueFlatten {
     Empty,
     Tuple(Vec<TypePath>),
-    Struct(Vec<(Ident, TypePath, DefaultValue)>),
+    Struct(Vec<(Ident, TypePath, DefaultValue, ExtraMacros)>),
 }
-pub(crate) type StructsFlatten = Vec<(Ident, Vec<(Ident, TypePath, DefaultValue)>, ExtraMacros)>;
+pub(crate) type StructsFlatten = Vec<(
+    Ident,
+    Vec<(Ident, TypePath, DefaultValue, ExtraMacros)>,
+    ExtraMacros,
+)>;
 pub(crate) type EnumsFlatten = Vec<(
     Ident,
-    Vec<(Ident, EnumValueFlatten)>,
+    Vec<(Ident, EnumValueFlatten, ExtraMacros)>,
     DefaultValue,
     ExtraMacros,
 )>;
@@ -109,10 +113,15 @@ pub(crate) fn flatten(
             let mut enums = vec![];
 
             let mut items = vec![];
-            for (key, ty, default_value) in parent.items.iter() {
+            for (key, ty, default_value, extra_macros) in parent.items.iter() {
                 match ty {
                     StructType::Static(v) => {
-                        items.push((key.clone(), v.clone(), default_value.clone()));
+                        items.push((
+                            key.clone(),
+                            v.clone(),
+                            default_value.clone(),
+                            extra_macros.clone(),
+                        ));
                     }
                     StructType::InlineStruct(v) => {
                         let v = v.clone().pin_unique_id(unique_id_count.clone());
@@ -126,7 +135,12 @@ pub(crate) fn flatten(
                         enums.extend(sub_enums);
 
                         let ty = v.ident.to_ident()?;
-                        items.push((key.clone(), parse_quote! { #ty }, default_value.clone()));
+                        items.push((
+                            key.clone(),
+                            parse_quote! { #ty },
+                            default_value.clone(),
+                            extra_macros.clone(),
+                        ));
                     }
                     StructType::InlineStructVector(v) => {
                         let v = v.clone().pin_unique_id(unique_id_count.clone());
@@ -144,6 +158,7 @@ pub(crate) fn flatten(
                             key.clone(),
                             parse_quote! { Vec<#ty> },
                             default_value.clone(),
+                            extra_macros.clone(),
                         ));
                     }
                     StructType::InlineEnum(v) => {
@@ -158,7 +173,12 @@ pub(crate) fn flatten(
                         enums.extend(sub_enums);
 
                         let ty = v.ident.to_ident()?;
-                        items.push((key.clone(), parse_quote! { #ty }, default_value.clone()));
+                        items.push((
+                            key.clone(),
+                            parse_quote! { #ty },
+                            default_value.clone(),
+                            extra_macros.clone(),
+                        ));
                     }
                     StructType::InlineEnumVector(v) => {
                         let v = v.clone().pin_unique_id(unique_id_count.clone());
@@ -176,6 +196,7 @@ pub(crate) fn flatten(
                             key.clone(),
                             parse_quote! { Vec<#ty> },
                             default_value.clone(),
+                            extra_macros.clone(),
                         ));
                     }
                 }
@@ -192,10 +213,10 @@ pub(crate) fn flatten(
             let mut enums = vec![];
 
             let mut items = vec![];
-            for (key, value) in parent.items.iter() {
+            for (key, value, extra_macros) in parent.items.iter() {
                 match value {
                     EnumValue::Empty => {
-                        items.push((key.clone(), EnumValueFlatten::Empty));
+                        items.push((key.clone(), EnumValueFlatten::Empty, extra_macros.clone()));
                     }
                     EnumValue::Tuple(v) => {
                         let mut tuple = vec![];
@@ -266,14 +287,23 @@ pub(crate) fn flatten(
                                 }
                             }
                         }
-                        items.push((key.clone(), EnumValueFlatten::Tuple(tuple)));
+                        items.push((
+                            key.clone(),
+                            EnumValueFlatten::Tuple(tuple),
+                            extra_macros.clone(),
+                        ));
                     }
                     EnumValue::Struct(v) => {
                         let mut sub_items = vec![];
-                        for (key, ty, default_value) in v.iter() {
+                        for (key, ty, default_value, extra_macros) in v.iter() {
                             match ty {
                                 StructType::Static(v) => {
-                                    sub_items.push((key.clone(), v.clone(), default_value.clone()));
+                                    sub_items.push((
+                                        key.clone(),
+                                        v.clone(),
+                                        default_value.clone(),
+                                        extra_macros.clone(),
+                                    ));
                                 }
                                 StructType::InlineStruct(v) => {
                                     let v = v.clone().pin_unique_id(unique_id_count.clone());
@@ -292,6 +322,7 @@ pub(crate) fn flatten(
                                         key.clone(),
                                         parse_quote! { #ty },
                                         default_value.clone(),
+                                        extra_macros.clone(),
                                     ));
                                 }
                                 StructType::InlineStructVector(v) => {
@@ -311,6 +342,7 @@ pub(crate) fn flatten(
                                         key.clone(),
                                         parse_quote! { Vec<#ty> },
                                         default_value.clone(),
+                                        extra_macros.clone(),
                                     ));
                                 }
                                 StructType::InlineEnum(v) => {
@@ -330,6 +362,7 @@ pub(crate) fn flatten(
                                         key.clone(),
                                         parse_quote! { #ty },
                                         default_value.clone(),
+                                        extra_macros.clone(),
                                     ));
                                 }
                                 StructType::InlineEnumVector(v) => {
@@ -349,12 +382,17 @@ pub(crate) fn flatten(
                                         key.clone(),
                                         parse_quote! { Vec<#ty> },
                                         default_value.clone(),
+                                        extra_macros.clone(),
                                     ));
                                 }
                             }
                         }
 
-                        items.push((key.clone(), EnumValueFlatten::Struct(sub_items)));
+                        items.push((
+                            key.clone(),
+                            EnumValueFlatten::Struct(sub_items),
+                            extra_macros.clone(),
+                        ));
                     }
                 }
             }

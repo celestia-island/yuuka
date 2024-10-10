@@ -1,3 +1,4 @@
+use proc_macro2::TokenStream;
 use syn::{
     braced, bracketed, parenthesized,
     parse::{Parse, ParseStream},
@@ -16,6 +17,15 @@ impl Parse for DeriveEnumItems {
         let mut own_enum: EnumMembers = Vec::new();
 
         while !input.is_empty() {
+            let mut extra_macros = vec![];
+            while input.peek(Token![#]) {
+                input.parse::<Token![#]>()?;
+                let content;
+                bracketed!(content in input);
+
+                extra_macros.push(content.parse::<TokenStream>()?);
+            }
+
             let key = input.parse::<Ident>()?;
 
             let value = if input.peek(token::Brace) {
@@ -79,7 +89,7 @@ impl Parse for DeriveEnumItems {
                 EnumValue::Empty
             };
 
-            own_enum.push((key, value));
+            own_enum.push((key, value, extra_macros));
 
             if input.peek(Token![,]) {
                 input.parse::<Token![,]>()?;

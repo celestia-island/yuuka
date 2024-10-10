@@ -33,8 +33,18 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
         .map(|(ident, v, extra_macros)| {
             let keys = v
                 .iter()
-                .map(|(key, ty, _default_value)| {
+                .map(|(key, ty, _default_value, extra_macros)| {
+                    let extra_macros = extra_macros
+                        .iter()
+                        .map(|content| {
+                            quote! {
+                                #[#content]
+                            }
+                        })
+                        .collect::<Vec<_>>();
+
                     quote! {
+                        #(#extra_macros)*
                         pub #key: #ty,
                     }
                 })
@@ -47,10 +57,9 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                     }
                 })
                 .collect::<Vec<_>>();
-            dbg!(ident.clone(), extra_macros.clone());
 
             if v.iter()
-                .all(|(_, _, default_value)| default_value == &DefaultValue::None)
+                .all(|(_, _, default_value, _)| default_value == &DefaultValue::None)
             {
                 quote! {
                     #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize, Default)]
@@ -61,7 +70,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                 }
             } else {
                 let default_values = v.iter()
-                    .map(|(key, _ty, default_value)| match default_value {
+                    .map(|(key, _, default_value, _)| match default_value {
                         DefaultValue::None => quote! {
                             #key: Default::default(),
                         },
@@ -98,29 +107,53 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
         .map(|(k, v, default_value, extra_macros)| {
             let keys = v
                 .iter()
-                .map(|(key, ty)| match ty {
-                    EnumValueFlatten::Empty => quote! {
-                        #key,
-                    },
-                    EnumValueFlatten::Tuple(v) => {
-                        quote! {
-                            #key(#(#v),*),
-                        }
-                    }
-                    EnumValueFlatten::Struct(v) => {
-                        let keys = v
-                            .iter()
-                            .map(|(key, ty, _default_value)| {
-                                quote! {
-                                    #key: #ty,
-                                }
-                            })
-                            .collect::<Vec<_>>();
+                .map(|(key, ty, extra_macros)| {
+                    let extra_macros = extra_macros
+                        .iter()
+                        .map(|content| {
+                            quote! {
+                                #[#content]
+                            }
+                        })
+                        .collect::<Vec<_>>();
 
-                        quote! {
-                            #key {
-                                #( #keys )*
-                            },
+                    match ty {
+                        EnumValueFlatten::Empty => quote! {
+                            #(#extra_macros)*
+                            #key,
+                        },
+                        EnumValueFlatten::Tuple(v) => {
+                            quote! {
+                            #(#extra_macros)*
+                                #key(#(#v),*),
+                            }
+                        }
+                        EnumValueFlatten::Struct(v) => {
+                            let keys = v
+                                .iter()
+                                .map(|(key, ty, _default_value, extra_macros)| {
+                                    let extra_macros = extra_macros
+                                        .iter()
+                                        .map(|content| {
+                                            quote! {
+                                                #[#content]
+                                            }
+                                        })
+                                        .collect::<Vec<_>>();
+
+                                    quote! {
+                                        #(#extra_macros)*
+                                        #key: #ty,
+                                    }
+                                })
+                                .collect::<Vec<_>>();
+
+                            quote! {
+                                #(#extra_macros)*
+                                #key {
+                                    #( #keys )*
+                                },
+                            }
                         }
                     }
                 })
