@@ -91,7 +91,7 @@ mod test {
             #[serde(rename_all = "camelCase")]
             Root {
                 nick_name: String,
-                #[serde(rename = "snack_case")]
+                #[serde(rename = "location")]
                 live_in: String,
             }
         );
@@ -102,7 +102,7 @@ mod test {
         };
         assert_eq!(
             serde_json::to_string(&ret).unwrap(),
-            r#"{"nickName":"langyo","live_in":"China"}"#
+            r#"{"nickName":"langyo","location":"China"}"#
         );
     }
 

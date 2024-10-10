@@ -18,7 +18,9 @@ mod test {
         let _ = Root {
             a_b: "Hello".to_string(),
             B: 42,
-            c: C { d: 3.14 },
+            c: C {
+                d: std::f64::consts::PI,
+            },
         };
     }
 }

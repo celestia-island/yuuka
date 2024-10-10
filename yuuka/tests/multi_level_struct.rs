@@ -17,7 +17,7 @@ mod test {
             a: "Hello".to_string(),
             b: 42,
             c: C {
-                d: 3.14,
+                d: std::f64::consts::PI,
                 e: E { f: true },
             },
         };

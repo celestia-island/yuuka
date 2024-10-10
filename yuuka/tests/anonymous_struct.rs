@@ -59,7 +59,7 @@ mod test {
             a: {
                 b: String,
                 c: {
-                    d: f64 = 3.14,
+                    d: f64 = std::f64::consts::PI,
                     e: {
                         f: bool = false,
                     },
@@ -75,8 +75,8 @@ mod test {
 
         let root = Root::default();
         assert_eq!(root.a.b, String::default());
-        assert_eq!(root.a.c.d, 3.14);
-        assert_eq!(root.a.c.e.f, false);
+        assert_eq!(root.a.c.d, std::f64::consts::PI);
+        assert!(!root.a.c.e.f);
         assert_eq!(root.a.g.h, -114514);
         assert_eq!(root.i.j, "いいよ，こいよ".to_string());
     }
