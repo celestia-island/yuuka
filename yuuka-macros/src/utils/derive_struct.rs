@@ -1,11 +1,11 @@
 use std::{cell::RefCell, rc::Rc};
 use syn::{
-    braced,
+    braced, bracketed,
     parse::{Parse, ParseStream},
     Ident, Token,
 };
 
-use super::{DeriveStructItems, StructMembers, StructName};
+use super::{DeriveStructItems, ExtraMacros, StructMembers, StructName};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum DeriveStructVisibility {
@@ -13,11 +13,12 @@ pub enum DeriveStructVisibility {
     PublicOnCrate,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct DeriveStruct {
     pub visibility: DeriveStructVisibility,
     pub ident: StructName,
     pub items: StructMembers,
+    pub extra_macros: ExtraMacros,
 }
 
 impl DeriveStruct {
@@ -31,6 +32,15 @@ impl DeriveStruct {
 
 impl Parse for DeriveStruct {
     fn parse(input: ParseStream) -> syn::Result<Self> {
+        let mut extra_macros = vec![];
+        while input.peek(Token![#]) {
+            input.parse::<Token![#]>()?;
+            let content;
+            bracketed!(content in input);
+
+            extra_macros.push(content.parse()?);
+        }
+
         let visibility = if input.peek(Token![pub]) {
             input.parse::<Token![pub]>()?;
             DeriveStructVisibility::Public
@@ -51,6 +61,7 @@ impl Parse for DeriveStruct {
             visibility,
             ident,
             items: content.items,
+            extra_macros,
         })
     }
 }
