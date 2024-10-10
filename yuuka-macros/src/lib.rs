@@ -12,6 +12,7 @@ use utils::{
 #[proc_macro]
 pub fn derive_struct(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveStruct);
+    dbg!(input.clone());
 
     let is_public = input.visibility == DeriveStructVisibility::Public;
     let root_ident = match input.ident.clone() {
@@ -26,12 +27,20 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
 
     let structs = structs
         .iter()
-        .map(|(ident, v)| {
+        .map(|(ident, v, extra_macros)| {
             let keys = v
                 .iter()
                 .map(|(key, ty, _default_value)| {
                     quote! {
                         pub #key: #ty,
+                    }
+                })
+                .collect::<Vec<_>>();
+            let extra_macros = extra_macros
+                .iter()
+                .map(|content| {
+                    quote! {
+                        #[#content]
                     }
                 })
                 .collect::<Vec<_>>();
@@ -41,6 +50,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
             {
                 quote! {
                     #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize, Default)]
+                    #(#extra_macros)*
                     pub struct #ident {
                         #( #keys )*
                     }
@@ -80,7 +90,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
 
     let enums = enums
         .iter()
-        .map(|(k, v, default_value)| {
+        .map(|(k, v, default_value, extra_macros)| {
             let keys = v
                 .iter()
                 .map(|(key, ty)| match ty {
@@ -127,9 +137,18 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                     }
                 }
             };
+            let extra_macros = extra_macros
+                .iter()
+                .map(|content| {
+                    quote! {
+                        #[#content]
+                    }
+                })
+                .collect::<Vec<_>>();
 
             quote! {
                 #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
+                #(#extra_macros)*
                 pub enum #k {
                     #( #keys )*
                 }

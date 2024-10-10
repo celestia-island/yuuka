@@ -1,17 +1,18 @@
 use std::{cell::RefCell, rc::Rc};
 use syn::{
-    braced,
+    braced, bracketed,
     parse::{Parse, ParseStream},
     Expr, Ident, Token,
 };
 
-use super::{DeriveEnumItems, EnumMembers, StructName};
+use super::{DeriveEnumItems, EnumMembers, ExtraMacros, StructName};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct DeriveEnum {
     pub ident: StructName,
     pub items: EnumMembers,
     pub default_value: Option<Expr>,
+    pub extra_macros: ExtraMacros,
 }
 
 impl DeriveEnum {
@@ -25,6 +26,15 @@ impl DeriveEnum {
 
 impl Parse for DeriveEnum {
     fn parse(input: ParseStream) -> syn::Result<Self> {
+        let mut extra_macros = vec![];
+        while input.peek(Token![#]) {
+            input.parse::<Token![#]>()?;
+            let content;
+            bracketed!(content in input);
+
+            extra_macros.push(content.parse()?);
+        }
+
         input.parse::<Token![enum]>()?;
         let ident: StructName = if input.peek(Ident) {
             StructName::Named(input.parse()?)
@@ -43,12 +53,14 @@ impl Parse for DeriveEnum {
                 ident,
                 items: content.items,
                 default_value: Some(default_value),
+                extra_macros,
             })
         } else {
             Ok(DeriveEnum {
                 ident,
                 items: content.items,
                 default_value: None,
+                extra_macros,
             })
         }
     }

@@ -1,4 +1,5 @@
 use anyhow::Result;
+use proc_macro2::TokenStream;
 use std::{cell::RefCell, rc::Rc};
 use syn::{parse_quote, Expr, Ident, TypePath};
 
@@ -56,7 +57,7 @@ impl StructName {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub(crate) enum StructType {
     Static(TypePath),
     InlineStruct(DeriveStruct),
@@ -65,7 +66,7 @@ pub(crate) enum StructType {
     InlineEnumVector(DeriveEnum),
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub(crate) enum EnumValue {
     Empty,
     Tuple(Vec<StructType>),
@@ -74,6 +75,7 @@ pub(crate) enum EnumValue {
 
 pub(crate) type StructMembers = Vec<(Ident, StructType, DefaultValue)>;
 pub(crate) type EnumMembers = Vec<(Ident, EnumValue)>;
+pub(crate) type ExtraMacros = Vec<TokenStream>;
 
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum EnumValueFlatten {
@@ -81,10 +83,15 @@ pub(crate) enum EnumValueFlatten {
     Tuple(Vec<TypePath>),
     Struct(Vec<(Ident, TypePath, DefaultValue)>),
 }
-pub(crate) type StructsFlatten = Vec<(Ident, Vec<(Ident, TypePath, DefaultValue)>)>;
-pub(crate) type EnumsFlatten = Vec<(Ident, Vec<(Ident, EnumValueFlatten)>, DefaultValue)>;
+pub(crate) type StructsFlatten = Vec<(Ident, Vec<(Ident, TypePath, DefaultValue)>, ExtraMacros)>;
+pub(crate) type EnumsFlatten = Vec<(
+    Ident,
+    Vec<(Ident, EnumValueFlatten)>,
+    DefaultValue,
+    ExtraMacros,
+)>;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub(crate) enum DeriveBox {
     Struct(DeriveStruct),
     Enum(DeriveEnum),
@@ -161,7 +168,7 @@ pub(crate) fn flatten(
             }
 
             let ty = parent.ident.to_ident()?;
-            structs.push((ty, items));
+            structs.push((ty, items, parent.extra_macros.clone()));
 
             Ok((structs, enums))
         }
@@ -330,6 +337,7 @@ pub(crate) fn flatten(
                 } else {
                     DefaultValue::None
                 },
+                parent.extra_macros.clone(),
             ));
 
             Ok((structs, enums))
