@@ -12,7 +12,6 @@ use utils::{
 #[proc_macro]
 pub fn derive_struct(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveStruct);
-    dbg!(input.clone());
 
     let is_public = input.visibility == DeriveStructVisibility::Public;
     let root_ident = match input.ident.clone() {
@@ -22,8 +21,12 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
         }
     };
     let mod_ident = syn::Ident::new(&format!("__{}", root_ident), root_ident.span());
-    let (structs, enums) = flatten(Rc::new(RefCell::new(0)), utils::DeriveBox::Struct(input))
-        .expect("Failed to flatten");
+    let (structs, enums) = flatten(
+        Rc::new(RefCell::new(0)),
+        utils::DeriveBox::Struct(input.clone()),
+        vec![],
+    )
+    .expect("Failed to flatten");
 
     let structs = structs
         .iter()
@@ -44,6 +47,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                     }
                 })
                 .collect::<Vec<_>>();
+            dbg!(ident.clone(), extra_macros.clone());
 
             if v.iter()
                 .all(|(_, _, default_value)| default_value == &DefaultValue::None)
@@ -72,6 +76,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
 
                 quote! {
                     #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
+                    #(#extra_macros)*
                     pub struct #ident {
                         #( #keys )*
                     }

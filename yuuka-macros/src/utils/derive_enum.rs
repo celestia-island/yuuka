@@ -22,6 +22,12 @@ impl DeriveEnum {
         *id.borrow_mut() += 1;
         ret
     }
+
+    pub fn extend_extra_macros(&self, extra_macros: ExtraMacros) -> Self {
+        let mut ret = self.clone();
+        ret.extra_macros.extend(extra_macros);
+        ret
+    }
 }
 
 impl Parse for DeriveEnum {
