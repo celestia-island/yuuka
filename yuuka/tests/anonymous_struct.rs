@@ -159,9 +159,9 @@ mod test {
 
         let mut root = Root::default();
         root.a.push(Default::default());
-        assert_eq!(root.a, vec![__Root::_0_anonymous::Midori]);
+        assert_eq!(root.a, vec![__Root::_Root_0_anonymous::Midori]);
         let mut root2 = Root2::default();
         root2.a.push(Default::default());
-        assert_eq!(root2.a, vec![__Root2::_0_anonymous::Arisu(233)]);
+        assert_eq!(root2.a, vec![__Root2::_Root2_0_anonymous::Arisu(233)]);
     }
 }
