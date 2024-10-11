@@ -22,6 +22,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
     };
     let mod_ident = syn::Ident::new(&format!("__{}", root_ident), root_ident.span());
     let (structs, enums) = flatten(
+        root_ident.to_string(),
         Rc::new(RefCell::new(0)),
         utils::DeriveBox::Struct(input.clone()),
         vec![],

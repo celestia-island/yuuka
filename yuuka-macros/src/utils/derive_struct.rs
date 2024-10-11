@@ -22,9 +22,9 @@ pub struct DeriveStruct {
 }
 
 impl DeriveStruct {
-    pub fn pin_unique_id(&self, id: Rc<RefCell<usize>>) -> Self {
+    pub fn pin_unique_id(&self, root_name: String, id: Rc<RefCell<usize>>) -> Self {
         let mut ret = self.clone();
-        ret.ident = ret.ident.pin_unique_id(*id.borrow());
+        ret.ident = ret.ident.pin_unique_id(root_name, *id.borrow());
         *id.borrow_mut() += 1;
         ret
     }
