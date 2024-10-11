@@ -13,18 +13,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
 
-      - name: cargo-release Cache
-        id: cargo_release_cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.cargo/bin/cargo-release
-          key: ${{ runner.os }}-cargo-release
-
+      - uses: Swatinem/rust-cache@v2
       - run: cargo install cargo-release
-        if: steps.cargo_release_cache.outputs.cache-hit != 'true'
 
       - run: cargo login ${{ secrets.CRATES_IO_API_TOKEN }}
-
       - run: |-
           cargo release \
             publish \
