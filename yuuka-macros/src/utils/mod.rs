@@ -23,34 +23,34 @@ pub(crate) enum DefaultValue {
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum StructName {
     Named(Ident),
-    Unnamed(Option<usize>),
+    Unnamed(Option<(String, usize)>),
 }
 
 impl StructName {
     pub(crate) fn to_ident(&self) -> Result<Ident, syn::Error> {
         Ok(match self {
             StructName::Named(v) => v.clone(),
-            StructName::Unnamed(v) => Ident::new(
-                &format!(
-                    "_{}_anonymous",
-                    v.ok_or(syn::Error::new(
-                        proc_macro2::Span::call_site(),
-                        "Unnamed struct is not supported"
-                    ))?
-                ),
+            StructName::Unnamed(Some((root_name, v))) => Ident::new(
+                &format!("_{}_{}_anonymous", root_name, v),
                 proc_macro2::Span::call_site(),
             ),
+            _ => {
+                return Err(syn::Error::new(
+                    proc_macro2::Span::call_site(),
+                    "Unnamed struct is not supported",
+                ))
+            }
         })
     }
 
-    pub(crate) fn pin_unique_id(&self, unique_id: usize) -> Self {
+    pub(crate) fn pin_unique_id(&self, root_name: String, unique_id: usize) -> Self {
         match self {
             StructName::Named(v) => StructName::Named(v.clone()),
             StructName::Unnamed(v) => {
                 if let Some(v) = v {
-                    StructName::Unnamed(Some(*v))
+                    StructName::Unnamed(Some(v.clone()))
                 } else {
-                    StructName::Unnamed(Some(unique_id))
+                    StructName::Unnamed(Some((root_name, unique_id)))
                 }
             }
         }
@@ -102,6 +102,7 @@ pub(crate) enum DeriveBox {
 }
 
 pub(crate) fn flatten(
+    root_name: String,
     unique_id_count: Rc<RefCell<usize>>,
     parent: DeriveBox,
     parent_extra_macros: ExtraMacros,
@@ -124,8 +125,11 @@ pub(crate) fn flatten(
                         ));
                     }
                     StructType::InlineStruct(v) => {
-                        let v = v.clone().pin_unique_id(unique_id_count.clone());
+                        let v = v
+                            .clone()
+                            .pin_unique_id(root_name.clone(), unique_id_count.clone());
                         let (sub_structs, sub_enums) = flatten(
+                            root_name.clone(),
                             unique_id_count.clone(),
                             DeriveBox::Struct(v.clone()),
                             [parent.extra_macros.clone(), v.extra_macros.clone()].concat(),
@@ -143,8 +147,11 @@ pub(crate) fn flatten(
                         ));
                     }
                     StructType::InlineStructVector(v) => {
-                        let v = v.clone().pin_unique_id(unique_id_count.clone());
+                        let v = v
+                            .clone()
+                            .pin_unique_id(root_name.clone(), unique_id_count.clone());
                         let (sub_structs, sub_enums) = flatten(
+                            root_name.clone(),
                             unique_id_count.clone(),
                             DeriveBox::Struct(v.clone()),
                             [parent.extra_macros.clone(), v.extra_macros.clone()].concat(),
@@ -162,8 +169,11 @@ pub(crate) fn flatten(
                         ));
                     }
                     StructType::InlineEnum(v) => {
-                        let v = v.clone().pin_unique_id(unique_id_count.clone());
+                        let v = v
+                            .clone()
+                            .pin_unique_id(root_name.clone(), unique_id_count.clone());
                         let (sub_structs, sub_enums) = flatten(
+                            root_name.clone(),
                             unique_id_count.clone(),
                             DeriveBox::Enum(v.clone()),
                             [parent.extra_macros.clone(), v.extra_macros.clone()].concat(),
@@ -181,8 +191,11 @@ pub(crate) fn flatten(
                         ));
                     }
                     StructType::InlineEnumVector(v) => {
-                        let v = v.clone().pin_unique_id(unique_id_count.clone());
+                        let v = v
+                            .clone()
+                            .pin_unique_id(root_name.clone(), unique_id_count.clone());
                         let (sub_structs, sub_enums) = flatten(
+                            root_name.clone(),
                             unique_id_count.clone(),
                             DeriveBox::Enum(v.clone()),
                             [parent.extra_macros.clone(), v.extra_macros.clone()].concat(),
@@ -226,8 +239,11 @@ pub(crate) fn flatten(
                                     tuple.push(v.clone());
                                 }
                                 StructType::InlineStruct(v) => {
-                                    let v = v.clone().pin_unique_id(unique_id_count.clone());
+                                    let v = v
+                                        .clone()
+                                        .pin_unique_id(root_name.clone(), unique_id_count.clone());
                                     let (sub_structs, sub_enums) = flatten(
+                                        root_name.clone(),
                                         unique_id_count.clone(),
                                         DeriveBox::Struct(v.clone()),
                                         [parent.extra_macros.clone(), v.extra_macros.clone()]
@@ -241,8 +257,11 @@ pub(crate) fn flatten(
                                     tuple.push(parse_quote! { #ty });
                                 }
                                 StructType::InlineStructVector(v) => {
-                                    let v = v.clone().pin_unique_id(unique_id_count.clone());
+                                    let v = v
+                                        .clone()
+                                        .pin_unique_id(root_name.clone(), unique_id_count.clone());
                                     let (sub_structs, sub_enums) = flatten(
+                                        root_name.clone(),
                                         unique_id_count.clone(),
                                         DeriveBox::Struct(v.clone()),
                                         [parent.extra_macros.clone(), v.extra_macros.clone()]
@@ -256,8 +275,11 @@ pub(crate) fn flatten(
                                     tuple.push(parse_quote! { Vec<#ty> });
                                 }
                                 StructType::InlineEnum(v) => {
-                                    let v = v.clone().pin_unique_id(unique_id_count.clone());
+                                    let v = v
+                                        .clone()
+                                        .pin_unique_id(root_name.clone(), unique_id_count.clone());
                                     let (sub_structs, sub_enums) = flatten(
+                                        root_name.clone(),
                                         unique_id_count.clone(),
                                         DeriveBox::Enum(v.clone()),
                                         [parent.extra_macros.clone(), v.extra_macros.clone()]
@@ -271,8 +293,11 @@ pub(crate) fn flatten(
                                     tuple.push(parse_quote! { #ty });
                                 }
                                 StructType::InlineEnumVector(v) => {
-                                    let v = v.clone().pin_unique_id(unique_id_count.clone());
+                                    let v = v
+                                        .clone()
+                                        .pin_unique_id(root_name.clone(), unique_id_count.clone());
                                     let (sub_structs, sub_enums) = flatten(
+                                        root_name.clone(),
                                         unique_id_count.clone(),
                                         DeriveBox::Enum(v.clone()),
                                         [parent.extra_macros.clone(), v.extra_macros.clone()]
@@ -306,8 +331,11 @@ pub(crate) fn flatten(
                                     ));
                                 }
                                 StructType::InlineStruct(v) => {
-                                    let v = v.clone().pin_unique_id(unique_id_count.clone());
+                                    let v = v
+                                        .clone()
+                                        .pin_unique_id(root_name.clone(), unique_id_count.clone());
                                     let (sub_structs, sub_enums) = flatten(
+                                        root_name.clone(),
                                         unique_id_count.clone(),
                                         DeriveBox::Struct(v.clone()),
                                         [parent.extra_macros.clone(), v.extra_macros.clone()]
@@ -326,8 +354,11 @@ pub(crate) fn flatten(
                                     ));
                                 }
                                 StructType::InlineStructVector(v) => {
-                                    let v = v.clone().pin_unique_id(unique_id_count.clone());
+                                    let v = v
+                                        .clone()
+                                        .pin_unique_id(root_name.clone(), unique_id_count.clone());
                                     let (sub_structs, sub_enums) = flatten(
+                                        root_name.clone(),
                                         unique_id_count.clone(),
                                         DeriveBox::Struct(v.clone()),
                                         [parent.extra_macros.clone(), v.extra_macros.clone()]
@@ -346,8 +377,11 @@ pub(crate) fn flatten(
                                     ));
                                 }
                                 StructType::InlineEnum(v) => {
-                                    let v = v.clone().pin_unique_id(unique_id_count.clone());
+                                    let v = v
+                                        .clone()
+                                        .pin_unique_id(root_name.clone(), unique_id_count.clone());
                                     let (sub_structs, sub_enums) = flatten(
+                                        root_name.clone(),
                                         unique_id_count.clone(),
                                         DeriveBox::Enum(v.clone()),
                                         [parent.extra_macros.clone(), v.extra_macros.clone()]
@@ -366,8 +400,11 @@ pub(crate) fn flatten(
                                     ));
                                 }
                                 StructType::InlineEnumVector(v) => {
-                                    let v = v.clone().pin_unique_id(unique_id_count.clone());
+                                    let v = v
+                                        .clone()
+                                        .pin_unique_id(root_name.clone(), unique_id_count.clone());
                                     let (sub_structs, sub_enums) = flatten(
+                                        root_name.clone(),
                                         unique_id_count.clone(),
                                         DeriveBox::Enum(v.clone()),
                                         [parent.extra_macros.clone(), v.extra_macros.clone()]
