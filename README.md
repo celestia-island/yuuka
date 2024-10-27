@@ -13,9 +13,9 @@ The name `yuuka` comes from the character [Yuuka](https://bluearchive.wiki/wiki/
 ## Quick Start
 
 ```rust
-use yuuka::derive_config;
+use yuuka::derive_struct;
 
-derive_config!(GameDevelopment {
+derive_struct!(GameDevelopment {
     description: String,
     members: Members {
         script_writer: String,
