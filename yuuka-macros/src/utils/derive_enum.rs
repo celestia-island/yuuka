@@ -5,10 +5,11 @@ use syn::{
     Expr, Ident, Token,
 };
 
-use super::{DeriveEnumItems, EnumMembers, ExtraMacros, StructName};
+use super::{DeriveEnumItems, DeriveVisibility, EnumMembers, ExtraMacros, StructName};
 
 #[derive(Debug, Clone)]
 pub struct DeriveEnum {
+    pub visibility: DeriveVisibility,
     pub ident: StructName,
     pub items: EnumMembers,
     pub default_value: Option<Expr>,
@@ -41,6 +42,13 @@ impl Parse for DeriveEnum {
             extra_macros.push(content.parse()?);
         }
 
+        let visibility = if input.peek(Token![pub]) {
+            input.parse::<Token![pub]>()?;
+            DeriveVisibility::Public
+        } else {
+            DeriveVisibility::PublicOnCrate
+        };
+
         input.parse::<Token![enum]>()?;
         let ident: StructName = if input.peek(Ident) {
             StructName::Named(input.parse()?)
@@ -56,6 +64,7 @@ impl Parse for DeriveEnum {
             let default_value = input.parse::<Expr>()?;
 
             Ok(DeriveEnum {
+                visibility,
                 ident,
                 items: content.items,
                 default_value: Some(default_value),
@@ -63,6 +72,7 @@ impl Parse for DeriveEnum {
             })
         } else {
             Ok(DeriveEnum {
+                visibility,
                 ident,
                 items: content.items,
                 default_value: None,
