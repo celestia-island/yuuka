@@ -2,7 +2,7 @@
 mod test {
     use yuuka::{derive_enum, derive_struct};
 
-    #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, Default)]
+    #[derive(Debug, Clone, PartialEq, Default)]
     struct C {
         d: f64,
     }

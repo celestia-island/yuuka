@@ -9,21 +9,26 @@
 //! ## Quick Start
 //!
 //! ```rust
+//!
+//! use serde::{Serialize, Deserialize};
 //! use yuuka::derive_struct;
 //!
-//! derive_struct!(GameDevelopment {
-//!     description: String,
-//!     members: Members {
-//!         script_writer: String,
-//!         illustrator: String,
-//!         programmer: String,
-//!         tester: Vec<String>,
-//!     },
-//!     projects: [Project {
-//!         project_name: String,
-//!         engine: String,
-//!     }],
-//! });
+//! derive_struct!(
+//!     #[derive(Serialize, Deserialize)]
+//!     GameDevelopment {
+//!         description: String,
+//!         members: Members {
+//!             script_writer: String,
+//!             illustrator: String,
+//!             programmer: String,
+//!             tester: Vec<String>,
+//!         },
+//!         projects: [Project {
+//!             project_name: String,
+//!             engine: String,
+//!         }],
+//!     }
+//! );
 //!
 //! # fn main() {
 //! let config = GameDevelopment {

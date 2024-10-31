@@ -1,10 +1,12 @@
 #[cfg(test)]
 mod test {
+    use serde::{Deserialize, Serialize};
     use yuuka::derive_struct;
 
     #[test]
     fn extra_derive_struct() {
         derive_struct!(
+            #[derive(Serialize, Deserialize)]
             #[serde(rename_all = "camelCase")]
             Root {
                 nick_name: String,
@@ -25,6 +27,7 @@ mod test {
     #[test]
     fn extra_derive_enum() {
         derive_struct!(
+            #[derive(Serialize, Deserialize)]
             #[serde(rename_all = "snake_case")]
             Root {
                 nick_name: enum {
@@ -46,6 +49,7 @@ mod test {
     #[test]
     fn extra_derive_struct_with_multi_level() {
         derive_struct!(
+            #[derive(Serialize, Deserialize)]
             #[serde(rename_all = "camelCase")]
             Root {
                 nick_name: {
@@ -88,6 +92,7 @@ mod test {
     #[test]
     fn extra_derive_struct_for_keys() {
         derive_struct!(
+            #[derive(Serialize, Deserialize)]
             #[serde(rename_all = "camelCase")]
             Root {
                 nick_name: String,
@@ -109,6 +114,7 @@ mod test {
     #[test]
     fn extra_derive_enum_for_keys() {
         derive_struct!(
+            #[derive(Serialize, Deserialize)]
             #[serde(rename_all = "snake_case")]
             Root {
                 nick_name: enum {

@@ -62,14 +62,15 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                 .all(|(_, _, default_value, _)| default_value == &DefaultValue::None)
             {
                 quote! {
-                    #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize, Default)]
+                    #[derive(Debug, Clone, PartialEq, Default)]
                     #(#extra_macros)*
                     pub struct #ident {
                         #( #keys )*
                     }
                 }
             } else {
-                let default_values = v.iter()
+                let default_values = v
+                    .iter()
                     .map(|(key, _, default_value, _)| match default_value {
                         DefaultValue::None => quote! {
                             #key: Default::default(),
@@ -84,7 +85,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                     .collect::<Vec<_>>();
 
                 quote! {
-                    #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
+                    #[derive(Debug, Clone, PartialEq)]
                     #(#extra_macros)*
                     pub struct #ident {
                         #( #keys )*
@@ -185,7 +186,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                 .collect::<Vec<_>>();
 
             quote! {
-                #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
+                #[derive(Debug, Clone, PartialEq)]
                 #(#extra_macros)*
                 pub enum #k {
                     #( #keys )*
@@ -279,14 +280,15 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
                 .all(|(_, _, default_value, _)| default_value == &DefaultValue::None)
             {
                 quote! {
-                    #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize, Default)]
+                    #[derive(Debug, Clone, PartialEq, Default)]
                     #(#extra_macros)*
                     pub struct #ident {
                         #( #keys )*
                     }
                 }
             } else {
-                let default_values = v.iter()
+                let default_values = v
+                    .iter()
                     .map(|(key, _, default_value, _)| match default_value {
                         DefaultValue::None => quote! {
                             #key: Default::default(),
@@ -301,7 +303,7 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
                     .collect::<Vec<_>>();
 
                 quote! {
-                    #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
+                    #[derive(Debug, Clone, PartialEq)]
                     #(#extra_macros)*
                     pub struct #ident {
                         #( #keys )*
@@ -402,7 +404,7 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
                 .collect::<Vec<_>>();
 
             quote! {
-                #[derive(Debug, Clone, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
+                #[derive(Debug, Clone, PartialEq)]
                 #(#extra_macros)*
                 pub enum #k {
                     #( #keys )*
