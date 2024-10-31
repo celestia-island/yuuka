@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod test {
-    use yuuka::derive_struct;
+    use yuuka::{derive_enum, derive_struct};
 
     #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, Default)]
     struct C {
@@ -22,5 +22,18 @@ mod test {
                 d: std::f64::consts::PI,
             },
         };
+    }
+
+    derive_enum!(
+        pub enum Root2 {
+            A,
+            B,
+            C,
+        }
+    );
+
+    #[test]
+    fn pub_type_enum() {
+        let _ = Root2::A;
     }
 }

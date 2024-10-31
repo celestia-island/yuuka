@@ -13,6 +13,13 @@ pub(crate) use derive_enum_items::DeriveEnumItems;
 pub(crate) use derive_struct::DeriveStruct;
 pub(crate) use derive_struct_items::DeriveStructItems;
 
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub enum DeriveVisibility {
+    Public,
+    #[default]
+    PublicOnCrate,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum DefaultValue {
     None,

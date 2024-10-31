@@ -5,17 +5,11 @@ use syn::{
     Ident, Token,
 };
 
-use super::{DeriveStructItems, ExtraMacros, StructMembers, StructName};
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum DeriveStructVisibility {
-    Public,
-    PublicOnCrate,
-}
+use super::{DeriveStructItems, DeriveVisibility, ExtraMacros, StructMembers, StructName};
 
 #[derive(Debug, Clone)]
 pub struct DeriveStruct {
-    pub visibility: DeriveStructVisibility,
+    pub visibility: DeriveVisibility,
     pub ident: StructName,
     pub items: StructMembers,
     pub extra_macros: ExtraMacros,
@@ -49,9 +43,9 @@ impl Parse for DeriveStruct {
 
         let visibility = if input.peek(Token![pub]) {
             input.parse::<Token![pub]>()?;
-            DeriveStructVisibility::Public
+            DeriveVisibility::Public
         } else {
-            DeriveStructVisibility::PublicOnCrate
+            DeriveVisibility::PublicOnCrate
         };
 
         let ident: StructName = if input.peek(Ident) {
