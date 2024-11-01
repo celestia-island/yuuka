@@ -62,7 +62,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                 .all(|(_, _, default_value, _)| default_value == &DefaultValue::None)
             {
                 quote! {
-                    #[derive(Debug, Clone, PartialEq, Default)]
+                    #[derive(Debug, Clone, Default)]
                     #(#extra_macros)*
                     pub struct #ident {
                         #( #keys )*
@@ -85,7 +85,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                     .collect::<Vec<_>>();
 
                 quote! {
-                    #[derive(Debug, Clone, PartialEq)]
+                    #[derive(Debug, Clone)]
                     #(#extra_macros)*
                     pub struct #ident {
                         #( #keys )*
@@ -186,7 +186,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                 .collect::<Vec<_>>();
 
             quote! {
-                #[derive(Debug, Clone, PartialEq)]
+                #[derive(Debug, Clone)]
                 #(#extra_macros)*
                 pub enum #k {
                     #( #keys )*
@@ -280,7 +280,7 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
                 .all(|(_, _, default_value, _)| default_value == &DefaultValue::None)
             {
                 quote! {
-                    #[derive(Debug, Clone, PartialEq, Default)]
+                    #[derive(Debug, Clone, Default)]
                     #(#extra_macros)*
                     pub struct #ident {
                         #( #keys )*
@@ -303,7 +303,7 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
                     .collect::<Vec<_>>();
 
                 quote! {
-                    #[derive(Debug, Clone, PartialEq)]
+                    #[derive(Debug, Clone)]
                     #(#extra_macros)*
                     pub struct #ident {
                         #( #keys )*
@@ -404,7 +404,7 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
                 .collect::<Vec<_>>();
 
             quote! {
-                #[derive(Debug, Clone, PartialEq)]
+                #[derive(Debug, Clone)]
                 #(#extra_macros)*
                 pub enum #k {
                     #( #keys )*
