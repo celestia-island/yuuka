@@ -11,7 +11,7 @@ panic = "abort"
 [workspace.package]
 authors = ["langyo <langyo.china@gmail.com>"]
 
-version = "0.3.6"
+version = "0.3.7"
 edition = "2021"
 
 [workspace.dependencies]
