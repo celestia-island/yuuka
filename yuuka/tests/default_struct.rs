@@ -48,14 +48,17 @@ mod test {
 
     #[test]
     fn default_enum() {
-        derive_struct!(Root {
-            a: enum Member {
-                Momoi,
-                Midori,
-                Yuzu,
-                Arisu,
-            } = Midori
-        });
+        derive_struct!(
+            #[derive(PartialEq)]
+            Root {
+                a: enum Member {
+                    Momoi,
+                    Midori,
+                    Yuzu,
+                    Arisu,
+                } = Midori
+            }
+        );
 
         let val = Root::default();
         assert_eq!(val.a, Member::Midori);
@@ -63,14 +66,17 @@ mod test {
 
     #[test]
     fn default_enum_array() {
-        derive_struct!(Root {
-            a: [enum Member {
-                Momoi,
-                Midori,
-                Yuzu,
-                Arisu,
-            } = Midori] = vec![Member::Arisu]
-        });
+        derive_struct!(
+            #[derive(PartialEq)]
+            Root {
+                a: [enum Member {
+                    Momoi,
+                    Midori,
+                    Yuzu,
+                    Arisu,
+                } = Midori] = vec![Member::Arisu]
+            }
+        );
 
         let mut val = Root::default();
         assert_eq!(val.a.len(), 1);

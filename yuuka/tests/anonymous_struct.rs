@@ -140,22 +140,30 @@ mod test {
 
     #[test]
     fn derive_struct_anonymously_with_default_enum_array() {
-        derive_struct!(Root {
-            a: [enum {
-                Momoi,
-                Midori,
-                Yuzu,
-                Arisu,
-            } = Midori],
-        });
-        derive_struct!(Root2 {
-            a: [enum {
-                Momoi,
-                Midori,
-                Yuzu,
-                Arisu(usize),
-            } = Arisu(233)],
-        });
+        derive_struct!(
+            #[derive(PartialEq)]
+            Root {
+                a: [
+                    enum {
+                        Momoi,
+                        Midori,
+                        Yuzu,
+                        Arisu,
+                    } = Midori
+                ],
+            }
+        );
+        derive_struct!(
+            #[derive(PartialEq)]
+            Root2 {
+                a: [enum {
+                    Momoi,
+                    Midori,
+                    Yuzu,
+                    Arisu(usize),
+                } = Arisu(233)],
+            }
+        );
 
         let mut root = Root::default();
         root.a.push(Default::default());
