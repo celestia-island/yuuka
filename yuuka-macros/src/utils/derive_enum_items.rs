@@ -1,11 +1,12 @@
-use proc_macro2::TokenStream;
 use syn::{
     braced, bracketed, parenthesized,
     parse::{Parse, ParseStream},
     token, Ident, Token, TypePath,
 };
 
-use super::{DeriveEnum, DeriveStruct, DeriveStructItems, EnumMembers, EnumValue, StructType};
+use super::{
+    DeriveEnum, DeriveStruct, DeriveStructItems, EnumMembers, EnumValue, ExtraMacros, StructType,
+};
 
 #[derive(Debug, Clone)]
 pub struct DeriveEnumItems {
@@ -17,14 +18,11 @@ impl Parse for DeriveEnumItems {
         let mut own_enum: EnumMembers = Vec::new();
 
         while !input.is_empty() {
-            let mut extra_macros = vec![];
-            while input.peek(Token![#]) {
-                input.parse::<Token![#]>()?;
-                let content;
-                bracketed!(content in input);
-
-                extra_macros.push(content.parse::<TokenStream>()?);
-            }
+            let extra_macros = if input.peek(Token![#]) {
+                input.parse::<ExtraMacros>()?
+            } else {
+                Default::default()
+            };
 
             let key = input.parse::<Ident>()?;
 
