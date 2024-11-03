@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod test {
     use serde::{Deserialize, Serialize};
-    use yuuka::derive_struct;
+    use yuuka::{derive_enum, derive_struct};
 
     #[test]
     fn extra_derive_struct() {
@@ -131,6 +131,83 @@ mod test {
         assert_eq!(
             serde_json::to_string(&ret).unwrap(),
             r#"{"nick_name":"yuzu"}"#
+        );
+    }
+
+    #[test]
+    fn extra_derive_derive_for_typed_keys() {
+        derive_struct!(
+            Root {
+                nick_name: String,
+                #[derive(Serialize, Deserialize)]
+                #[serde(rename_all = "snake_case")]
+                location: Location {
+                    country: String,
+                    address: String,
+                },
+                profile: {
+                    age: u8,
+                    #[derive(Serialize, Deserialize)]
+                    sex: enum {
+                        Male, Female, Custom(String)
+                    }
+                },
+            }
+        );
+    }
+
+    #[test]
+    fn extra_derive_derive_for_anonymous_keys() {
+        derive_struct!(
+            Root {
+                nick_name: String,
+                #[derive(Serialize, Deserialize)]
+                #[serde(rename_all = "snake_case")]
+                location: {
+                    country: String,
+                    address: String,
+                },
+            }
+        );
+    }
+
+    #[test]
+    fn extra_derive_enum_for_typed_keys() {
+        derive_enum!(
+            enum Group {
+                Millennium(enum {
+                    #[derive(Serialize, Deserialize)]
+                    #[serde(rename_all = "snake_case")]
+                    GameDevelopment(enum GameDevelopment {
+                        Momoi,
+                        Midori,
+                        Yuzu,
+                        Arisu,
+                    }),
+                    CAndC,
+                    Veritasu,
+                })
+            }
+        );
+    }
+
+    #[test]
+    fn extra_derive_enum_for_anonymous_keys() {
+        derive_enum!(
+            enum Group {
+                Millennium(enum {
+                    #[derive(Serialize, Deserialize)]
+                    #[serde(rename_all = "snake_case")]
+                    GameDevelopment(enum {
+                        Momoi,
+                        Midori,
+                        Yuzu,
+                        Arisu,
+                    }),
+                    CAndC,
+                    Veritasu,
+                })
+            }
         );
     }
 }
