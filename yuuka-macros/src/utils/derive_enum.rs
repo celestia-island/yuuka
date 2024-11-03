@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 use syn::{
-    braced, bracketed,
+    braced,
     parse::{Parse, ParseStream},
     Expr, Ident, Token,
 };
@@ -24,23 +24,20 @@ impl DeriveEnum {
         ret
     }
 
-    pub fn extend_extra_macros(&self, extra_macros: ExtraMacros) -> Self {
+    pub fn extend_extra_macros(&self, extra_macros: Vec<Ident>) -> Self {
         let mut ret = self.clone();
-        ret.extra_macros.extend(extra_macros);
+        ret.extra_macros.extend_derive_macros(extra_macros);
         ret
     }
 }
 
 impl Parse for DeriveEnum {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let mut extra_macros = vec![];
-        while input.peek(Token![#]) {
-            input.parse::<Token![#]>()?;
-            let content;
-            bracketed!(content in input);
-
-            extra_macros.push(content.parse()?);
-        }
+        let extra_macros = if input.peek(Token![#]) {
+            input.parse::<ExtraMacros>()?
+        } else {
+            Default::default()
+        };
 
         let visibility = if input.peek(Token![pub]) {
             input.parse::<Token![pub]>()?;

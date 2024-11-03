@@ -35,6 +35,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                 .iter()
                 .map(|(key, ty, _default_value, extra_macros)| {
                     let extra_macros = extra_macros
+                        .attr_macros
                         .iter()
                         .map(|content| {
                             quote! {
@@ -49,21 +50,40 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                     }
                 })
                 .collect::<Vec<_>>();
-            let extra_macros = extra_macros
-                .iter()
-                .map(|content| {
-                    quote! {
-                        #[#content]
-                    }
-                })
-                .collect::<Vec<_>>();
+
+            let derive_macros = extra_macros.derive_macros.clone();
+            let attr_macros = extra_macros.attr_macros.clone();
+
+            let derive_macros = if derive_macros.is_empty() {
+                quote! {}
+            } else {
+                quote! {
+                    #[derive(#(#derive_macros),*)]
+                }
+            };
+            let attr_macros = if attr_macros.is_empty() {
+                quote! {}
+            } else {
+                let list = attr_macros
+                    .iter()
+                    .map(|content| {
+                        quote! {
+                           #[#content]
+                        }
+                    })
+                    .collect::<Vec<_>>();
+                quote! {
+                    #(#list)*
+                }
+            };
 
             if v.iter()
                 .all(|(_, _, default_value, _)| default_value == &DefaultValue::None)
             {
                 quote! {
                     #[derive(Debug, Clone, Default)]
-                    #(#extra_macros)*
+                    #derive_macros
+                    #attr_macros
                     pub struct #ident {
                         #( #keys )*
                     }
@@ -86,7 +106,8 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
 
                 quote! {
                     #[derive(Debug, Clone)]
-                    #(#extra_macros)*
+                    #derive_macros
+                    #attr_macros
                     pub struct #ident {
                         #( #keys )*
                     }
@@ -110,6 +131,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                 .iter()
                 .map(|(key, ty, extra_macros)| {
                     let extra_macros = extra_macros
+                        .attr_macros
                         .iter()
                         .map(|content| {
                             quote! {
@@ -123,17 +145,16 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                             #(#extra_macros)*
                             #key,
                         },
-                        EnumValueFlatten::Tuple(v) => {
-                            quote! {
+                        EnumValueFlatten::Tuple(v) => quote! {
                             #(#extra_macros)*
-                                #key(#(#v),*),
-                            }
-                        }
+                            #key(#(#v),*),
+                        },
                         EnumValueFlatten::Struct(v) => {
                             let keys = v
                                 .iter()
                                 .map(|(key, ty, _default_value, extra_macros)| {
                                     let extra_macros = extra_macros
+                                        .attr_macros
                                         .iter()
                                         .map(|content| {
                                             quote! {
@@ -176,18 +197,37 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                     }
                 }
             };
-            let extra_macros = extra_macros
-                .iter()
-                .map(|content| {
-                    quote! {
-                        #[#content]
-                    }
-                })
-                .collect::<Vec<_>>();
+
+            let derive_macros = extra_macros.derive_macros.clone();
+            let attr_macros = extra_macros.attr_macros.clone();
+
+            let derive_macros = if derive_macros.is_empty() {
+                quote! {}
+            } else {
+                quote! {
+                    #[derive(#(#derive_macros),*)]
+                }
+            };
+            let attr_macros = if attr_macros.is_empty() {
+                quote! {}
+            } else {
+                let list = attr_macros
+                    .iter()
+                    .map(|content| {
+                        quote! {
+                           #[#content]
+                        }
+                    })
+                    .collect::<Vec<_>>();
+                quote! {
+                    #(#list)*
+                }
+            };
 
             quote! {
                 #[derive(Debug, Clone)]
-                #(#extra_macros)*
+                #derive_macros
+                #attr_macros
                 pub enum #k {
                     #( #keys )*
                 }
@@ -253,6 +293,7 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
                 .iter()
                 .map(|(key, ty, _default_value, extra_macros)| {
                     let extra_macros = extra_macros
+                        .attr_macros
                         .iter()
                         .map(|content| {
                             quote! {
@@ -267,21 +308,40 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
                     }
                 })
                 .collect::<Vec<_>>();
-            let extra_macros = extra_macros
-                .iter()
-                .map(|content| {
-                    quote! {
-                        #[#content]
-                    }
-                })
-                .collect::<Vec<_>>();
+
+            let derive_macros = extra_macros.derive_macros.clone();
+            let attr_macros = extra_macros.attr_macros.clone();
+
+            let derive_macros = if derive_macros.is_empty() {
+                quote! {}
+            } else {
+                quote! {
+                    #[derive(#(#derive_macros),*)]
+                }
+            };
+            let attr_macros = if attr_macros.is_empty() {
+                quote! {}
+            } else {
+                let list = attr_macros
+                    .iter()
+                    .map(|content| {
+                        quote! {
+                           #[#content]
+                        }
+                    })
+                    .collect::<Vec<_>>();
+                quote! {
+                    #(#list)*
+                }
+            };
 
             if v.iter()
                 .all(|(_, _, default_value, _)| default_value == &DefaultValue::None)
             {
                 quote! {
                     #[derive(Debug, Clone, Default)]
-                    #(#extra_macros)*
+                    #derive_macros
+                    #attr_macros
                     pub struct #ident {
                         #( #keys )*
                     }
@@ -304,7 +364,8 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
 
                 quote! {
                     #[derive(Debug, Clone)]
-                    #(#extra_macros)*
+                    #derive_macros
+                    #attr_macros
                     pub struct #ident {
                         #( #keys )*
                     }
@@ -328,6 +389,7 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
                 .iter()
                 .map(|(key, ty, extra_macros)| {
                     let extra_macros = extra_macros
+                        .attr_macros
                         .iter()
                         .map(|content| {
                             quote! {
@@ -341,17 +403,16 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
                             #(#extra_macros)*
                             #key,
                         },
-                        EnumValueFlatten::Tuple(v) => {
-                            quote! {
+                        EnumValueFlatten::Tuple(v) => quote! {
                             #(#extra_macros)*
-                                #key(#(#v),*),
-                            }
-                        }
+                            #key(#(#v),*),
+                        },
                         EnumValueFlatten::Struct(v) => {
                             let keys = v
                                 .iter()
                                 .map(|(key, ty, _default_value, extra_macros)| {
                                     let extra_macros = extra_macros
+                                        .attr_macros
                                         .iter()
                                         .map(|content| {
                                             quote! {
@@ -394,18 +455,37 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
                     }
                 }
             };
-            let extra_macros = extra_macros
-                .iter()
-                .map(|content| {
-                    quote! {
-                        #[#content]
-                    }
-                })
-                .collect::<Vec<_>>();
+
+            let derive_macros = extra_macros.derive_macros.clone();
+            let attr_macros = extra_macros.attr_macros.clone();
+
+            let derive_macros = if derive_macros.is_empty() {
+                quote! {}
+            } else {
+                quote! {
+                    #[derive(#(#derive_macros),*)]
+                }
+            };
+            let attr_macros = if attr_macros.is_empty() {
+                quote! {}
+            } else {
+                let list = attr_macros
+                    .iter()
+                    .map(|content| {
+                        quote! {
+                           #[#content]
+                        }
+                    })
+                    .collect::<Vec<_>>();
+                quote! {
+                    #(#list)*
+                }
+            };
 
             quote! {
                 #[derive(Debug, Clone)]
-                #(#extra_macros)*
+                #derive_macros
+                #attr_macros
                 pub enum #k {
                     #( #keys )*
                 }
