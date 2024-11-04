@@ -1,8 +1,9 @@
+use proc_macro2::TokenStream;
 use std::{cell::RefCell, rc::Rc};
 use syn::{
     braced,
     parse::{Parse, ParseStream},
-    Expr, Ident, Token,
+    Expr, Ident, Token, TypePath,
 };
 
 use super::{DeriveEnumItems, DeriveVisibility, EnumMembers, ExtraMacros, StructName};
@@ -24,9 +25,23 @@ impl DeriveEnum {
         ret
     }
 
-    pub fn extend_extra_macros(&self, extra_macros: Vec<Ident>) -> Self {
+    pub fn extend_attr_macros_before_derive(&self, extra_macros: Vec<TokenStream>) -> Self {
+        let mut ret = self.clone();
+        ret.extra_macros
+            .extend_attr_macros_before_derive(extra_macros);
+        ret
+    }
+
+    pub fn extend_derive_macros(&self, extra_macros: Vec<TypePath>) -> Self {
         let mut ret = self.clone();
         ret.extra_macros.extend_derive_macros(extra_macros);
+        ret
+    }
+
+    pub fn extend_attr_macros_after_derive(&self, extra_macros: Vec<TokenStream>) -> Self {
+        let mut ret = self.clone();
+        ret.extra_macros
+            .extend_attr_macros_after_derive(extra_macros);
         ret
     }
 }

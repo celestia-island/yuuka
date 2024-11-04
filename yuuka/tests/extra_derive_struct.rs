@@ -137,77 +137,129 @@ mod test {
     #[test]
     fn extra_derive_derive_for_typed_keys() {
         derive_struct!(
+            #[derive(Serialize, Deserialize)]
+            #[serde(deny_unknown_fields)]
             Root {
                 nick_name: String,
-                #[derive(Serialize, Deserialize)]
-                #[serde(rename_all = "snake_case")]
+                #[serde(rename = "position")]
+                #[derive(PartialEq)]
+                #[serde(rename_all = "UPPERCASE")]
                 location: Location {
                     country: String,
                     address: String,
                 },
-                profile: {
-                    age: u8,
-                    #[derive(Serialize, Deserialize)]
-                    sex: enum {
-                        Male, Female, Custom(String)
-                    }
-                },
             }
+        );
+
+        assert_eq!(
+            serde_json::to_string(&Root {
+                nick_name: "arisu".to_string(),
+                location: Location {
+                    country: "kivotos".to_string(),
+                    address: "777".to_string(),
+                },
+            })
+            .unwrap(),
+            r#"{"nick_name":"arisu","position":{"COUNTRY":"kivotos","ADDRESS":"777"}}"#
         );
     }
 
     #[test]
     fn extra_derive_derive_for_anonymous_keys() {
         derive_struct!(
+            #[derive(Serialize, Deserialize)]
+            #[serde(deny_unknown_fields)]
             Root {
                 nick_name: String,
-                #[derive(Serialize, Deserialize)]
-                #[serde(rename_all = "snake_case")]
+                #[serde(rename = "position")]
+                #[derive(PartialEq)]
+                #[serde(rename_all = "UPPERCASE")]
                 location: {
-                    country: String,
-                    address: String,
+                    country: String = "kivotos".to_string(),
+                    address: String = "777".to_string(),
                 },
             }
+        );
+
+        assert_eq!(
+            serde_json::to_string(&Root {
+                nick_name: "arisu".to_string(),
+                location: Default::default(),
+            })
+            .unwrap(),
+            r#"{"nick_name":"arisu","position":{"COUNTRY":"kivotos","ADDRESS":"777"}}"#
         );
     }
 
     #[test]
     fn extra_derive_enum_for_typed_keys() {
         derive_enum!(
+            #[derive(Serialize, Deserialize)]
+            #[serde(deny_unknown_fields)]
             enum Group {
-                Millennium(enum {
-                    #[derive(Serialize, Deserialize)]
-                    #[serde(rename_all = "snake_case")]
+                #[serde(rename = "777")]
+                #[derive(PartialEq)]
+                #[serde(rename_all = "UPPERCASE")]
+                Millennium(enum Millennium {
                     GameDevelopment(enum GameDevelopment {
                         Momoi,
                         Midori,
                         Yuzu,
                         Arisu,
                     }),
+                    #[serde(rename = "C&C")]
                     CAndC,
                     Veritasu,
                 })
             }
+        );
+
+        assert_eq!(
+            serde_json::to_string(&Group::Millennium(Millennium::GameDevelopment(
+                GameDevelopment::Yuzu
+            )))
+            .unwrap(),
+            r#"{"777":{"GAMEDEVELOPMENT":"Yuzu"}}"#
+        );
+        assert_eq!(
+            serde_json::to_string(&Group::Millennium(Millennium::CAndC)).unwrap(),
+            r#"{"777":"C&C"}"#
         );
     }
 
     #[test]
     fn extra_derive_enum_for_anonymous_keys() {
         derive_enum!(
+            #[derive(Serialize, Deserialize)]
+            #[serde(deny_unknown_fields)]
             enum Group {
+                #[serde(rename = "777")]
+                #[derive(PartialEq)]
+                #[serde(rename_all = "UPPERCASE")]
                 Millennium(enum {
-                    #[derive(Serialize, Deserialize)]
-                    #[serde(rename_all = "snake_case")]
-                    GameDevelopment(enum {
+                    GameDevelopment(enum GameDevelopment {
                         Momoi,
                         Midori,
                         Yuzu,
                         Arisu,
-                    }),
+                    } = Yuzu),
+                    #[serde(rename = "C&C")]
                     CAndC,
                     Veritasu,
-                })
-            }
+                } = GameDevelopment(Default::default()))
+            } = Millennium(Default::default())
+        );
+
+        assert_eq!(
+            serde_json::to_string(&Group::Millennium(_Group_0_anonymous::GameDevelopment(
+                GameDevelopment::Yuzu
+            )))
+            .unwrap(),
+            r#"{"777":{"GAMEDEVELOPMENT":"Yuzu"}}"#
+        );
+        assert_eq!(
+            serde_json::to_string(&Group::Millennium(_Group_0_anonymous::CAndC)).unwrap(),
+            r#"{"777":"C&C"}"#
         );
     }
 }

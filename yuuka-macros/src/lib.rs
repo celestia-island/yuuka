@@ -24,7 +24,6 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
         root_ident.to_string(),
         Rc::new(RefCell::new(0)),
         utils::DeriveBox::Struct(input.clone()),
-        vec![],
     )
     .expect("Failed to flatten");
 
@@ -35,7 +34,6 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                 .iter()
                 .map(|(key, ty, _default_value, extra_macros)| {
                     let extra_macros = extra_macros
-                        .attr_macros
                         .iter()
                         .map(|content| {
                             quote! {
@@ -131,7 +129,6 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                 .iter()
                 .map(|(key, ty, extra_macros)| {
                     let extra_macros = extra_macros
-                        .attr_macros
                         .iter()
                         .map(|content| {
                             quote! {
@@ -154,7 +151,6 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
                                 .iter()
                                 .map(|(key, ty, _default_value, extra_macros)| {
                                     let extra_macros = extra_macros
-                                        .attr_macros
                                         .iter()
                                         .map(|content| {
                                             quote! {
@@ -282,7 +278,6 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
         root_ident.to_string(),
         Rc::new(RefCell::new(0)),
         utils::DeriveBox::Enum(input.clone()),
-        vec![],
     )
     .expect("Failed to flatten");
 
@@ -293,7 +288,6 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
                 .iter()
                 .map(|(key, ty, _default_value, extra_macros)| {
                     let extra_macros = extra_macros
-                        .attr_macros
                         .iter()
                         .map(|content| {
                             quote! {
@@ -389,7 +383,6 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
                 .iter()
                 .map(|(key, ty, extra_macros)| {
                     let extra_macros = extra_macros
-                        .attr_macros
                         .iter()
                         .map(|content| {
                             quote! {
@@ -412,7 +405,6 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
                                 .iter()
                                 .map(|(key, ty, _default_value, extra_macros)| {
                                     let extra_macros = extra_macros
-                                        .attr_macros
                                         .iter()
                                         .map(|content| {
                                             quote! {
