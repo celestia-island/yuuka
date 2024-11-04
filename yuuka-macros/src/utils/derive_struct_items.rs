@@ -35,6 +35,11 @@ impl Parse for DeriveStructItems {
                     // sth: [enum Ident { ... }],
                     // sth: [enum { ... }],
                     let content: DeriveEnum = bracket_level_content.parse()?;
+                    let content = content
+                        .extend_derive_macros(extra_macros.derive_macros.clone())
+                        .extend_attr_macros_before_derive(
+                            extra_macros.attr_macros_after_derive.clone(),
+                        );
 
                     own_struct.push((
                         key,
@@ -75,6 +80,11 @@ impl Parse for DeriveStructItems {
                     // sth: [Ident { ... }],
                     // sth: [{ ... }],
                     let content: DeriveStruct = bracket_level_content.parse()?;
+                    let content = content
+                        .extend_derive_macros(extra_macros.derive_macros.clone())
+                        .extend_attr_macros_before_derive(
+                            extra_macros.attr_macros_after_derive.clone(),
+                        );
 
                     own_struct.push((
                         key,
@@ -116,6 +126,11 @@ impl Parse for DeriveStructItems {
                 // sth: enum Ident { ... },
                 // sth: enum { ... },
                 let content: DeriveEnum = input.parse()?;
+                let content = content
+                    .extend_derive_macros(extra_macros.derive_macros.clone())
+                    .extend_attr_macros_before_derive(
+                        extra_macros.attr_macros_after_derive.clone(),
+                    );
 
                 own_struct.push((
                     key.clone(),
@@ -135,6 +150,11 @@ impl Parse for DeriveStructItems {
                 // sth: Ident { ... },
                 // sth: { ... },
                 let content: DeriveStruct = input.parse()?;
+                let content = content
+                    .extend_derive_macros(extra_macros.derive_macros.clone())
+                    .extend_attr_macros_before_derive(
+                        extra_macros.attr_macros_after_derive.clone(),
+                    );
 
                 own_struct.push((
                     key.clone(),
