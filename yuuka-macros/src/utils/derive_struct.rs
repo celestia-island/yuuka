@@ -1,8 +1,9 @@
+use proc_macro2::TokenStream;
 use std::{cell::RefCell, rc::Rc};
 use syn::{
     braced,
     parse::{Parse, ParseStream},
-    Ident, Token,
+    Ident, Token, TypePath,
 };
 
 use super::{DeriveStructItems, DeriveVisibility, ExtraMacros, StructMembers, StructName};
@@ -23,9 +24,23 @@ impl DeriveStruct {
         ret
     }
 
-    pub fn extend_derive_macros(&self, extra_macros: Vec<Ident>) -> Self {
+    pub fn extend_attr_macros_before_derive(&self, extra_macros: Vec<TokenStream>) -> Self {
+        let mut ret = self.clone();
+        ret.extra_macros
+            .extend_attr_macros_before_derive(extra_macros);
+        ret
+    }
+
+    pub fn extend_derive_macros(&self, extra_macros: Vec<TypePath>) -> Self {
         let mut ret = self.clone();
         ret.extra_macros.extend_derive_macros(extra_macros);
+        ret
+    }
+
+    pub fn extend_attr_macros_after_derive(&self, extra_macros: Vec<TokenStream>) -> Self {
+        let mut ret = self.clone();
+        ret.extra_macros
+            .extend_attr_macros_after_derive(extra_macros);
         ret
     }
 }
@@ -50,6 +65,7 @@ impl Parse for DeriveStruct {
         } else {
             StructName::Unnamed(None)
         };
+
         let content;
         braced!(content in input);
         let content: DeriveStructItems = content.parse()?;
