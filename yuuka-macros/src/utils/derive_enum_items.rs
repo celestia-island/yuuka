@@ -49,34 +49,34 @@ impl Parse for DeriveEnumItems {
                             // Ident([enum Ident { ... }], ...),
                             // Ident([enum { ... }], ...),
                             let content: DeriveEnum = bracket_level_content.parse()?;
-                            let content = content
-                                .extend_derive_macros(extra_macros.derive_macros.clone())
-                                .extend_attr_macros_before_derive(
-                                    extra_macros
-                                        .attr_macros_after_derive
-                                        .clone()
-                                        .unwrap_or_default(),
-                                )
-                                .extend_attr_macros_after_derive_recursive(
-                                    extra_macros.attr_macros_after_derive_recursive.clone(),
-                                );
+                            let content =
+                                if let Some(derive_macros) = extra_macros.derive_macros.clone() {
+                                    content
+                                        .extend_derive_macros(derive_macros.derive_macros)
+                                        .extend_attr_macros_after_derive(derive_macros.attr_macros)
+                                        .extend_attr_macros_after_derive_recursive(
+                                            derive_macros.attr_macros_recursive,
+                                        )
+                                } else {
+                                    content
+                                };
 
                             tuple.push(StructType::InlineEnumVector(content));
                         } else {
                             // Ident([Ident { ... }], ...),
                             // Ident([{ ... }], ...),
                             let content: DeriveStruct = bracket_level_content.parse()?;
-                            let content = content
-                                .extend_derive_macros(extra_macros.derive_macros.clone())
-                                .extend_attr_macros_before_derive(
-                                    extra_macros
-                                        .attr_macros_after_derive
-                                        .clone()
-                                        .unwrap_or_default(),
-                                )
-                                .extend_attr_macros_after_derive_recursive(
-                                    extra_macros.attr_macros_after_derive_recursive.clone(),
-                                );
+                            let content =
+                                if let Some(derive_macros) = extra_macros.derive_macros.clone() {
+                                    content
+                                        .extend_derive_macros(derive_macros.derive_macros)
+                                        .extend_attr_macros_after_derive(derive_macros.attr_macros)
+                                        .extend_attr_macros_after_derive_recursive(
+                                            derive_macros.attr_macros_recursive,
+                                        )
+                                } else {
+                                    content
+                                };
 
                             tuple.push(StructType::InlineStructVector(content));
                         }
@@ -84,34 +84,34 @@ impl Parse for DeriveEnumItems {
                         // Ident(enum Ident { ... }, ...),
                         // Ident(enum { ... }, ...),
                         let content: DeriveEnum = sub_content.parse()?;
-                        let content = content
-                            .extend_derive_macros(extra_macros.derive_macros.clone())
-                            .extend_attr_macros_before_derive(
-                                extra_macros
-                                    .attr_macros_after_derive
-                                    .clone()
-                                    .unwrap_or_default(),
-                            )
-                            .extend_attr_macros_after_derive_recursive(
-                                extra_macros.attr_macros_after_derive_recursive.clone(),
-                            );
+                        let content =
+                            if let Some(derive_macros) = extra_macros.derive_macros.clone() {
+                                content
+                                    .extend_derive_macros(derive_macros.derive_macros)
+                                    .extend_attr_macros_after_derive(derive_macros.attr_macros)
+                                    .extend_attr_macros_after_derive_recursive(
+                                        derive_macros.attr_macros_recursive,
+                                    )
+                            } else {
+                                content
+                            };
 
                         tuple.push(StructType::InlineEnum(content));
                     } else if sub_content.peek2(token::Brace) {
                         // Ident(Ident { ... }, ...),
                         // Ident({ ... }, ...),
                         let content: DeriveStruct = sub_content.parse()?;
-                        let content = content
-                            .extend_derive_macros(extra_macros.derive_macros.clone())
-                            .extend_attr_macros_before_derive(
-                                extra_macros
-                                    .attr_macros_after_derive
-                                    .clone()
-                                    .unwrap_or_default(),
-                            )
-                            .extend_attr_macros_after_derive_recursive(
-                                extra_macros.attr_macros_after_derive_recursive.clone(),
-                            );
+                        let content =
+                            if let Some(derive_macros) = extra_macros.derive_macros.clone() {
+                                content
+                                    .extend_derive_macros(derive_macros.derive_macros)
+                                    .extend_attr_macros_after_derive(derive_macros.attr_macros)
+                                    .extend_attr_macros_after_derive_recursive(
+                                        derive_macros.attr_macros_recursive,
+                                    )
+                            } else {
+                                content
+                            };
 
                         tuple.push(StructType::InlineStruct(content));
                     } else {
