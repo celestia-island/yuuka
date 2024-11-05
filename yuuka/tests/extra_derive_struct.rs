@@ -26,31 +26,26 @@ mod test {
 
     #[test]
     fn extra_derive_enum() {
-        derive_struct!(
+        derive_enum!(
             #[derive(Serialize, Deserialize)]
             #[serde(rename_all = "snake_case")]
-            Root {
-                nick_name: enum {
-                    SaibaMomoi,
-                    SaibaMidori,
-                    HanaokaYuzu,
-                    TendouAris,
-                } = SaibaMidori
-            }
+            enum Root {
+                SaibaMomoi,
+                SaibaMidori,
+                HanaokaYuzu,
+                TendouAris,
+            } = SaibaMidori
         );
 
         let ret = Root::default();
-        assert_eq!(
-            serde_json::to_string(&ret).unwrap(),
-            r#"{"nick_name":"saiba_midori"}"#
-        );
+        assert_eq!(serde_json::to_string(&ret).unwrap(), r#""saiba_midori""#);
     }
 
     #[test]
     fn extra_derive_struct_with_multi_level() {
         derive_struct!(
             #[derive(Serialize, Deserialize)]
-            #[serde(rename_all = "camelCase")]
+            #[macros_recursive(serde(rename_all = "camelCase"))]
             Root {
                 nick_name: {
                     chinese: {
