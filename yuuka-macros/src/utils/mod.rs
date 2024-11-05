@@ -132,29 +132,31 @@ pub(crate) fn flatten(
                             key.clone(),
                             v.clone(),
                             default_value.clone(),
-                            extra_macros.attr_macros_before_derive.clone(),
+                            extra_macros.attr_macros.clone(),
                         ));
                     }
                     StructType::InlineStruct(v) => {
                         let v = v
                             .clone()
-                            .pin_unique_id(root_name.clone(), unique_id_count.clone())
-                            .extend_derive_macros(parent.extra_macros.derive_macros.clone())
-                            .extend_attr_macros_after_derive(
-                                extra_macros
-                                    .attr_macros_after_derive
-                                    .clone()
-                                    .unwrap_or_default(),
-                            )
-                            .extend_attr_macros_after_derive_recursive(
-                                parent
-                                    .extra_macros
-                                    .attr_macros_after_derive_recursive
-                                    .clone(),
-                            )
-                            .extend_attr_macros_after_derive_recursive(
-                                extra_macros.attr_macros_after_derive_recursive.clone(),
-                            );
+                            .pin_unique_id(root_name.clone(), unique_id_count.clone());
+                        let v = if let Some(derive_macros) = extra_macros.derive_macros.clone() {
+                            v.extend_attr_macros_after_derive(derive_macros.attr_macros)
+                                .extend_attr_macros_after_derive_recursive(
+                                    derive_macros.attr_macros_recursive,
+                                )
+                        } else {
+                            v
+                        };
+                        let v = if let Some(derive_macros) =
+                            parent.extra_macros.derive_macros.clone()
+                        {
+                            v.extend_derive_macros(derive_macros.derive_macros)
+                                .extend_attr_macros_after_derive_recursive(
+                                    derive_macros.attr_macros_recursive,
+                                )
+                        } else {
+                            v
+                        };
 
                         let (sub_structs, sub_enums) = flatten(
                             root_name.clone(),
@@ -170,29 +172,31 @@ pub(crate) fn flatten(
                             key.clone(),
                             parse_quote! { #ty },
                             default_value.clone(),
-                            extra_macros.attr_macros_before_derive.clone(),
+                            extra_macros.attr_macros.clone(),
                         ));
                     }
                     StructType::InlineStructVector(v) => {
                         let v = v
                             .clone()
-                            .pin_unique_id(root_name.clone(), unique_id_count.clone())
-                            .extend_derive_macros(parent.extra_macros.derive_macros.clone())
-                            .extend_attr_macros_after_derive(
-                                extra_macros
-                                    .attr_macros_after_derive
-                                    .clone()
-                                    .unwrap_or_default(),
-                            )
-                            .extend_attr_macros_after_derive_recursive(
-                                parent
-                                    .extra_macros
-                                    .attr_macros_after_derive_recursive
-                                    .clone(),
-                            )
-                            .extend_attr_macros_after_derive_recursive(
-                                extra_macros.attr_macros_after_derive_recursive.clone(),
-                            );
+                            .pin_unique_id(root_name.clone(), unique_id_count.clone());
+                        let v = if let Some(derive_macros) = extra_macros.derive_macros.clone() {
+                            v.extend_attr_macros_after_derive(derive_macros.attr_macros)
+                                .extend_attr_macros_after_derive_recursive(
+                                    derive_macros.attr_macros_recursive,
+                                )
+                        } else {
+                            v
+                        };
+                        let v = if let Some(derive_macros) =
+                            parent.extra_macros.derive_macros.clone()
+                        {
+                            v.extend_derive_macros(derive_macros.derive_macros)
+                                .extend_attr_macros_after_derive_recursive(
+                                    derive_macros.attr_macros_recursive,
+                                )
+                        } else {
+                            v
+                        };
 
                         let (sub_structs, sub_enums) = flatten(
                             root_name.clone(),
@@ -208,29 +212,31 @@ pub(crate) fn flatten(
                             key.clone(),
                             parse_quote! { Vec<#ty> },
                             default_value.clone(),
-                            extra_macros.attr_macros_before_derive.clone(),
+                            extra_macros.attr_macros.clone(),
                         ));
                     }
                     StructType::InlineEnum(v) => {
                         let v = v
                             .clone()
-                            .pin_unique_id(root_name.clone(), unique_id_count.clone())
-                            .extend_derive_macros(parent.extra_macros.derive_macros.clone())
-                            .extend_attr_macros_after_derive(
-                                extra_macros
-                                    .attr_macros_after_derive
-                                    .clone()
-                                    .unwrap_or_default(),
-                            )
-                            .extend_attr_macros_after_derive_recursive(
-                                parent
-                                    .extra_macros
-                                    .attr_macros_after_derive_recursive
-                                    .clone(),
-                            )
-                            .extend_attr_macros_after_derive_recursive(
-                                extra_macros.attr_macros_after_derive_recursive.clone(),
-                            );
+                            .pin_unique_id(root_name.clone(), unique_id_count.clone());
+                        let v = if let Some(derive_macros) = extra_macros.derive_macros.clone() {
+                            v.extend_attr_macros_after_derive(derive_macros.attr_macros)
+                                .extend_attr_macros_after_derive_recursive(
+                                    derive_macros.attr_macros_recursive,
+                                )
+                        } else {
+                            v
+                        };
+                        let v = if let Some(derive_macros) =
+                            parent.extra_macros.derive_macros.clone()
+                        {
+                            v.extend_derive_macros(derive_macros.derive_macros)
+                                .extend_attr_macros_after_derive_recursive(
+                                    derive_macros.attr_macros_recursive,
+                                )
+                        } else {
+                            v
+                        };
 
                         let (sub_structs, sub_enums) = flatten(
                             root_name.clone(),
@@ -246,29 +252,31 @@ pub(crate) fn flatten(
                             key.clone(),
                             parse_quote! { #ty },
                             default_value.clone(),
-                            extra_macros.attr_macros_before_derive.clone(),
+                            extra_macros.attr_macros.clone(),
                         ));
                     }
                     StructType::InlineEnumVector(v) => {
                         let v = v
                             .clone()
-                            .pin_unique_id(root_name.clone(), unique_id_count.clone())
-                            .extend_derive_macros(parent.extra_macros.derive_macros.clone())
-                            .extend_attr_macros_after_derive(
-                                extra_macros
-                                    .attr_macros_after_derive
-                                    .clone()
-                                    .unwrap_or_default(),
-                            )
-                            .extend_attr_macros_after_derive_recursive(
-                                parent
-                                    .extra_macros
-                                    .attr_macros_after_derive_recursive
-                                    .clone(),
-                            )
-                            .extend_attr_macros_after_derive_recursive(
-                                extra_macros.attr_macros_after_derive_recursive.clone(),
-                            );
+                            .pin_unique_id(root_name.clone(), unique_id_count.clone());
+                        let v = if let Some(derive_macros) = extra_macros.derive_macros.clone() {
+                            v.extend_attr_macros_after_derive(derive_macros.attr_macros)
+                                .extend_attr_macros_after_derive_recursive(
+                                    derive_macros.attr_macros_recursive,
+                                )
+                        } else {
+                            v
+                        };
+                        let v = if let Some(derive_macros) =
+                            parent.extra_macros.derive_macros.clone()
+                        {
+                            v.extend_derive_macros(derive_macros.derive_macros)
+                                .extend_attr_macros_after_derive_recursive(
+                                    derive_macros.attr_macros_recursive,
+                                )
+                        } else {
+                            v
+                        };
 
                         let (sub_structs, sub_enums) = flatten(
                             root_name.clone(),
@@ -284,7 +292,7 @@ pub(crate) fn flatten(
                             key.clone(),
                             parse_quote! { Vec<#ty> },
                             default_value.clone(),
-                            extra_macros.attr_macros_before_derive.clone(),
+                            extra_macros.attr_macros.clone(),
                         ));
                     }
                 }
@@ -295,19 +303,23 @@ pub(crate) fn flatten(
                 ty,
                 items,
                 ExtraMacrosFlatten {
-                    derive_macros: parent.extra_macros.derive_macros.clone(),
-                    attr_macros: [
-                        parent
-                            .extra_macros
-                            .attr_macros_after_derive
-                            .clone()
-                            .unwrap_or_default(),
-                        parent
-                            .extra_macros
-                            .attr_macros_after_derive_recursive
-                            .clone(),
-                    ]
-                    .concat(),
+                    derive_macros: parent
+                        .extra_macros
+                        .derive_macros
+                        .clone()
+                        .map(|derive_macros| derive_macros.derive_macros)
+                        .unwrap_or_default(),
+                    attr_macros: parent
+                        .extra_macros
+                        .derive_macros
+                        .map(|derive_macros| {
+                            [
+                                derive_macros.attr_macros.clone(),
+                                derive_macros.attr_macros_recursive.clone(),
+                            ]
+                            .concat()
+                        })
+                        .unwrap_or_default(),
                 },
             ));
 
@@ -324,7 +336,7 @@ pub(crate) fn flatten(
                         items.push((
                             key.clone(),
                             EnumValueFlatten::Empty,
-                            extra_macros.attr_macros_before_derive.clone(),
+                            extra_macros.attr_macros.clone(),
                         ));
                     }
                     EnumValue::Tuple(v) => {
@@ -337,25 +349,27 @@ pub(crate) fn flatten(
                                 StructType::InlineStruct(v) => {
                                     let v = v
                                         .clone()
-                                        .pin_unique_id(root_name.clone(), unique_id_count.clone())
-                                        .extend_derive_macros(
-                                            parent.extra_macros.derive_macros.clone(),
-                                        )
-                                        .extend_attr_macros_after_derive(
-                                            extra_macros
-                                                .attr_macros_after_derive
-                                                .clone()
-                                                .unwrap_or_default(),
-                                        )
-                                        .extend_attr_macros_after_derive_recursive(
-                                            parent
-                                                .extra_macros
-                                                .attr_macros_after_derive_recursive
-                                                .clone(),
-                                        )
-                                        .extend_attr_macros_after_derive_recursive(
-                                            extra_macros.attr_macros_after_derive_recursive.clone(),
-                                        );
+                                        .pin_unique_id(root_name.clone(), unique_id_count.clone());
+                                    let v = if let Some(derive_macros) =
+                                        extra_macros.derive_macros.clone()
+                                    {
+                                        v.extend_attr_macros_after_derive(derive_macros.attr_macros)
+                                            .extend_attr_macros_after_derive_recursive(
+                                                derive_macros.attr_macros_recursive,
+                                            )
+                                    } else {
+                                        v
+                                    };
+                                    let v = if let Some(derive_macros) =
+                                        parent.extra_macros.derive_macros.clone()
+                                    {
+                                        v.extend_derive_macros(derive_macros.derive_macros)
+                                            .extend_attr_macros_after_derive_recursive(
+                                                derive_macros.attr_macros_recursive,
+                                            )
+                                    } else {
+                                        v
+                                    };
 
                                     let (sub_structs, sub_enums) = flatten(
                                         root_name.clone(),
@@ -372,25 +386,27 @@ pub(crate) fn flatten(
                                 StructType::InlineStructVector(v) => {
                                     let v = v
                                         .clone()
-                                        .pin_unique_id(root_name.clone(), unique_id_count.clone())
-                                        .extend_derive_macros(
-                                            parent.extra_macros.derive_macros.clone(),
-                                        )
-                                        .extend_attr_macros_after_derive(
-                                            extra_macros
-                                                .attr_macros_after_derive
-                                                .clone()
-                                                .unwrap_or_default(),
-                                        )
-                                        .extend_attr_macros_after_derive_recursive(
-                                            parent
-                                                .extra_macros
-                                                .attr_macros_after_derive_recursive
-                                                .clone(),
-                                        )
-                                        .extend_attr_macros_after_derive_recursive(
-                                            extra_macros.attr_macros_after_derive_recursive.clone(),
-                                        );
+                                        .pin_unique_id(root_name.clone(), unique_id_count.clone());
+                                    let v = if let Some(derive_macros) =
+                                        extra_macros.derive_macros.clone()
+                                    {
+                                        v.extend_attr_macros_after_derive(derive_macros.attr_macros)
+                                            .extend_attr_macros_after_derive_recursive(
+                                                derive_macros.attr_macros_recursive,
+                                            )
+                                    } else {
+                                        v
+                                    };
+                                    let v = if let Some(derive_macros) =
+                                        parent.extra_macros.derive_macros.clone()
+                                    {
+                                        v.extend_derive_macros(derive_macros.derive_macros)
+                                            .extend_attr_macros_after_derive_recursive(
+                                                derive_macros.attr_macros_recursive,
+                                            )
+                                    } else {
+                                        v
+                                    };
 
                                     let (sub_structs, sub_enums) = flatten(
                                         root_name.clone(),
@@ -407,25 +423,27 @@ pub(crate) fn flatten(
                                 StructType::InlineEnum(v) => {
                                     let v = v
                                         .clone()
-                                        .pin_unique_id(root_name.clone(), unique_id_count.clone())
-                                        .extend_derive_macros(
-                                            parent.extra_macros.derive_macros.clone(),
-                                        )
-                                        .extend_attr_macros_after_derive(
-                                            extra_macros
-                                                .attr_macros_after_derive
-                                                .clone()
-                                                .unwrap_or_default(),
-                                        )
-                                        .extend_attr_macros_after_derive_recursive(
-                                            parent
-                                                .extra_macros
-                                                .attr_macros_after_derive_recursive
-                                                .clone(),
-                                        )
-                                        .extend_attr_macros_after_derive_recursive(
-                                            extra_macros.attr_macros_after_derive_recursive.clone(),
-                                        );
+                                        .pin_unique_id(root_name.clone(), unique_id_count.clone());
+                                    let v = if let Some(derive_macros) =
+                                        extra_macros.derive_macros.clone()
+                                    {
+                                        v.extend_attr_macros_after_derive(derive_macros.attr_macros)
+                                            .extend_attr_macros_after_derive_recursive(
+                                                derive_macros.attr_macros_recursive,
+                                            )
+                                    } else {
+                                        v
+                                    };
+                                    let v = if let Some(derive_macros) =
+                                        parent.extra_macros.derive_macros.clone()
+                                    {
+                                        v.extend_derive_macros(derive_macros.derive_macros)
+                                            .extend_attr_macros_after_derive_recursive(
+                                                derive_macros.attr_macros_recursive,
+                                            )
+                                    } else {
+                                        v
+                                    };
 
                                     let (sub_structs, sub_enums) = flatten(
                                         root_name.clone(),
@@ -442,25 +460,27 @@ pub(crate) fn flatten(
                                 StructType::InlineEnumVector(v) => {
                                     let v = v
                                         .clone()
-                                        .pin_unique_id(root_name.clone(), unique_id_count.clone())
-                                        .extend_derive_macros(
-                                            parent.extra_macros.derive_macros.clone(),
-                                        )
-                                        .extend_attr_macros_after_derive(
-                                            extra_macros
-                                                .attr_macros_after_derive
-                                                .clone()
-                                                .unwrap_or_default(),
-                                        )
-                                        .extend_attr_macros_after_derive_recursive(
-                                            parent
-                                                .extra_macros
-                                                .attr_macros_after_derive_recursive
-                                                .clone(),
-                                        )
-                                        .extend_attr_macros_after_derive_recursive(
-                                            extra_macros.attr_macros_after_derive_recursive.clone(),
-                                        );
+                                        .pin_unique_id(root_name.clone(), unique_id_count.clone());
+                                    let v = if let Some(derive_macros) =
+                                        extra_macros.derive_macros.clone()
+                                    {
+                                        v.extend_attr_macros_after_derive(derive_macros.attr_macros)
+                                            .extend_attr_macros_after_derive_recursive(
+                                                derive_macros.attr_macros_recursive,
+                                            )
+                                    } else {
+                                        v
+                                    };
+                                    let v = if let Some(derive_macros) =
+                                        parent.extra_macros.derive_macros.clone()
+                                    {
+                                        v.extend_derive_macros(derive_macros.derive_macros)
+                                            .extend_attr_macros_after_derive_recursive(
+                                                derive_macros.attr_macros_recursive,
+                                            )
+                                    } else {
+                                        v
+                                    };
 
                                     let (sub_structs, sub_enums) = flatten(
                                         root_name.clone(),
@@ -479,7 +499,7 @@ pub(crate) fn flatten(
                         items.push((
                             key.clone(),
                             EnumValueFlatten::Tuple(tuple),
-                            extra_macros.attr_macros_before_derive.clone(),
+                            extra_macros.attr_macros.clone(),
                         ));
                     }
                     EnumValue::Struct(v) => {
@@ -491,31 +511,33 @@ pub(crate) fn flatten(
                                         key.clone(),
                                         v.clone(),
                                         default_value.clone(),
-                                        extra_macros.attr_macros_before_derive.clone(),
+                                        extra_macros.attr_macros.clone(),
                                     ));
                                 }
                                 StructType::InlineStruct(v) => {
                                     let v = v
                                         .clone()
-                                        .pin_unique_id(root_name.clone(), unique_id_count.clone())
-                                        .extend_derive_macros(
-                                            parent.extra_macros.derive_macros.clone(),
-                                        )
-                                        .extend_attr_macros_after_derive(
-                                            extra_macros
-                                                .attr_macros_after_derive
-                                                .clone()
-                                                .unwrap_or_default(),
-                                        )
-                                        .extend_attr_macros_after_derive_recursive(
-                                            parent
-                                                .extra_macros
-                                                .attr_macros_after_derive_recursive
-                                                .clone(),
-                                        )
-                                        .extend_attr_macros_after_derive_recursive(
-                                            extra_macros.attr_macros_after_derive_recursive.clone(),
-                                        );
+                                        .pin_unique_id(root_name.clone(), unique_id_count.clone());
+                                    let v = if let Some(derive_macros) =
+                                        extra_macros.derive_macros.clone()
+                                    {
+                                        v.extend_attr_macros_after_derive(derive_macros.attr_macros)
+                                            .extend_attr_macros_after_derive_recursive(
+                                                derive_macros.attr_macros_recursive,
+                                            )
+                                    } else {
+                                        v
+                                    };
+                                    let v = if let Some(derive_macros) =
+                                        parent.extra_macros.derive_macros.clone()
+                                    {
+                                        v.extend_derive_macros(derive_macros.derive_macros)
+                                            .extend_attr_macros_after_derive_recursive(
+                                                derive_macros.attr_macros_recursive,
+                                            )
+                                    } else {
+                                        v
+                                    };
 
                                     let (sub_structs, sub_enums) = flatten(
                                         root_name.clone(),
@@ -531,31 +553,33 @@ pub(crate) fn flatten(
                                         key.clone(),
                                         parse_quote! { #ty },
                                         default_value.clone(),
-                                        extra_macros.attr_macros_before_derive.clone(),
+                                        extra_macros.attr_macros.clone(),
                                     ));
                                 }
                                 StructType::InlineStructVector(v) => {
                                     let v = v
                                         .clone()
-                                        .pin_unique_id(root_name.clone(), unique_id_count.clone())
-                                        .extend_derive_macros(
-                                            parent.extra_macros.derive_macros.clone(),
-                                        )
-                                        .extend_attr_macros_after_derive(
-                                            extra_macros
-                                                .attr_macros_after_derive
-                                                .clone()
-                                                .unwrap_or_default(),
-                                        )
-                                        .extend_attr_macros_after_derive_recursive(
-                                            parent
-                                                .extra_macros
-                                                .attr_macros_after_derive_recursive
-                                                .clone(),
-                                        )
-                                        .extend_attr_macros_after_derive_recursive(
-                                            extra_macros.attr_macros_after_derive_recursive.clone(),
-                                        );
+                                        .pin_unique_id(root_name.clone(), unique_id_count.clone());
+                                    let v = if let Some(derive_macros) =
+                                        extra_macros.derive_macros.clone()
+                                    {
+                                        v.extend_attr_macros_after_derive(derive_macros.attr_macros)
+                                            .extend_attr_macros_after_derive_recursive(
+                                                derive_macros.attr_macros_recursive,
+                                            )
+                                    } else {
+                                        v
+                                    };
+                                    let v = if let Some(derive_macros) =
+                                        parent.extra_macros.derive_macros.clone()
+                                    {
+                                        v.extend_derive_macros(derive_macros.derive_macros)
+                                            .extend_attr_macros_after_derive_recursive(
+                                                derive_macros.attr_macros_recursive,
+                                            )
+                                    } else {
+                                        v
+                                    };
 
                                     let (sub_structs, sub_enums) = flatten(
                                         root_name.clone(),
@@ -571,31 +595,33 @@ pub(crate) fn flatten(
                                         key.clone(),
                                         parse_quote! { Vec<#ty> },
                                         default_value.clone(),
-                                        extra_macros.attr_macros_before_derive.clone(),
+                                        extra_macros.attr_macros.clone(),
                                     ));
                                 }
                                 StructType::InlineEnum(v) => {
                                     let v = v
                                         .clone()
-                                        .pin_unique_id(root_name.clone(), unique_id_count.clone())
-                                        .extend_derive_macros(
-                                            parent.extra_macros.derive_macros.clone(),
-                                        )
-                                        .extend_attr_macros_after_derive(
-                                            extra_macros
-                                                .attr_macros_after_derive
-                                                .clone()
-                                                .unwrap_or_default(),
-                                        )
-                                        .extend_attr_macros_after_derive_recursive(
-                                            parent
-                                                .extra_macros
-                                                .attr_macros_after_derive_recursive
-                                                .clone(),
-                                        )
-                                        .extend_attr_macros_after_derive_recursive(
-                                            extra_macros.attr_macros_after_derive_recursive.clone(),
-                                        );
+                                        .pin_unique_id(root_name.clone(), unique_id_count.clone());
+                                    let v = if let Some(derive_macros) =
+                                        extra_macros.derive_macros.clone()
+                                    {
+                                        v.extend_attr_macros_after_derive(derive_macros.attr_macros)
+                                            .extend_attr_macros_after_derive_recursive(
+                                                derive_macros.attr_macros_recursive,
+                                            )
+                                    } else {
+                                        v
+                                    };
+                                    let v = if let Some(derive_macros) =
+                                        parent.extra_macros.derive_macros.clone()
+                                    {
+                                        v.extend_derive_macros(derive_macros.derive_macros)
+                                            .extend_attr_macros_after_derive_recursive(
+                                                derive_macros.attr_macros_recursive,
+                                            )
+                                    } else {
+                                        v
+                                    };
 
                                     let (sub_structs, sub_enums) = flatten(
                                         root_name.clone(),
@@ -611,31 +637,33 @@ pub(crate) fn flatten(
                                         key.clone(),
                                         parse_quote! { #ty },
                                         default_value.clone(),
-                                        extra_macros.attr_macros_before_derive.clone(),
+                                        extra_macros.attr_macros.clone(),
                                     ));
                                 }
                                 StructType::InlineEnumVector(v) => {
                                     let v = v
                                         .clone()
-                                        .pin_unique_id(root_name.clone(), unique_id_count.clone())
-                                        .extend_derive_macros(
-                                            parent.extra_macros.derive_macros.clone(),
-                                        )
-                                        .extend_attr_macros_after_derive(
-                                            extra_macros
-                                                .attr_macros_after_derive
-                                                .clone()
-                                                .unwrap_or_default(),
-                                        )
-                                        .extend_attr_macros_after_derive_recursive(
-                                            parent
-                                                .extra_macros
-                                                .attr_macros_after_derive_recursive
-                                                .clone(),
-                                        )
-                                        .extend_attr_macros_after_derive_recursive(
-                                            extra_macros.attr_macros_after_derive_recursive.clone(),
-                                        );
+                                        .pin_unique_id(root_name.clone(), unique_id_count.clone());
+                                    let v = if let Some(derive_macros) =
+                                        extra_macros.derive_macros.clone()
+                                    {
+                                        v.extend_attr_macros_after_derive(derive_macros.attr_macros)
+                                            .extend_attr_macros_after_derive_recursive(
+                                                derive_macros.attr_macros_recursive,
+                                            )
+                                    } else {
+                                        v
+                                    };
+                                    let v = if let Some(derive_macros) =
+                                        parent.extra_macros.derive_macros.clone()
+                                    {
+                                        v.extend_derive_macros(derive_macros.derive_macros)
+                                            .extend_attr_macros_after_derive_recursive(
+                                                derive_macros.attr_macros_recursive,
+                                            )
+                                    } else {
+                                        v
+                                    };
 
                                     let (sub_structs, sub_enums) = flatten(
                                         root_name.clone(),
@@ -651,7 +679,7 @@ pub(crate) fn flatten(
                                         key.clone(),
                                         parse_quote! { Vec<#ty> },
                                         default_value.clone(),
-                                        extra_macros.attr_macros_before_derive.clone(),
+                                        extra_macros.attr_macros.clone(),
                                     ));
                                 }
                             }
@@ -660,7 +688,7 @@ pub(crate) fn flatten(
                         items.push((
                             key.clone(),
                             EnumValueFlatten::Struct(sub_items),
-                            extra_macros.attr_macros_before_derive.clone(),
+                            extra_macros.attr_macros.clone(),
                         ));
                     }
                 }
@@ -676,19 +704,23 @@ pub(crate) fn flatten(
                     DefaultValue::None
                 },
                 ExtraMacrosFlatten {
-                    derive_macros: parent.extra_macros.derive_macros.clone(),
-                    attr_macros: [
-                        parent
-                            .extra_macros
-                            .attr_macros_after_derive
-                            .clone()
-                            .unwrap_or_default(),
-                        parent
-                            .extra_macros
-                            .attr_macros_after_derive_recursive
-                            .clone(),
-                    ]
-                    .concat(),
+                    derive_macros: parent
+                        .extra_macros
+                        .derive_macros
+                        .clone()
+                        .map(|derive_macros| derive_macros.derive_macros)
+                        .unwrap_or_default(),
+                    attr_macros: parent
+                        .extra_macros
+                        .derive_macros
+                        .map(|derive_macros| {
+                            [
+                                derive_macros.attr_macros.clone(),
+                                derive_macros.attr_macros_recursive.clone(),
+                            ]
+                            .concat()
+                        })
+                        .unwrap_or_default(),
                 },
             ));
 
