@@ -25,7 +25,6 @@ impl Parse for DeriveStructItems {
             let key = input.parse::<Ident>()?;
             input.parse::<Token![:]>()?;
 
-            dbg!(&key, &extra_macros);
             if input.peek(token::Bracket) {
                 // sth: [...],
 
@@ -39,10 +38,7 @@ impl Parse for DeriveStructItems {
                     let content = if let Some(derive_macros) = extra_macros.derive_macros.clone() {
                         content
                             .extend_derive_macros(derive_macros.derive_macros)
-                            .extend_attr_macros_after_derive(derive_macros.attr_macros)
-                            .extend_attr_macros_after_derive_recursive(
-                                derive_macros.attr_macros_recursive,
-                            )
+                            .extend_attr_macros_recursive(derive_macros.attr_macros_recursive)
                     } else {
                         content
                     };
@@ -89,10 +85,7 @@ impl Parse for DeriveStructItems {
                     let content = if let Some(derive_macros) = extra_macros.derive_macros.clone() {
                         content
                             .extend_derive_macros(derive_macros.derive_macros)
-                            .extend_attr_macros_after_derive(derive_macros.attr_macros)
-                            .extend_attr_macros_after_derive_recursive(
-                                derive_macros.attr_macros_recursive,
-                            )
+                            .extend_attr_macros_recursive(derive_macros.attr_macros_recursive)
                     } else {
                         content
                     };
@@ -140,10 +133,7 @@ impl Parse for DeriveStructItems {
                 let content = if let Some(derive_macros) = extra_macros.derive_macros.clone() {
                     content
                         .extend_derive_macros(derive_macros.derive_macros)
-                        .extend_attr_macros_after_derive(derive_macros.attr_macros)
-                        .extend_attr_macros_after_derive_recursive(
-                            derive_macros.attr_macros_recursive,
-                        )
+                        .extend_attr_macros_recursive(derive_macros.attr_macros_recursive)
                 } else {
                     content
                 };
@@ -169,10 +159,7 @@ impl Parse for DeriveStructItems {
                 let content = if let Some(derive_macros) = extra_macros.derive_macros.clone() {
                     content
                         .extend_derive_macros(derive_macros.derive_macros)
-                        .extend_attr_macros_after_derive(derive_macros.attr_macros)
-                        .extend_attr_macros_after_derive_recursive(
-                            derive_macros.attr_macros_recursive,
-                        )
+                        .extend_attr_macros_recursive(derive_macros.attr_macros_recursive)
                 } else {
                     content
                 };

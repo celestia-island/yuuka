@@ -25,33 +25,21 @@ impl DeriveEnum {
         ret
     }
 
-    pub fn extend_attr_macros_before_derive(&self, extra_macros: Vec<TokenStream>) -> Self {
-        let mut ret = self.clone();
-        ret.extra_macros
-            .extend_attr_macros_before_derive(extra_macros);
-        ret
-    }
-
     pub fn extend_derive_macros(&self, extra_macros: Vec<TypePath>) -> Self {
         let mut ret = self.clone();
         ret.extra_macros.extend_derive_macros(extra_macros);
         ret
     }
 
-    pub fn extend_attr_macros_after_derive(&self, extra_macros: Vec<TokenStream>) -> Self {
+    pub fn extend_attr_macros(&self, extra_macros: Vec<TokenStream>) -> Self {
         let mut ret = self.clone();
-        ret.extra_macros
-            .extend_attr_macros_after_derive(extra_macros);
+        ret.extra_macros.extend_attr_macros(extra_macros);
         ret
     }
 
-    pub fn extend_attr_macros_after_derive_recursive(
-        &self,
-        extra_macros: Vec<TokenStream>,
-    ) -> Self {
+    pub fn extend_attr_macros_recursive(&self, extra_macros: Vec<TokenStream>) -> Self {
         let mut ret = self.clone();
-        ret.extra_macros
-            .extend_attr_macros_after_derive_recursive(extra_macros);
+        ret.extra_macros.extend_attr_macros_recursive(extra_macros);
         ret
     }
 }
