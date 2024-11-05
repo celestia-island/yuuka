@@ -167,7 +167,7 @@ mod test {
             Root {
                 nick_name: String,
                 #[serde(rename = "position")]
-                #[derive(PartialEq)]
+                #[derive]
                 #[serde(rename_all = "UPPERCASE")]
                 location: {
                     country: String = "kivotos".to_string(),
@@ -229,7 +229,7 @@ mod test {
             #[serde(deny_unknown_fields)]
             enum Group {
                 #[serde(rename = "777")]
-                #[derive(PartialEq)]
+                #[derive]
                 #[serde(rename_all = "UPPERCASE")]
                 Millennium(enum {
                     GameDevelopment(enum GameDevelopment {
