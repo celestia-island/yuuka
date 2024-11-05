@@ -95,20 +95,18 @@ impl Parse for ExtraMacros {
 
                 let token_stream = content.parse::<TokenStream>()?;
                 attr_macros_after_derive_recursive.push(token_stream);
+            } else if !has_parsed_derive {
+                let token_stream = bracked_content.parse::<TokenStream>()?;
+                let token_stream = quote! {
+                    #head_ident #token_stream
+                };
+                attr_macros_before_derive.push(token_stream);
             } else {
-                if !has_parsed_derive {
-                    let token_stream = bracked_content.parse::<TokenStream>()?;
-                    let token_stream = quote! {
-                        #head_ident #token_stream
-                    };
-                    attr_macros_before_derive.push(token_stream);
-                } else {
-                    let token_stream = bracked_content.parse::<TokenStream>()?;
-                    let token_stream = quote! {
-                        #head_ident #token_stream
-                    };
-                    attr_macros_after_derive.push(token_stream);
-                }
+                let token_stream = bracked_content.parse::<TokenStream>()?;
+                let token_stream = quote! {
+                    #head_ident #token_stream
+                };
+                attr_macros_after_derive.push(token_stream);
             }
         }
 
