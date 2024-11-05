@@ -20,10 +20,6 @@ pub struct ExtraMacros {
 }
 
 impl ExtraMacros {
-    pub fn extend_attr_macros_before_derive(&mut self, other: Vec<TokenStream>) {
-        self.attr_macros.extend(other);
-    }
-
     pub fn extend_derive_macros(&mut self, other: Vec<TypePath>) {
         if let Some(derive_macros) = &mut self.derive_macros {
             derive_macros.derive_macros.extend(other);
@@ -36,7 +32,7 @@ impl ExtraMacros {
         }
     }
 
-    pub fn extend_attr_macros_after_derive(&mut self, other: Vec<TokenStream>) {
+    pub fn extend_attr_macros(&mut self, other: Vec<TokenStream>) {
         if let Some(derive_macros) = &mut self.derive_macros {
             derive_macros.attr_macros.extend(other);
         } else {
@@ -48,7 +44,7 @@ impl ExtraMacros {
         }
     }
 
-    pub fn extend_attr_macros_after_derive_recursive(&mut self, other: Vec<TokenStream>) {
+    pub fn extend_attr_macros_recursive(&mut self, other: Vec<TokenStream>) {
         if let Some(derive_macros) = &mut self.derive_macros {
             derive_macros.attr_macros_recursive.extend(other);
         } else {
