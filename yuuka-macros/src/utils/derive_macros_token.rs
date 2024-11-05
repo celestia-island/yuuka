@@ -7,32 +7,57 @@ use syn::{
 };
 
 #[derive(Debug, Clone, Default)]
-pub struct ExtraMacros {
-    pub attr_macros_before_derive: Vec<TokenStream>,
+pub struct ExtraDeriveMacros {
     pub derive_macros: Vec<TypePath>,
-    pub attr_macros_after_derive: Option<Vec<TokenStream>>,
-    pub attr_macros_after_derive_recursive: Vec<TokenStream>,
+    pub attr_macros: Vec<TokenStream>,
+    pub attr_macros_recursive: Vec<TokenStream>,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct ExtraMacros {
+    pub attr_macros: Vec<TokenStream>,
+    pub derive_macros: Option<ExtraDeriveMacros>,
 }
 
 impl ExtraMacros {
     pub fn extend_attr_macros_before_derive(&mut self, other: Vec<TokenStream>) {
-        self.attr_macros_before_derive.extend(other);
+        self.attr_macros.extend(other);
     }
 
     pub fn extend_derive_macros(&mut self, other: Vec<TypePath>) {
-        self.derive_macros.extend(other);
+        if let Some(derive_macros) = &mut self.derive_macros {
+            derive_macros.derive_macros.extend(other);
+        } else {
+            self.derive_macros = Some(ExtraDeriveMacros {
+                derive_macros: other,
+                attr_macros: vec![],
+                attr_macros_recursive: vec![],
+            });
+        }
     }
 
     pub fn extend_attr_macros_after_derive(&mut self, other: Vec<TokenStream>) {
-        if let Some(attr_macros_after_derive) = &mut self.attr_macros_after_derive {
-            attr_macros_after_derive.extend(other);
+        if let Some(derive_macros) = &mut self.derive_macros {
+            derive_macros.attr_macros.extend(other);
         } else {
-            self.attr_macros_after_derive = Some(other);
+            self.derive_macros = Some(ExtraDeriveMacros {
+                derive_macros: vec![],
+                attr_macros: other,
+                attr_macros_recursive: vec![],
+            });
         }
     }
 
     pub fn extend_attr_macros_after_derive_recursive(&mut self, other: Vec<TokenStream>) {
-        self.attr_macros_after_derive_recursive.extend(other);
+        if let Some(derive_macros) = &mut self.derive_macros {
+            derive_macros.attr_macros_recursive.extend(other);
+        } else {
+            self.derive_macros = Some(ExtraDeriveMacros {
+                derive_macros: vec![],
+                attr_macros: vec![],
+                attr_macros_recursive: other,
+            });
+        }
     }
 }
 
@@ -74,34 +99,36 @@ impl Parse for ExtraMacros {
 
                 let token_stream = content.parse::<TokenStream>()?;
                 attr_macros_after_derive_recursive.push(token_stream);
-            } else if !has_parsed_derive {
-                let token_stream = bracked_content.parse::<TokenStream>()?;
-                let token_stream = quote! {
-                    #head_ident #token_stream
-                };
-                attr_macros_before_derive.push(token_stream);
             } else {
-                let token_stream = bracked_content.parse::<TokenStream>()?;
-                let token_stream = quote! {
-                    #head_ident #token_stream
-                };
-                attr_macros_after_derive.push(token_stream);
+                if !has_parsed_derive {
+                    let token_stream = bracked_content.parse::<TokenStream>()?;
+                    let token_stream = quote! {
+                        #head_ident #token_stream
+                    };
+                    attr_macros_before_derive.push(token_stream);
+                } else {
+                    let token_stream = bracked_content.parse::<TokenStream>()?;
+                    let token_stream = quote! {
+                        #head_ident #token_stream
+                    };
+                    attr_macros_after_derive.push(token_stream);
+                }
             }
         }
 
         if !has_parsed_derive {
             Ok(Self {
-                attr_macros_before_derive: attr_macros_after_derive,
-                derive_macros: vec![],
-                attr_macros_after_derive: None,
-                attr_macros_after_derive_recursive,
+                attr_macros: attr_macros_before_derive,
+                derive_macros: None,
             })
         } else {
             Ok(Self {
-                attr_macros_before_derive,
-                derive_macros,
-                attr_macros_after_derive: Some(attr_macros_after_derive),
-                attr_macros_after_derive_recursive,
+                attr_macros: attr_macros_before_derive,
+                derive_macros: Some(ExtraDeriveMacros {
+                    derive_macros,
+                    attr_macros: attr_macros_after_derive,
+                    attr_macros_recursive: attr_macros_after_derive_recursive,
+                }),
             })
         }
     }
