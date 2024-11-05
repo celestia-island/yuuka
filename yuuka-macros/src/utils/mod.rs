@@ -140,10 +140,8 @@ pub(crate) fn flatten(
                             .clone()
                             .pin_unique_id(root_name.clone(), unique_id_count.clone());
                         let v = if let Some(derive_macros) = extra_macros.derive_macros.clone() {
-                            v.extend_attr_macros_after_derive(derive_macros.attr_macros)
-                                .extend_attr_macros_after_derive_recursive(
-                                    derive_macros.attr_macros_recursive,
-                                )
+                            v.extend_attr_macros(derive_macros.attr_macros)
+                                .extend_attr_macros_recursive(derive_macros.attr_macros_recursive)
                         } else {
                             v
                         };
@@ -151,9 +149,7 @@ pub(crate) fn flatten(
                             parent.extra_macros.derive_macros.clone()
                         {
                             v.extend_derive_macros(derive_macros.derive_macros)
-                                .extend_attr_macros_after_derive_recursive(
-                                    derive_macros.attr_macros_recursive,
-                                )
+                                .extend_attr_macros_recursive(derive_macros.attr_macros_recursive)
                         } else {
                             v
                         };
@@ -180,10 +176,8 @@ pub(crate) fn flatten(
                             .clone()
                             .pin_unique_id(root_name.clone(), unique_id_count.clone());
                         let v = if let Some(derive_macros) = extra_macros.derive_macros.clone() {
-                            v.extend_attr_macros_after_derive(derive_macros.attr_macros)
-                                .extend_attr_macros_after_derive_recursive(
-                                    derive_macros.attr_macros_recursive,
-                                )
+                            v.extend_attr_macros(derive_macros.attr_macros)
+                                .extend_attr_macros_recursive(derive_macros.attr_macros_recursive)
                         } else {
                             v
                         };
@@ -191,9 +185,7 @@ pub(crate) fn flatten(
                             parent.extra_macros.derive_macros.clone()
                         {
                             v.extend_derive_macros(derive_macros.derive_macros)
-                                .extend_attr_macros_after_derive_recursive(
-                                    derive_macros.attr_macros_recursive,
-                                )
+                                .extend_attr_macros_recursive(derive_macros.attr_macros_recursive)
                         } else {
                             v
                         };
@@ -220,10 +212,8 @@ pub(crate) fn flatten(
                             .clone()
                             .pin_unique_id(root_name.clone(), unique_id_count.clone());
                         let v = if let Some(derive_macros) = extra_macros.derive_macros.clone() {
-                            v.extend_attr_macros_after_derive(derive_macros.attr_macros)
-                                .extend_attr_macros_after_derive_recursive(
-                                    derive_macros.attr_macros_recursive,
-                                )
+                            v.extend_attr_macros(derive_macros.attr_macros)
+                                .extend_attr_macros_recursive(derive_macros.attr_macros_recursive)
                         } else {
                             v
                         };
@@ -231,9 +221,7 @@ pub(crate) fn flatten(
                             parent.extra_macros.derive_macros.clone()
                         {
                             v.extend_derive_macros(derive_macros.derive_macros)
-                                .extend_attr_macros_after_derive_recursive(
-                                    derive_macros.attr_macros_recursive,
-                                )
+                                .extend_attr_macros_recursive(derive_macros.attr_macros_recursive)
                         } else {
                             v
                         };
@@ -260,10 +248,8 @@ pub(crate) fn flatten(
                             .clone()
                             .pin_unique_id(root_name.clone(), unique_id_count.clone());
                         let v = if let Some(derive_macros) = extra_macros.derive_macros.clone() {
-                            v.extend_attr_macros_after_derive(derive_macros.attr_macros)
-                                .extend_attr_macros_after_derive_recursive(
-                                    derive_macros.attr_macros_recursive,
-                                )
+                            v.extend_attr_macros(derive_macros.attr_macros)
+                                .extend_attr_macros_recursive(derive_macros.attr_macros_recursive)
                         } else {
                             v
                         };
@@ -271,9 +257,7 @@ pub(crate) fn flatten(
                             parent.extra_macros.derive_macros.clone()
                         {
                             v.extend_derive_macros(derive_macros.derive_macros)
-                                .extend_attr_macros_after_derive_recursive(
-                                    derive_macros.attr_macros_recursive,
-                                )
+                                .extend_attr_macros_recursive(derive_macros.attr_macros_recursive)
                         } else {
                             v
                         };
@@ -353,8 +337,8 @@ pub(crate) fn flatten(
                                     let v = if let Some(derive_macros) =
                                         extra_macros.derive_macros.clone()
                                     {
-                                        v.extend_attr_macros_after_derive(derive_macros.attr_macros)
-                                            .extend_attr_macros_after_derive_recursive(
+                                        v.extend_attr_macros(derive_macros.attr_macros)
+                                            .extend_attr_macros_recursive(
                                                 derive_macros.attr_macros_recursive,
                                             )
                                     } else {
@@ -364,7 +348,7 @@ pub(crate) fn flatten(
                                         parent.extra_macros.derive_macros.clone()
                                     {
                                         v.extend_derive_macros(derive_macros.derive_macros)
-                                            .extend_attr_macros_after_derive_recursive(
+                                            .extend_attr_macros_recursive(
                                                 derive_macros.attr_macros_recursive,
                                             )
                                     } else {
@@ -390,8 +374,8 @@ pub(crate) fn flatten(
                                     let v = if let Some(derive_macros) =
                                         extra_macros.derive_macros.clone()
                                     {
-                                        v.extend_attr_macros_after_derive(derive_macros.attr_macros)
-                                            .extend_attr_macros_after_derive_recursive(
+                                        v.extend_attr_macros(derive_macros.attr_macros)
+                                            .extend_attr_macros_recursive(
                                                 derive_macros.attr_macros_recursive,
                                             )
                                     } else {
@@ -401,7 +385,7 @@ pub(crate) fn flatten(
                                         parent.extra_macros.derive_macros.clone()
                                     {
                                         v.extend_derive_macros(derive_macros.derive_macros)
-                                            .extend_attr_macros_after_derive_recursive(
+                                            .extend_attr_macros_recursive(
                                                 derive_macros.attr_macros_recursive,
                                             )
                                     } else {
@@ -427,8 +411,8 @@ pub(crate) fn flatten(
                                     let v = if let Some(derive_macros) =
                                         extra_macros.derive_macros.clone()
                                     {
-                                        v.extend_attr_macros_after_derive(derive_macros.attr_macros)
-                                            .extend_attr_macros_after_derive_recursive(
+                                        v.extend_attr_macros(derive_macros.attr_macros)
+                                            .extend_attr_macros_recursive(
                                                 derive_macros.attr_macros_recursive,
                                             )
                                     } else {
@@ -438,7 +422,7 @@ pub(crate) fn flatten(
                                         parent.extra_macros.derive_macros.clone()
                                     {
                                         v.extend_derive_macros(derive_macros.derive_macros)
-                                            .extend_attr_macros_after_derive_recursive(
+                                            .extend_attr_macros_recursive(
                                                 derive_macros.attr_macros_recursive,
                                             )
                                     } else {
@@ -464,8 +448,8 @@ pub(crate) fn flatten(
                                     let v = if let Some(derive_macros) =
                                         extra_macros.derive_macros.clone()
                                     {
-                                        v.extend_attr_macros_after_derive(derive_macros.attr_macros)
-                                            .extend_attr_macros_after_derive_recursive(
+                                        v.extend_attr_macros(derive_macros.attr_macros)
+                                            .extend_attr_macros_recursive(
                                                 derive_macros.attr_macros_recursive,
                                             )
                                     } else {
@@ -475,7 +459,7 @@ pub(crate) fn flatten(
                                         parent.extra_macros.derive_macros.clone()
                                     {
                                         v.extend_derive_macros(derive_macros.derive_macros)
-                                            .extend_attr_macros_after_derive_recursive(
+                                            .extend_attr_macros_recursive(
                                                 derive_macros.attr_macros_recursive,
                                             )
                                     } else {
@@ -521,8 +505,8 @@ pub(crate) fn flatten(
                                     let v = if let Some(derive_macros) =
                                         extra_macros.derive_macros.clone()
                                     {
-                                        v.extend_attr_macros_after_derive(derive_macros.attr_macros)
-                                            .extend_attr_macros_after_derive_recursive(
+                                        v.extend_attr_macros(derive_macros.attr_macros)
+                                            .extend_attr_macros_recursive(
                                                 derive_macros.attr_macros_recursive,
                                             )
                                     } else {
@@ -532,7 +516,7 @@ pub(crate) fn flatten(
                                         parent.extra_macros.derive_macros.clone()
                                     {
                                         v.extend_derive_macros(derive_macros.derive_macros)
-                                            .extend_attr_macros_after_derive_recursive(
+                                            .extend_attr_macros_recursive(
                                                 derive_macros.attr_macros_recursive,
                                             )
                                     } else {
@@ -563,8 +547,8 @@ pub(crate) fn flatten(
                                     let v = if let Some(derive_macros) =
                                         extra_macros.derive_macros.clone()
                                     {
-                                        v.extend_attr_macros_after_derive(derive_macros.attr_macros)
-                                            .extend_attr_macros_after_derive_recursive(
+                                        v.extend_attr_macros(derive_macros.attr_macros)
+                                            .extend_attr_macros_recursive(
                                                 derive_macros.attr_macros_recursive,
                                             )
                                     } else {
@@ -574,7 +558,7 @@ pub(crate) fn flatten(
                                         parent.extra_macros.derive_macros.clone()
                                     {
                                         v.extend_derive_macros(derive_macros.derive_macros)
-                                            .extend_attr_macros_after_derive_recursive(
+                                            .extend_attr_macros_recursive(
                                                 derive_macros.attr_macros_recursive,
                                             )
                                     } else {
@@ -605,8 +589,8 @@ pub(crate) fn flatten(
                                     let v = if let Some(derive_macros) =
                                         extra_macros.derive_macros.clone()
                                     {
-                                        v.extend_attr_macros_after_derive(derive_macros.attr_macros)
-                                            .extend_attr_macros_after_derive_recursive(
+                                        v.extend_attr_macros(derive_macros.attr_macros)
+                                            .extend_attr_macros_recursive(
                                                 derive_macros.attr_macros_recursive,
                                             )
                                     } else {
@@ -616,7 +600,7 @@ pub(crate) fn flatten(
                                         parent.extra_macros.derive_macros.clone()
                                     {
                                         v.extend_derive_macros(derive_macros.derive_macros)
-                                            .extend_attr_macros_after_derive_recursive(
+                                            .extend_attr_macros_recursive(
                                                 derive_macros.attr_macros_recursive,
                                             )
                                     } else {
@@ -647,8 +631,8 @@ pub(crate) fn flatten(
                                     let v = if let Some(derive_macros) =
                                         extra_macros.derive_macros.clone()
                                     {
-                                        v.extend_attr_macros_after_derive(derive_macros.attr_macros)
-                                            .extend_attr_macros_after_derive_recursive(
+                                        v.extend_attr_macros(derive_macros.attr_macros)
+                                            .extend_attr_macros_recursive(
                                                 derive_macros.attr_macros_recursive,
                                             )
                                     } else {
@@ -658,7 +642,7 @@ pub(crate) fn flatten(
                                         parent.extra_macros.derive_macros.clone()
                                     {
                                         v.extend_derive_macros(derive_macros.derive_macros)
-                                            .extend_attr_macros_after_derive_recursive(
+                                            .extend_attr_macros_recursive(
                                                 derive_macros.attr_macros_recursive,
                                             )
                                     } else {
