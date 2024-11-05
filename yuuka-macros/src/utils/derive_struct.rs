@@ -43,6 +43,16 @@ impl DeriveStruct {
             .extend_attr_macros_after_derive(extra_macros);
         ret
     }
+
+    pub fn extend_attr_macros_after_derive_recursive(
+        &self,
+        extra_macros: Vec<TokenStream>,
+    ) -> Self {
+        let mut ret = self.clone();
+        ret.extra_macros
+            .extend_attr_macros_after_derive_recursive(extra_macros);
+        ret
+    }
 }
 
 impl Parse for DeriveStruct {
