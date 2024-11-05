@@ -52,7 +52,13 @@ impl Parse for DeriveEnumItems {
                             let content = content
                                 .extend_derive_macros(extra_macros.derive_macros.clone())
                                 .extend_attr_macros_before_derive(
-                                    extra_macros.attr_macros_after_derive.clone(),
+                                    extra_macros
+                                        .attr_macros_after_derive
+                                        .clone()
+                                        .unwrap_or_default(),
+                                )
+                                .extend_attr_macros_after_derive_recursive(
+                                    extra_macros.attr_macros_after_derive_recursive.clone(),
                                 );
 
                             tuple.push(StructType::InlineEnumVector(content));
@@ -63,7 +69,13 @@ impl Parse for DeriveEnumItems {
                             let content = content
                                 .extend_derive_macros(extra_macros.derive_macros.clone())
                                 .extend_attr_macros_before_derive(
-                                    extra_macros.attr_macros_after_derive.clone(),
+                                    extra_macros
+                                        .attr_macros_after_derive
+                                        .clone()
+                                        .unwrap_or_default(),
+                                )
+                                .extend_attr_macros_after_derive_recursive(
+                                    extra_macros.attr_macros_after_derive_recursive.clone(),
                                 );
 
                             tuple.push(StructType::InlineStructVector(content));
@@ -75,7 +87,13 @@ impl Parse for DeriveEnumItems {
                         let content = content
                             .extend_derive_macros(extra_macros.derive_macros.clone())
                             .extend_attr_macros_before_derive(
-                                extra_macros.attr_macros_after_derive.clone(),
+                                extra_macros
+                                    .attr_macros_after_derive
+                                    .clone()
+                                    .unwrap_or_default(),
+                            )
+                            .extend_attr_macros_after_derive_recursive(
+                                extra_macros.attr_macros_after_derive_recursive.clone(),
                             );
 
                         tuple.push(StructType::InlineEnum(content));
@@ -86,7 +104,13 @@ impl Parse for DeriveEnumItems {
                         let content = content
                             .extend_derive_macros(extra_macros.derive_macros.clone())
                             .extend_attr_macros_before_derive(
-                                extra_macros.attr_macros_after_derive.clone(),
+                                extra_macros
+                                    .attr_macros_after_derive
+                                    .clone()
+                                    .unwrap_or_default(),
+                            )
+                            .extend_attr_macros_after_derive_recursive(
+                                extra_macros.attr_macros_after_derive_recursive.clone(),
                             );
 
                         tuple.push(StructType::InlineStruct(content));

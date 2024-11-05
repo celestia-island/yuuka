@@ -38,7 +38,13 @@ impl Parse for DeriveStructItems {
                     let content = content
                         .extend_derive_macros(extra_macros.derive_macros.clone())
                         .extend_attr_macros_before_derive(
-                            extra_macros.attr_macros_after_derive.clone(),
+                            extra_macros
+                                .attr_macros_after_derive
+                                .clone()
+                                .unwrap_or_default(),
+                        )
+                        .extend_attr_macros_after_derive_recursive(
+                            extra_macros.attr_macros_after_derive_recursive.clone(),
                         );
 
                     own_struct.push((
@@ -83,7 +89,13 @@ impl Parse for DeriveStructItems {
                     let content = content
                         .extend_derive_macros(extra_macros.derive_macros.clone())
                         .extend_attr_macros_before_derive(
-                            extra_macros.attr_macros_after_derive.clone(),
+                            extra_macros
+                                .attr_macros_after_derive
+                                .clone()
+                                .unwrap_or_default(),
+                        )
+                        .extend_attr_macros_after_derive_recursive(
+                            extra_macros.attr_macros_after_derive_recursive.clone(),
                         );
 
                     own_struct.push((
@@ -129,7 +141,13 @@ impl Parse for DeriveStructItems {
                 let content = content
                     .extend_derive_macros(extra_macros.derive_macros.clone())
                     .extend_attr_macros_before_derive(
-                        extra_macros.attr_macros_after_derive.clone(),
+                        extra_macros
+                            .attr_macros_after_derive
+                            .clone()
+                            .unwrap_or_default(),
+                    )
+                    .extend_attr_macros_after_derive_recursive(
+                        extra_macros.attr_macros_after_derive_recursive.clone(),
                     );
 
                 own_struct.push((
@@ -153,7 +171,13 @@ impl Parse for DeriveStructItems {
                 let content = content
                     .extend_derive_macros(extra_macros.derive_macros.clone())
                     .extend_attr_macros_before_derive(
-                        extra_macros.attr_macros_after_derive.clone(),
+                        extra_macros
+                            .attr_macros_after_derive
+                            .clone()
+                            .unwrap_or_default(),
+                    )
+                    .extend_attr_macros_after_derive_recursive(
+                        extra_macros.attr_macros_after_derive_recursive.clone(),
                     );
 
                 own_struct.push((

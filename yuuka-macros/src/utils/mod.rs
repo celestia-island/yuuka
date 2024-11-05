@@ -141,7 +141,19 @@ pub(crate) fn flatten(
                             .pin_unique_id(root_name.clone(), unique_id_count.clone())
                             .extend_derive_macros(parent.extra_macros.derive_macros.clone())
                             .extend_attr_macros_after_derive(
-                                extra_macros.attr_macros_after_derive.clone(),
+                                extra_macros
+                                    .attr_macros_after_derive
+                                    .clone()
+                                    .unwrap_or_default(),
+                            )
+                            .extend_attr_macros_after_derive_recursive(
+                                parent
+                                    .extra_macros
+                                    .attr_macros_after_derive_recursive
+                                    .clone(),
+                            )
+                            .extend_attr_macros_after_derive_recursive(
+                                extra_macros.attr_macros_after_derive_recursive.clone(),
                             );
 
                         let (sub_structs, sub_enums) = flatten(
@@ -167,7 +179,19 @@ pub(crate) fn flatten(
                             .pin_unique_id(root_name.clone(), unique_id_count.clone())
                             .extend_derive_macros(parent.extra_macros.derive_macros.clone())
                             .extend_attr_macros_after_derive(
-                                extra_macros.attr_macros_after_derive.clone(),
+                                extra_macros
+                                    .attr_macros_after_derive
+                                    .clone()
+                                    .unwrap_or_default(),
+                            )
+                            .extend_attr_macros_after_derive_recursive(
+                                parent
+                                    .extra_macros
+                                    .attr_macros_after_derive_recursive
+                                    .clone(),
+                            )
+                            .extend_attr_macros_after_derive_recursive(
+                                extra_macros.attr_macros_after_derive_recursive.clone(),
                             );
 
                         let (sub_structs, sub_enums) = flatten(
@@ -193,7 +217,19 @@ pub(crate) fn flatten(
                             .pin_unique_id(root_name.clone(), unique_id_count.clone())
                             .extend_derive_macros(parent.extra_macros.derive_macros.clone())
                             .extend_attr_macros_after_derive(
-                                extra_macros.attr_macros_after_derive.clone(),
+                                extra_macros
+                                    .attr_macros_after_derive
+                                    .clone()
+                                    .unwrap_or_default(),
+                            )
+                            .extend_attr_macros_after_derive_recursive(
+                                parent
+                                    .extra_macros
+                                    .attr_macros_after_derive_recursive
+                                    .clone(),
+                            )
+                            .extend_attr_macros_after_derive_recursive(
+                                extra_macros.attr_macros_after_derive_recursive.clone(),
                             );
 
                         let (sub_structs, sub_enums) = flatten(
@@ -219,7 +255,19 @@ pub(crate) fn flatten(
                             .pin_unique_id(root_name.clone(), unique_id_count.clone())
                             .extend_derive_macros(parent.extra_macros.derive_macros.clone())
                             .extend_attr_macros_after_derive(
-                                extra_macros.attr_macros_after_derive.clone(),
+                                extra_macros
+                                    .attr_macros_after_derive
+                                    .clone()
+                                    .unwrap_or_default(),
+                            )
+                            .extend_attr_macros_after_derive_recursive(
+                                parent
+                                    .extra_macros
+                                    .attr_macros_after_derive_recursive
+                                    .clone(),
+                            )
+                            .extend_attr_macros_after_derive_recursive(
+                                extra_macros.attr_macros_after_derive_recursive.clone(),
                             );
 
                         let (sub_structs, sub_enums) = flatten(
@@ -248,7 +296,18 @@ pub(crate) fn flatten(
                 items,
                 ExtraMacrosFlatten {
                     derive_macros: parent.extra_macros.derive_macros.clone(),
-                    attr_macros: parent.extra_macros.attr_macros_after_derive.clone(),
+                    attr_macros: [
+                        parent
+                            .extra_macros
+                            .attr_macros_after_derive
+                            .clone()
+                            .unwrap_or_default(),
+                        parent
+                            .extra_macros
+                            .attr_macros_after_derive_recursive
+                            .clone(),
+                    ]
+                    .concat(),
                 },
             ));
 
@@ -283,7 +342,19 @@ pub(crate) fn flatten(
                                             parent.extra_macros.derive_macros.clone(),
                                         )
                                         .extend_attr_macros_after_derive(
-                                            extra_macros.attr_macros_after_derive.clone(),
+                                            extra_macros
+                                                .attr_macros_after_derive
+                                                .clone()
+                                                .unwrap_or_default(),
+                                        )
+                                        .extend_attr_macros_after_derive_recursive(
+                                            parent
+                                                .extra_macros
+                                                .attr_macros_after_derive_recursive
+                                                .clone(),
+                                        )
+                                        .extend_attr_macros_after_derive_recursive(
+                                            extra_macros.attr_macros_after_derive_recursive.clone(),
                                         );
 
                                     let (sub_structs, sub_enums) = flatten(
@@ -306,7 +377,19 @@ pub(crate) fn flatten(
                                             parent.extra_macros.derive_macros.clone(),
                                         )
                                         .extend_attr_macros_after_derive(
-                                            extra_macros.attr_macros_after_derive.clone(),
+                                            extra_macros
+                                                .attr_macros_after_derive
+                                                .clone()
+                                                .unwrap_or_default(),
+                                        )
+                                        .extend_attr_macros_after_derive_recursive(
+                                            parent
+                                                .extra_macros
+                                                .attr_macros_after_derive_recursive
+                                                .clone(),
+                                        )
+                                        .extend_attr_macros_after_derive_recursive(
+                                            extra_macros.attr_macros_after_derive_recursive.clone(),
                                         );
 
                                     let (sub_structs, sub_enums) = flatten(
@@ -329,7 +412,19 @@ pub(crate) fn flatten(
                                             parent.extra_macros.derive_macros.clone(),
                                         )
                                         .extend_attr_macros_after_derive(
-                                            extra_macros.attr_macros_after_derive.clone(),
+                                            extra_macros
+                                                .attr_macros_after_derive
+                                                .clone()
+                                                .unwrap_or_default(),
+                                        )
+                                        .extend_attr_macros_after_derive_recursive(
+                                            parent
+                                                .extra_macros
+                                                .attr_macros_after_derive_recursive
+                                                .clone(),
+                                        )
+                                        .extend_attr_macros_after_derive_recursive(
+                                            extra_macros.attr_macros_after_derive_recursive.clone(),
                                         );
 
                                     let (sub_structs, sub_enums) = flatten(
@@ -352,7 +447,19 @@ pub(crate) fn flatten(
                                             parent.extra_macros.derive_macros.clone(),
                                         )
                                         .extend_attr_macros_after_derive(
-                                            extra_macros.attr_macros_after_derive.clone(),
+                                            extra_macros
+                                                .attr_macros_after_derive
+                                                .clone()
+                                                .unwrap_or_default(),
+                                        )
+                                        .extend_attr_macros_after_derive_recursive(
+                                            parent
+                                                .extra_macros
+                                                .attr_macros_after_derive_recursive
+                                                .clone(),
+                                        )
+                                        .extend_attr_macros_after_derive_recursive(
+                                            extra_macros.attr_macros_after_derive_recursive.clone(),
                                         );
 
                                     let (sub_structs, sub_enums) = flatten(
@@ -395,7 +502,19 @@ pub(crate) fn flatten(
                                             parent.extra_macros.derive_macros.clone(),
                                         )
                                         .extend_attr_macros_after_derive(
-                                            extra_macros.attr_macros_after_derive.clone(),
+                                            extra_macros
+                                                .attr_macros_after_derive
+                                                .clone()
+                                                .unwrap_or_default(),
+                                        )
+                                        .extend_attr_macros_after_derive_recursive(
+                                            parent
+                                                .extra_macros
+                                                .attr_macros_after_derive_recursive
+                                                .clone(),
+                                        )
+                                        .extend_attr_macros_after_derive_recursive(
+                                            extra_macros.attr_macros_after_derive_recursive.clone(),
                                         );
 
                                     let (sub_structs, sub_enums) = flatten(
@@ -423,7 +542,19 @@ pub(crate) fn flatten(
                                             parent.extra_macros.derive_macros.clone(),
                                         )
                                         .extend_attr_macros_after_derive(
-                                            extra_macros.attr_macros_after_derive.clone(),
+                                            extra_macros
+                                                .attr_macros_after_derive
+                                                .clone()
+                                                .unwrap_or_default(),
+                                        )
+                                        .extend_attr_macros_after_derive_recursive(
+                                            parent
+                                                .extra_macros
+                                                .attr_macros_after_derive_recursive
+                                                .clone(),
+                                        )
+                                        .extend_attr_macros_after_derive_recursive(
+                                            extra_macros.attr_macros_after_derive_recursive.clone(),
                                         );
 
                                     let (sub_structs, sub_enums) = flatten(
@@ -451,7 +582,19 @@ pub(crate) fn flatten(
                                             parent.extra_macros.derive_macros.clone(),
                                         )
                                         .extend_attr_macros_after_derive(
-                                            extra_macros.attr_macros_after_derive.clone(),
+                                            extra_macros
+                                                .attr_macros_after_derive
+                                                .clone()
+                                                .unwrap_or_default(),
+                                        )
+                                        .extend_attr_macros_after_derive_recursive(
+                                            parent
+                                                .extra_macros
+                                                .attr_macros_after_derive_recursive
+                                                .clone(),
+                                        )
+                                        .extend_attr_macros_after_derive_recursive(
+                                            extra_macros.attr_macros_after_derive_recursive.clone(),
                                         );
 
                                     let (sub_structs, sub_enums) = flatten(
@@ -479,7 +622,19 @@ pub(crate) fn flatten(
                                             parent.extra_macros.derive_macros.clone(),
                                         )
                                         .extend_attr_macros_after_derive(
-                                            extra_macros.attr_macros_after_derive.clone(),
+                                            extra_macros
+                                                .attr_macros_after_derive
+                                                .clone()
+                                                .unwrap_or_default(),
+                                        )
+                                        .extend_attr_macros_after_derive_recursive(
+                                            parent
+                                                .extra_macros
+                                                .attr_macros_after_derive_recursive
+                                                .clone(),
+                                        )
+                                        .extend_attr_macros_after_derive_recursive(
+                                            extra_macros.attr_macros_after_derive_recursive.clone(),
                                         );
 
                                     let (sub_structs, sub_enums) = flatten(
@@ -522,7 +677,18 @@ pub(crate) fn flatten(
                 },
                 ExtraMacrosFlatten {
                     derive_macros: parent.extra_macros.derive_macros.clone(),
-                    attr_macros: parent.extra_macros.attr_macros_after_derive.clone(),
+                    attr_macros: [
+                        parent
+                            .extra_macros
+                            .attr_macros_after_derive
+                            .clone()
+                            .unwrap_or_default(),
+                        parent
+                            .extra_macros
+                            .attr_macros_after_derive_recursive
+                            .clone(),
+                    ]
+                    .concat(),
                 },
             ));
 

@@ -3,14 +3,15 @@ use quote::quote;
 use syn::{
     bracketed, parenthesized,
     parse::{Parse, ParseStream},
-    Ident, Token, TypePath,
+    token, Ident, Token, TypePath,
 };
 
 #[derive(Debug, Clone, Default)]
 pub struct ExtraMacros {
     pub attr_macros_before_derive: Vec<TokenStream>,
     pub derive_macros: Vec<TypePath>,
-    pub attr_macros_after_derive: Vec<TokenStream>,
+    pub attr_macros_after_derive: Option<Vec<TokenStream>>,
+    pub attr_macros_after_derive_recursive: Vec<TokenStream>,
 }
 
 impl ExtraMacros {
@@ -23,7 +24,15 @@ impl ExtraMacros {
     }
 
     pub fn extend_attr_macros_after_derive(&mut self, other: Vec<TokenStream>) {
-        self.attr_macros_after_derive.extend(other);
+        if let Some(attr_macros_after_derive) = &mut self.attr_macros_after_derive {
+            attr_macros_after_derive.extend(other);
+        } else {
+            self.attr_macros_after_derive = Some(other);
+        }
+    }
+
+    pub fn extend_attr_macros_after_derive_recursive(&mut self, other: Vec<TokenStream>) {
+        self.attr_macros_after_derive_recursive.extend(other);
     }
 }
 
@@ -32,6 +41,8 @@ impl Parse for ExtraMacros {
         let mut attr_macros_before_derive = vec![];
         let mut derive_macros = vec![];
         let mut attr_macros_after_derive = vec![];
+        let mut attr_macros_after_derive_recursive = vec![];
+
         let mut has_parsed_derive = false;
 
         while input.peek(Token![#]) {
@@ -41,20 +52,28 @@ impl Parse for ExtraMacros {
 
             let head_ident = bracked_content.parse::<Ident>()?;
             if head_ident == "derive" {
-                let content;
-                parenthesized!(content in bracked_content);
+                if bracked_content.peek(token::Paren) {
+                    let content;
+                    parenthesized!(content in bracked_content);
 
-                while !content.is_empty() {
-                    let item = content.parse::<TypePath>()?;
-                    derive_macros.push(item);
+                    while !content.is_empty() {
+                        let item = content.parse::<TypePath>()?;
+                        derive_macros.push(item);
 
-                    if content.is_empty() {
-                        break;
+                        if content.is_empty() {
+                            break;
+                        }
+                        content.parse::<Token![,]>()?;
                     }
-                    content.parse::<Token![,]>()?;
                 }
 
                 has_parsed_derive = true;
+            } else if head_ident == "macros_recursive" && has_parsed_derive {
+                let content;
+                parenthesized!(content in bracked_content);
+
+                let token_stream = content.parse::<TokenStream>()?;
+                attr_macros_after_derive_recursive.push(token_stream);
             } else if !has_parsed_derive {
                 let token_stream = bracked_content.parse::<TokenStream>()?;
                 let token_stream = quote! {
@@ -70,17 +89,19 @@ impl Parse for ExtraMacros {
             }
         }
 
-        if derive_macros.is_empty() {
+        if !has_parsed_derive {
             Ok(Self {
                 attr_macros_before_derive: attr_macros_after_derive,
                 derive_macros: vec![],
-                attr_macros_after_derive: vec![],
+                attr_macros_after_derive: None,
+                attr_macros_after_derive_recursive,
             })
         } else {
             Ok(Self {
                 attr_macros_before_derive,
                 derive_macros,
-                attr_macros_after_derive,
+                attr_macros_after_derive: Some(attr_macros_after_derive),
+                attr_macros_after_derive_recursive,
             })
         }
     }
