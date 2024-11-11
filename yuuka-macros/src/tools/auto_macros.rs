@@ -1,5 +1,6 @@
 use proc_macro2::TokenStream;
 use syn::{
+    braced,
     parse::{Parse, ParseStream},
     Ident,
 };
@@ -12,9 +13,13 @@ pub struct AutoMacros {
 
 impl Parse for AutoMacros {
     fn parse(input: ParseStream) -> syn::Result<Self> {
+        let ident = input.parse()?;
+        let body;
+        braced!(body in input);
+
         Ok(Self {
-            ident: input.parse()?,
-            body: input.parse()?,
+            ident,
+            body: body.parse()?,
         })
     }
 }

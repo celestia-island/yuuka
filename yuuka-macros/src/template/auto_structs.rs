@@ -1,5 +1,6 @@
 use proc_macro2::TokenStream;
 use quote::quote;
+use syn::Ident;
 
 use crate::tools::StructsFlatten;
 
@@ -11,8 +12,9 @@ pub(crate) fn generate_structs_auto_macros(structs: StructsFlatten) -> Vec<Token
                 .iter()
                 .map(|(name, ty, _, _)| {
                     quote! {
-                        (#name: $val:block,) => {
-                            #name: #ty { $val },
+                        (#name: $val:block, $($next:tt)*) => {
+                            #name: $crate::auto!(#ty { $val }),
+                            #ident!($($next)*)
                         };
                     }
                 })
@@ -21,16 +23,22 @@ pub(crate) fn generate_structs_auto_macros(structs: StructsFlatten) -> Vec<Token
                 #(#rules)*
             };
 
+            let ident = Ident::new(format!("__auto_{}", ident).as_str(), ident.span());
             quote! {
+                #[doc(hidden)]
                 macro_rules! #ident {
-                    #rules
+                    () => {};
 
-                    ($name:ident: $val:expr,) => {
-                        $name: $val,
+                    ($($name:ident: $val:expr,)+ $($next:tt)*) => {
+                        $($name: $val.into(),)+
+                        #ident!($($next)*)
                     };
-                    (..$expr:expr,) => {
+                    (..$expr:expr, $($next:tt)*) => {
                         ..$expr,
+                        #ident!($($next)*)
                     };
+
+                    #rules
                 }
             }
         })
