@@ -2,19 +2,19 @@ use anyhow::Result;
 use proc_macro2::TokenStream;
 use syn::{Expr, Ident, TypePath};
 
+pub(crate) mod auto_macros;
 pub(crate) mod derive_enum;
 pub(crate) mod derive_enum_items;
 pub(crate) mod derive_macros_token;
 pub(crate) mod derive_struct;
 pub(crate) mod derive_struct_items;
-pub(crate) mod flatten;
 
+pub(crate) use auto_macros::AutoMacros;
 pub(crate) use derive_enum::DeriveEnum;
 pub(crate) use derive_enum_items::DeriveEnumItems;
 pub(crate) use derive_macros_token::ExtraMacros;
 pub(crate) use derive_struct::DeriveStruct;
 pub(crate) use derive_struct_items::DeriveStructItems;
-pub(crate) use flatten::flatten;
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum DeriveVisibility {

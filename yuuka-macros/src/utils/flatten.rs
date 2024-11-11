@@ -2,7 +2,7 @@ use anyhow::Result;
 use std::{cell::RefCell, rc::Rc};
 use syn::parse_quote;
 
-use super::{
+use crate::tools::{
     DefaultValue, DeriveBox, EnumValue, EnumValueFlatten, EnumsFlatten, ExtraMacrosFlatten,
     StructType, StructsFlatten,
 };

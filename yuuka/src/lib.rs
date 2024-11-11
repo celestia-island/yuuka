@@ -58,4 +58,4 @@
 //! # println!("{}", serialized);
 //! # }
 //! ```
-pub use _macros::{derive_enum, derive_struct};
+pub use _macros::{auto, derive_enum, derive_struct};
