@@ -12,9 +12,8 @@ pub(crate) fn generate_structs_auto_macros(structs: StructsFlatten) -> Vec<Token
                 .iter()
                 .map(|(name, ty, _, _)| {
                     quote! {
-                        (#name: $val:block, $($next:tt)*) => {
-                            #name: $crate::auto!(#ty { $val }),
-                            #ident!($($next)*)
+                        (#name { $($val: tt)+ }) => {
+                            ::yuuka::auto!(#ty { $($val)+ })
                         };
                     }
                 })
@@ -29,16 +28,11 @@ pub(crate) fn generate_structs_auto_macros(structs: StructsFlatten) -> Vec<Token
                 macro_rules! #ident {
                     () => {};
 
-                    ($($name:ident: $val:expr,)+ $($next:tt)*) => {
-                        $($name: $val.into(),)+
-                        #ident!($($next)*)
-                    };
-                    (..$expr:expr, $($next:tt)*) => {
-                        ..$expr,
-                        #ident!($($next)*)
-                    };
-
                     #rules
+
+                    ($name:ident $val:expr) => {
+                        $val
+                    };
                 }
             }
         })
