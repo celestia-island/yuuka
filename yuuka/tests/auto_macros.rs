@@ -15,11 +15,11 @@ mod test {
         });
 
         let obj = auto!(Root {
-            a: "hello",
+            a: "hello".to_string(),
             b: 42,
             c: 3.14,
             d: {
-                e: "world",
+                e: "world".to_string(),
                 f: 24,
             }
         });
@@ -52,7 +52,10 @@ mod test {
         assert_eq!(auto!(Root::A), Root::A);
         assert_eq!(auto!(Root::B(42)), Root::B(42));
         assert_eq!(
-            auto!(Root::C { a: "hello", b: 42 }),
+            auto!(Root::C {
+                a: "hello".to_string(),
+                b: 42
+            }),
             Root::C {
                 a: "hello".to_string(),
                 b: 42
@@ -64,7 +67,10 @@ mod test {
             Root::D(__Root::_Root_0_anonymous::F(42))
         );
         assert_eq!(
-            auto!(Root::D::G { a: "hello", b: 42 }),
+            auto!(Root::D::G {
+                a: "hello".to_string(),
+                b: 42
+            }),
             Root::D(__Root::_Root_0_anonymous::G {
                 a: "hello".to_string(),
                 b: 42
