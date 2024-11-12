@@ -10,6 +10,8 @@ This is a helper library to generate complex and nested structures by a simple m
 
 The name `yuuka` comes from the character [Yuuka](https://bluearchive.wiki/wiki/Yuuka) in the game [Blue Archive](https://bluearchive.jp/).
 
+> Still in development, the API may change in the future.
+
 ## Quick Start
 
 ```rust

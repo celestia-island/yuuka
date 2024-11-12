@@ -11,7 +11,9 @@ use template::{
     generate_enums_auto_macros, generate_enums_quote, generate_structs_auto_macros,
     generate_structs_quote,
 };
-use tools::{AutoMacros, DeriveEnum, DeriveStruct, DeriveVisibility, StructName};
+use tools::{
+    auto_macros::AutoMacrosType, AutoMacros, DeriveEnum, DeriveStruct, DeriveVisibility, StructName,
+};
 use utils::flatten;
 
 #[proc_macro]
@@ -141,8 +143,26 @@ pub fn auto(input: TokenStream) -> TokenStream {
     let body = input.body;
 
     let macro_ident = Ident::new(&format!("__auto_{}", input.ident), input.ident.span());
-    quote! {
-       #ident { #macro_ident!(#body) }
+    match body {
+        AutoMacrosType::Struct(items) => {
+            let list = items
+                .iter()
+                .map(|(key, value)| {
+                    quote! {
+                        #key: #macro_ident!(#key #value)
+                    }
+                })
+                .collect::<Vec<_>>();
+
+            let ret: proc_macro::TokenStream = quote! {
+                #ident {
+                    #( #list ),*
+                }
+            }
+            .into();
+            dbg!(ret.to_string());
+            ret
+        }
+        _ => todo!("auto for enum"),
     }
-    .into()
 }
