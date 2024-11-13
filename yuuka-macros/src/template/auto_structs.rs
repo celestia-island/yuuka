@@ -12,7 +12,7 @@ pub(crate) fn generate_structs_auto_macros(structs: StructsFlatten) -> Vec<Token
                 .iter()
                 .map(|(name, ty, _, _)| {
                     quote! {
-                        (#name { $($val: tt)+ }) => {
+                        (#name { $($val:tt)+ }) => {
                             ::yuuka::auto!(#ty { $($val)+ })
                         };
                     }
