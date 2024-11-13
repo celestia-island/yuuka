@@ -32,22 +32,25 @@ mod test {
 
     #[test]
     fn basic_enum() {
-        derive_enum!(enum Root {
-            A,
-            B(i32),
-            C {
-                a: String,
-                b: i32,
-            },
-            D(enum {
-                E,
-                F(i32),
-                G {
+        derive_enum!(
+            #[derive(PartialEq)]
+            enum Root {
+                A,
+                B(i32),
+                C {
                     a: String,
                     b: i32,
                 },
-            })
-        });
+                D(enum {
+                    E,
+                    F(i32),
+                    G {
+                        a: String,
+                        b: i32,
+                    },
+                })
+            }
+        );
 
         assert_eq!(auto!(Root::A), Root::A);
         assert_eq!(auto!(Root::B(42)), Root::B(42));

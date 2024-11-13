@@ -9,7 +9,9 @@ use syn::{
 #[derive(Debug, Clone)]
 pub enum AutoMacrosType {
     Struct(Vec<(Ident, TokenStream)>),
-    Enum,
+    EnumEmpty(Ident),
+    EnumStruct((Ident, Vec<(Ident, TokenStream)>)),
+    EnumTuple((Ident, Vec<TokenStream>)),
 }
 
 #[derive(Debug, Clone)]
@@ -80,11 +82,102 @@ impl Parse for AutoMacros {
                 ident,
                 body: AutoMacrosType::Struct(tokens),
             })
+        } else if input.peek(Token![::]) {
+            input.parse::<Token![::]>()?;
+            let key: Ident = input.parse()?;
+
+            if input.peek(token::Brace) {
+                // Sth::Sth { key: ..., ... }
+
+                let content;
+                braced!(content in input);
+
+                let mut items = vec![];
+                while !content.is_empty() {
+                    let key: Ident = content.parse()?;
+                    content.parse::<Token![:]>()?;
+
+                    if content.peek(token::Brace) {
+                        let inner_content;
+                        braced!(inner_content in content);
+                        let inner_content: TokenStream = inner_content.parse()?;
+                        items.push((
+                            key,
+                            quote! {
+                                { #inner_content }
+                            },
+                        ));
+                    } else if content.peek(token::Bracket) {
+                        let inner_content;
+                        bracketed!(inner_content in content);
+                        let inner_content: TokenStream = inner_content.parse()?;
+                        items.push((
+                            key,
+                            quote! {
+                                 [ #inner_content ]
+                            },
+                        ));
+                    } else if content.peek(token::Paren) {
+                        let inner_content;
+                        parenthesized!(inner_content in content);
+                        let inner_content: TokenStream = inner_content.parse()?;
+                        items.push((
+                            key,
+                            quote! {
+                                ( #inner_content )
+                            },
+                        ));
+                    } else {
+                        let value: Expr = content.parse()?;
+                        items.push((
+                            key,
+                            quote! {
+                                #value
+                            },
+                        ));
+                    }
+
+                    if content.peek(Token![,]) {
+                        content.parse::<Token![,]>()?;
+                    }
+                }
+
+                Ok(AutoMacros {
+                    ident,
+                    body: AutoMacrosType::EnumStruct((key, items)),
+                })
+            } else if input.peek(token::Paren) {
+                // Sth::Sth(key, ...)
+
+                let content;
+                parenthesized!(content in input);
+
+                let mut items = vec![];
+                while !content.is_empty() {
+                    let value: Expr = content.parse()?;
+                    items.push(quote! {
+                        #value
+                    });
+
+                    if content.peek(Token![,]) {
+                        content.parse::<Token![,]>()?;
+                    }
+                }
+
+                Ok(AutoMacros {
+                    ident,
+                    body: AutoMacrosType::EnumTuple((key, items)),
+                })
+            } else {
+                // Sth::Sth
+
+                Ok(AutoMacros {
+                    ident,
+                    body: AutoMacrosType::EnumEmpty(key),
+                })
+            }
         } else {
-            Ok(AutoMacros {
-                ident,
-                body: AutoMacrosType::Enum,
-            })
+            Err(syn::Error::new(ident.span(), "Expected { or ::"))
         }
     }
 }

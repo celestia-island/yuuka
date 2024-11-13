@@ -154,15 +154,58 @@ pub fn auto(input: TokenStream) -> TokenStream {
                 })
                 .collect::<Vec<_>>();
 
-            let ret: proc_macro::TokenStream = quote! {
+            quote! {
                 #ident {
                     #( #list ),*
                 }
             }
-            .into();
-            dbg!(ret.to_string());
-            ret
+            .into()
         }
-        _ => todo!("auto for enum"),
+
+        AutoMacrosType::EnumEmpty(key) => quote! {
+            #ident::#key
+        }
+        .into(),
+        AutoMacrosType::EnumStruct((key, items)) => {
+            let list = items
+                .iter()
+                .map(|(item_key, value)| {
+                    quote! {
+                        #item_key: #macro_ident!(#key #item_key #value)
+                    }
+                })
+                .collect::<Vec<_>>();
+
+            quote! {
+                #ident::#key {
+                    #( #list ),*
+                }
+            }
+            .into()
+        }
+        AutoMacrosType::EnumTuple((key, items)) => {
+            if items.len() == 1 {
+                let first_item = items.first().expect("Failed to get first item");
+                quote! {
+                    #ident::#key(#macro_ident!(#key #first_item))
+                }
+                .into()
+            } else {
+                let list = items
+                    .iter()
+                    .enumerate()
+                    .map(|(index, item)| {
+                        quote! {
+                            #macro_ident!(#key #index #item)
+                        }
+                    })
+                    .collect::<Vec<_>>();
+
+                quote! {
+                    #ident::#key(#( #list ),*)
+                }
+                .into()
+            }
+        }
     }
 }
