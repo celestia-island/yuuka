@@ -12,6 +12,7 @@ pub enum AutoMacrosType {
     EnumEmpty(Ident),
     EnumStruct((Ident, Vec<(Ident, TokenStream)>)),
     EnumTuple((Ident, Vec<TokenStream>)),
+    EnumSinglePath((Ident, TokenStream)),
 }
 
 #[derive(Debug, Clone)]
@@ -167,6 +168,16 @@ impl Parse for AutoMacros {
                 Ok(AutoMacros {
                     ident,
                     body: AutoMacrosType::EnumTuple((key, items)),
+                })
+            } else if input.peek(Token![::]) {
+                // Sth::Sth::Sth
+
+                input.parse::<Token![::]>()?;
+                let next_key: TokenStream = input.parse()?;
+
+                Ok(AutoMacros {
+                    ident,
+                    body: AutoMacrosType::EnumSinglePath((key, next_key)),
                 })
             } else {
                 // Sth::Sth
