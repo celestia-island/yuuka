@@ -145,4 +145,42 @@ mod test {
             }
         );
     }
+
+    #[test]
+    fn across_mod_auto() {
+        mod mod_a {
+            use yuuka::derive_struct;
+
+            derive_struct!(
+                #[derive(PartialEq)]
+                pub Root { a: String, b: i32 }
+            );
+
+            pub mod mod_b {
+                use yuuka::derive_enum;
+
+                derive_enum!(
+                    #[derive(PartialEq)]
+                    pub enum Root {
+                        A,
+                        B(i32),
+                    }
+                );
+            }
+        }
+
+        use yuuka::auto;
+
+        assert_eq!(
+            auto!(mod_a::Root {
+                a: "hello".to_string(),
+                b: 42
+            }),
+            mod_a::Root {
+                a: "hello".to_string(),
+                b: 42
+            }
+        );
+        assert_eq!(auto!(mod_a::mod_b::Root::A), mod_a::mod_b::Root::A);
+    }
 }
