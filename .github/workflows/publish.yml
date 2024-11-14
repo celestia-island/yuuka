@@ -20,7 +20,6 @@ jobs:
       - run: |-
           cargo release \
             publish \
-            --workspace \
             --all-features \
             --allow-branch HEAD \
             --no-confirm \
