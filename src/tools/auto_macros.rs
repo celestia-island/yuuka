@@ -13,6 +13,7 @@ pub enum AutoMacrosType {
     EnumStruct((Ident, Vec<(Ident, TokenStream)>)),
     EnumTuple((Ident, Vec<TokenStream>)),
     EnumSinglePath((Ident, TokenStream)),
+    Value(Vec<Expr>),
 }
 
 #[derive(Debug, Clone)]
@@ -26,6 +27,7 @@ impl Parse for AutoMacros {
         let ident = input.parse()?;
 
         if input.peek(token::Brace) {
+            // Str { key: ..., ... }
             let content;
             braced!(content in input);
 
@@ -84,6 +86,8 @@ impl Parse for AutoMacros {
                 body: AutoMacrosType::Struct(tokens),
             })
         } else if input.peek(Token![::]) {
+            // Sth::...
+
             input.parse::<Token![::]>()?;
             let key: Ident = input.parse()?;
 
@@ -188,7 +192,25 @@ impl Parse for AutoMacros {
                 })
             }
         } else {
-            Err(syn::Error::new(ident.span(), "Expected { or ::"))
+            // Sth(...)
+
+            let content;
+            parenthesized!(content in input);
+
+            let mut items = vec![];
+            while !content.is_empty() {
+                let value: Expr = content.parse()?;
+                items.push(value);
+
+                if content.peek(Token![,]) {
+                    content.parse::<Token![,]>()?;
+                }
+            }
+
+            Ok(AutoMacros {
+                ident,
+                body: AutoMacrosType::Value(items),
+            })
         }
     }
 }

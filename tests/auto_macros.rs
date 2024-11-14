@@ -148,6 +148,7 @@ mod test {
 
     #[test]
     fn across_mod_auto() {
+        #[macro_use]
         mod mod_a {
             use yuuka::derive_struct;
 
@@ -156,12 +157,13 @@ mod test {
                 pub Root { a: String, b: i32 }
             );
 
+            #[macro_use]
             pub mod mod_b {
                 use yuuka::derive_enum;
 
                 derive_enum!(
                     #[derive(PartialEq)]
-                    pub enum Root {
+                    pub enum Root2 {
                         A,
                         B(i32),
                     }
@@ -171,16 +173,19 @@ mod test {
 
         use yuuka::auto;
 
+        use mod_a::mod_b::*;
+        use mod_a::*;
+
         assert_eq!(
-            auto!(mod_a::Root {
+            auto!(Root {
                 a: "hello".to_string(),
                 b: 42
             }),
-            mod_a::Root {
+            Root {
                 a: "hello".to_string(),
                 b: 42
             }
         );
-        assert_eq!(auto!(mod_a::mod_b::Root::A), mod_a::mod_b::Root::A);
+        assert_eq!(auto!(Root2::A), Root2::A);
     }
 }
