@@ -43,31 +43,33 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
 
     let ret = if is_public {
         quote! {
+            #[macro_use]
             #[allow(non_camel_case_types, non_snake_case, non_upper_case_globals, dead_code)]
             pub mod #mod_ident {
                 use super::*;
 
                 #( #structs )*
                 #( #enums )*
-            }
 
-            #( #structs_auto_macros )*
-            #( #enums_auto_macros )*
+                #( #structs_auto_macros )*
+                #( #enums_auto_macros )*
+            }
 
             pub use #mod_ident::*;
         }
     } else {
         quote! {
+            #[macro_use]
             #[allow(non_camel_case_types, non_snake_case, non_upper_case_globals, dead_code)]
             pub(crate) mod #mod_ident {
                 use super::*;
 
                 #( #structs )*
                 #( #enums )*
-            }
 
-            #( #structs_auto_macros )*
-            #( #enums_auto_macros )*
+                #( #structs_auto_macros )*
+                #( #enums_auto_macros )*
+            }
 
             pub(crate) use #mod_ident::*;
         }
@@ -103,31 +105,33 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
 
     let ret = if is_public {
         quote! {
+            #[macro_use]
             #[allow(non_camel_case_types, non_snake_case, non_upper_case_globals, dead_code)]
             pub mod #mod_ident {
                 use super::*;
 
                 #( #structs )*
                 #( #enums )*
-            }
 
-            #( #structs_auto_macros )*
-            #( #enums_auto_macros )*
+                #( #structs_auto_macros )*
+                #( #enums_auto_macros )*
+            }
 
             pub use #mod_ident::*;
         }
     } else {
         quote! {
+            #[macro_use]
             #[allow(non_camel_case_types, non_snake_case, non_upper_case_globals, dead_code)]
             pub(crate) mod #mod_ident {
                 use super::*;
 
                 #( #structs )*
                 #( #enums )*
-            }
 
-            #( #structs_auto_macros )*
-            #( #enums_auto_macros )*
+                #( #structs_auto_macros )*
+                #( #enums_auto_macros )*
+            }
 
             pub(crate) use #mod_ident::*;
         }
@@ -211,5 +215,30 @@ pub fn auto(input: TokenStream) -> TokenStream {
             #ident::#key(#macro_ident!(#key 0 #next_key))
         }
         .into(),
+
+        AutoMacrosType::Value(items) => {
+            if items.len() == 1 {
+                let first_item = items.first().expect("Failed to get first item");
+                quote! {
+                    #first_item
+                }
+                .into()
+            } else {
+                let list = items
+                    .iter()
+                    .enumerate()
+                    .map(|(index, item)| {
+                        quote! {
+                            #macro_ident!(#index #item)
+                        }
+                    })
+                    .collect::<Vec<_>>();
+
+                quote! {
+                    (#( #list ),*)
+                }
+                .into()
+            }
+        }
     }
 }
