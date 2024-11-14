@@ -80,4 +80,59 @@ mod test {
             })
         );
     }
+
+    #[test]
+    fn multi_level_enum() {
+        derive_enum!(
+            #[derive(PartialEq)]
+            enum A {
+                B(enum {
+                    C(enum {
+                        D(enum {
+                            E(enum {
+                                F,
+                                G(String),
+                            })
+                        })
+                    })
+                })
+            }
+        );
+
+        assert_eq!(
+            auto!(A::B::C::D::E::F),
+            A::B(_A_0_anonymous::C(_A_1_anonymous::D(_A_2_anonymous::E(
+                _A_3_anonymous::F
+            ))))
+        );
+        assert_eq!(
+            auto!(A::B::C::D::E::G("いいよ！こいよ！".to_string())),
+            A::B(_A_0_anonymous::C(_A_1_anonymous::D(_A_2_anonymous::E(
+                _A_3_anonymous::G("いいよ！こいよ！".to_string())
+            ))))
+        );
+    }
+
+    #[test]
+    fn mixed_auto() {
+        derive_struct!(
+            #[derive(PartialEq)]
+            Root {
+                outer: {
+                    a: enum B {
+                        C {
+                            c: i32,
+                            d: f64,
+                        }
+                    }
+                }
+            }
+        );
+
+        auto!(Root {
+            outer: {
+                a: auto!(B::C { c: 42, d: 3.14 })
+            }
+        });
+    }
 }

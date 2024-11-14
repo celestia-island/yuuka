@@ -30,29 +30,24 @@ pub(crate) fn generate_enums_auto_macros(enums: EnumsFlatten) -> Vec<TokenStream
                         }
                     }
                     EnumValueFlatten::Tuple(items) => {
-                        if items.len() == 1 {
-                            let ty = items.first().expect("Failed to get first item");
-                            quote! {
-                                (#name { $($val:tt)+ }) => {
-                                    ::yuuka::auto!(#ty { $($val)+ })
-                                };
-                            }
-                        } else {
-                            let list = items
-                                .iter()
-                                .enumerate()
-                                .map(|(i, ty)| {
-                                    let i = syn::Index::from(i);
-                                    quote! {
-                                        (#name #i { $($val:tt)+ }) => {
-                                            ::yuuka::auto!(#ty { $($val)+ })
-                                        };
-                                    }
-                                })
-                                .collect::<Vec<_>>();
-                            quote! {
-                                #(#list)*
-                            }
+                        let list = items
+                            .iter()
+                            .enumerate()
+                            .map(|(i, ty)| {
+                                let i = syn::Index::from(i);
+                                quote! {
+                                    (#name #i $($val:tt)+) => {
+                                        ::yuuka::auto!(#ty::$($val)+)
+                                    };
+
+                                    (#name #i { $($val:tt)+ }) => {
+                                        ::yuuka::auto!(#ty { $($val)+ })
+                                    };
+                                }
+                            })
+                            .collect::<Vec<_>>();
+                        quote! {
+                            #(#list)*
                         }
                     }
                 })
