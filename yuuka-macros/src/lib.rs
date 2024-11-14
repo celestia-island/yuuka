@@ -207,5 +207,9 @@ pub fn auto(input: TokenStream) -> TokenStream {
                 .into()
             }
         }
+        AutoMacrosType::EnumSinglePath((key, next_key)) => quote! {
+            #ident::#key(#macro_ident!(#key 0 #next_key))
+        }
+        .into(),
     }
 }
