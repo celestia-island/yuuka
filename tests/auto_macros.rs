@@ -17,7 +17,7 @@ mod test {
         let obj = auto!(Root {
             a: "hello".to_string(),
             b: 42,
-            c: 3.14,
+            c: std::f64::consts::PI,
             d: {
                 e: "world".to_string(),
                 f: 24,
@@ -25,7 +25,7 @@ mod test {
         });
         assert_eq!(obj.a, "hello");
         assert_eq!(obj.b, 42);
-        assert_eq!(obj.c, 3.14);
+        assert_eq!(obj.c, std::f64::consts::PI);
         assert_eq!(obj.d.e, "world");
         assert_eq!(obj.d.f, 24);
     }
@@ -129,10 +129,20 @@ mod test {
             }
         );
 
-        auto!(Root {
-            outer: {
-                a: auto!(B::C { c: 42, d: 3.14 })
+        assert_eq!(
+            auto!(Root {
+                outer: {
+                    a: auto!(B::C { c: 42, d: std::f64::consts::PI })
+                }
+            }),
+            Root {
+                outer: _Root_0_anonymous {
+                    a: B::C {
+                        c: 42,
+                        d: std::f64::consts::PI
+                    }
+                }
             }
-        });
+        );
     }
 }
