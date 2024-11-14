@@ -189,3 +189,30 @@ mod test {
         assert_eq!(auto!(Root2::A), Root2::A);
     }
 }
+
+#[macro_use]
+mod across_mod_1 {
+    use yuuka::derive_struct;
+
+    derive_struct!(Root {
+        a: {
+            b: String
+        }
+    });
+}
+
+mod across_mod_2 {
+    use yuuka::auto;
+
+    use super::across_mod_1::*;
+
+    #[test]
+    fn test() {
+        let val = auto!(Root {
+            a: {
+                b: "hello".to_string()
+            }
+        });
+        assert_eq!(val.a.b, "hello");
+    }
+}
