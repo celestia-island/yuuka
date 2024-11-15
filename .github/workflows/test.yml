@@ -40,7 +40,7 @@ jobs:
             --no-fail-fast
 
       - name: Run across crate example test
-        run: /
+        run: |
           cargo run \
           --manifest-path \
           ./tests/across_crate_entry/Cargo.toml
