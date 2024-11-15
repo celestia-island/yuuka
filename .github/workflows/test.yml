@@ -38,3 +38,9 @@ jobs:
             --all-targets \
             --all-features \
             --no-fail-fast
+
+      - name: Run across crate example test
+        run: /
+          cargo run \
+          --manifest-path \
+          ./tests/across_crate_entry/Cargo.toml

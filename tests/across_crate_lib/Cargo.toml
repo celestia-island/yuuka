@@ -1,0 +1,11 @@
+[package]
+name = "across_crate_lib"
+version = "0.1.0"
+edition = "2021"
+private = false
+
+[lib]
+crate-type = ["rlib", "dylib"]
+
+[dependencies]
+yuuka = { path = "../.." }

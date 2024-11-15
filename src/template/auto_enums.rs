@@ -2,9 +2,12 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::Ident;
 
-use crate::tools::{EnumValueFlatten, EnumsFlatten};
+use crate::tools::{DeriveAutoMacrosVisibility, EnumValueFlatten, EnumsFlatten};
 
-pub(crate) fn generate_enums_auto_macros(enums: EnumsFlatten) -> Vec<TokenStream> {
+pub(crate) fn generate_enums_auto_macros(
+    enums: EnumsFlatten,
+    macros_visibility: DeriveAutoMacrosVisibility,
+) -> Vec<TokenStream> {
     enums
         .iter()
         .map(|(ident, v, _default_value, _extra_macros)| {
@@ -57,19 +60,38 @@ pub(crate) fn generate_enums_auto_macros(enums: EnumsFlatten) -> Vec<TokenStream
             };
 
             let ident = Ident::new(format!("__auto_{}", ident).as_str(), ident.span());
-            quote! {
-                #[doc(hidden)]
-                macro_rules! #ident {
-                    () => {};
+            if macros_visibility == DeriveAutoMacrosVisibility::Public {
+                quote! {
+                    #[doc(hidden)]
+                    #[macro_export]
+                    macro_rules! #ident {
+                        () => {};
 
-                    #rules
+                        #rules
 
-                    ($name:ident $key:ident $val:expr) => {
-                        $val
-                    };
-                    ($name:ident $val:expr) => {
-                        $val
-                    };
+                        ($name:ident $key:ident $val:expr) => {
+                            $val
+                        };
+                        ($name:ident $val:expr) => {
+                            $val
+                        };
+                    }
+                }
+            } else {
+                quote! {
+                    #[doc(hidden)]
+                    macro_rules! #ident {
+                        () => {};
+
+                        #rules
+
+                        ($name:ident $key:ident $val:expr) => {
+                            $val
+                        };
+                        ($name:ident $val:expr) => {
+                            $val
+                        };
+                    }
                 }
             }
         })
