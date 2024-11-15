@@ -12,7 +12,8 @@ use template::{
     generate_structs_quote,
 };
 use tools::{
-    auto_macros::AutoMacrosType, AutoMacros, DeriveEnum, DeriveStruct, DeriveVisibility, StructName,
+    auto_macros::AutoMacrosType, AutoMacros, DeriveBox, DeriveEnum, DeriveStruct, DeriveVisibility,
+    StructName,
 };
 use utils::flatten;
 
@@ -21,6 +22,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveStruct);
 
     let is_public = input.visibility == DeriveVisibility::Public;
+    let macro_visibility = input.extra_macros.macros_visibility;
     let root_ident = match input.ident.clone() {
         StructName::Named(v) => v,
         StructName::Unnamed(_) => {
@@ -31,12 +33,12 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
     let (structs, enums) = flatten(
         root_ident.to_string(),
         Rc::new(RefCell::new(0)),
-        tools::DeriveBox::Struct(input.clone()),
+        DeriveBox::Struct(input.clone()),
     )
     .expect("Failed to flatten");
 
-    let structs_auto_macros = generate_structs_auto_macros(structs.clone());
-    let enums_auto_macros = generate_enums_auto_macros(enums.clone());
+    let structs_auto_macros = generate_structs_auto_macros(structs.clone(), macro_visibility);
+    let enums_auto_macros = generate_enums_auto_macros(enums.clone(), macro_visibility);
 
     let structs = generate_structs_quote(structs);
     let enums = generate_enums_quote(enums);
@@ -83,6 +85,7 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveEnum);
 
     let is_public = input.visibility == DeriveVisibility::Public;
+    let macro_visibility = input.extra_macros.macros_visibility;
     let root_ident = match input.ident.clone() {
         StructName::Named(v) => v,
         StructName::Unnamed(_) => {
@@ -93,12 +96,12 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
     let (structs, enums) = flatten(
         root_ident.to_string(),
         Rc::new(RefCell::new(0)),
-        tools::DeriveBox::Enum(input.clone()),
+        DeriveBox::Enum(input.clone()),
     )
     .expect("Failed to flatten");
 
-    let structs_auto_macros = generate_structs_auto_macros(structs.clone());
-    let enums_auto_macros = generate_enums_auto_macros(enums.clone());
+    let structs_auto_macros = generate_structs_auto_macros(structs.clone(), macro_visibility);
+    let enums_auto_macros = generate_enums_auto_macros(enums.clone(), macro_visibility);
 
     let structs = generate_structs_quote(structs);
     let enums = generate_enums_quote(enums);

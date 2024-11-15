@@ -2,9 +2,12 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::Ident;
 
-use crate::tools::StructsFlatten;
+use crate::tools::{DeriveAutoMacrosVisibility, StructsFlatten};
 
-pub(crate) fn generate_structs_auto_macros(structs: StructsFlatten) -> Vec<TokenStream> {
+pub(crate) fn generate_structs_auto_macros(
+    structs: StructsFlatten,
+    macros_visibility: DeriveAutoMacrosVisibility,
+) -> Vec<TokenStream> {
     structs
         .iter()
         .map(|(ident, v, _extra_macros)| {
@@ -23,16 +26,32 @@ pub(crate) fn generate_structs_auto_macros(structs: StructsFlatten) -> Vec<Token
             };
 
             let ident = Ident::new(format!("__auto_{}", ident).as_str(), ident.span());
-            quote! {
-                #[doc(hidden)]
-                macro_rules! #ident {
-                    () => {};
+            if macros_visibility == DeriveAutoMacrosVisibility::Public {
+                quote! {
+                    #[doc(hidden)]
+                    #[macro_export]
+                    macro_rules! #ident {
+                        () => {};
 
-                    #rules
+                        #rules
 
-                    ($name:ident $val:expr) => {
-                        $val
-                    };
+                        ($name:ident $val:expr) => {
+                            $val
+                        };
+                    }
+                }
+            } else {
+                quote! {
+                    #[doc(hidden)]
+                    macro_rules! #ident {
+                        () => {};
+
+                        #rules
+
+                        ($name:ident $val:expr) => {
+                            $val
+                        };
+                    }
                 }
             }
         })

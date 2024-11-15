@@ -6,6 +6,8 @@ use syn::{
     token, Ident, Token, TypePath,
 };
 
+use super::DeriveAutoMacrosVisibility;
+
 #[derive(Debug, Clone, Default)]
 pub struct ExtraDeriveMacros {
     pub derive_macros: Vec<TypePath>,
@@ -17,6 +19,7 @@ pub struct ExtraDeriveMacros {
 pub struct ExtraMacros {
     pub attr_macros: Vec<TokenStream>,
     pub derive_macros: Option<ExtraDeriveMacros>,
+    pub macros_visibility: DeriveAutoMacrosVisibility,
 }
 
 impl ExtraMacros {
@@ -64,6 +67,7 @@ impl Parse for ExtraMacros {
         let mut attr_macros_after_derive = vec![];
         let mut attr_macros_after_derive_recursive = vec![];
 
+        let mut has_export_macro = false;
         let mut has_parsed_derive = false;
 
         while input.peek(Token![#]) {
@@ -95,6 +99,8 @@ impl Parse for ExtraMacros {
 
                 let token_stream = content.parse::<TokenStream>()?;
                 attr_macros_after_derive_recursive.push(token_stream);
+            } else if head_ident == "macro_export" {
+                has_export_macro = true;
             } else if !has_parsed_derive {
                 let token_stream = bracked_content.parse::<TokenStream>()?;
                 let token_stream = quote! {
@@ -114,6 +120,11 @@ impl Parse for ExtraMacros {
             Ok(Self {
                 attr_macros: attr_macros_before_derive,
                 derive_macros: None,
+                macros_visibility: if has_export_macro {
+                    DeriveAutoMacrosVisibility::Public
+                } else {
+                    DeriveAutoMacrosVisibility::PublicOnCrate
+                },
             })
         } else {
             Ok(Self {
@@ -123,6 +134,11 @@ impl Parse for ExtraMacros {
                     attr_macros: attr_macros_after_derive,
                     attr_macros_recursive: attr_macros_after_derive_recursive,
                 }),
+                macros_visibility: if has_export_macro {
+                    DeriveAutoMacrosVisibility::Public
+                } else {
+                    DeriveAutoMacrosVisibility::PublicOnCrate
+                },
             })
         }
     }

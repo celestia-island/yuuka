@@ -23,6 +23,13 @@ pub enum DeriveVisibility {
     PublicOnCrate,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub enum DeriveAutoMacrosVisibility {
+    Public,
+    #[default]
+    PublicOnCrate,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum DefaultValue {
     None,

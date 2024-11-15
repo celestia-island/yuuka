@@ -1,0 +1,10 @@
+[package]
+name = "across_crate_entry"
+version = "0.1.0"
+edition = "2021"
+private = false
+
+[dependencies]
+across_crate_lib = { path = "../across_crate_lib", package = "across_crate_lib" }
+
+yuuka = { path = "../.." }
