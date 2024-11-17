@@ -35,9 +35,9 @@ derive_struct!(
     }
 );
 
-let config = GameDevelopment {
+let config = auto!(GameDevelopment {
     description: "A game development team".to_string(),
-    members: Members {
+    members: {
         script_writer: "Momoi".to_string(),
         illustrator: "Midori".to_string(),
         programmer: "Yuzu".to_string(),
@@ -53,16 +53,7 @@ let config = GameDevelopment {
             engine: "Unity".to_string(),
         },
     ]
-};
+});
 ```
 
-## TODO
-
-- [x] Array type support
-- [x] Enum type support
-- [x] Anonymous struct support that can use `auto!` macro to confirm the auto-generated field name
-- [x] Default value support that can use `=` to assign the default value
-- [x] `pub` and `pub(crate)` identifier support
-- [x] Support custom derive macro.
-- [ ] Write a homepage for this library
-- [x] Upload to `crates.io`
+More information can be found in the documentation ([English](https://github.com/celestia-island/yuuka/tree/master/docs/introduction.md) | [简体中文](https://github.com/celestia-island/yuuka/tree/master/i18n/zh-hans/introduction.md) | [繁體中文](https://github.com/celestia-island/yuuka/tree/master/i18n/zh-hant/introduction.md)).
