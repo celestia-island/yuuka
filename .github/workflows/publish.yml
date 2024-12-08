@@ -1,4 +1,4 @@
-name: Publish docker image
+name: Publish crates.io
 on:
   push:
     tags: [v*]
