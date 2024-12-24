@@ -7,7 +7,7 @@ fn basic_struct() {
         b: i32,
         c: f64,
         d: {
-            e: String,
+            e: String = "world".to_string(),
             f: i32,
         }
     });
@@ -17,8 +17,8 @@ fn basic_struct() {
         b: 42,
         c: std::f64::consts::PI,
         d: {
-            e: "world".to_string(),
             f: 24,
+            ..Default::default(),
         }
     });
     assert_eq!(obj.a, "hello");
@@ -142,6 +142,34 @@ fn mixed_auto() {
             }
         }
     );
+}
+
+#[test]
+fn default_struct_auto() {
+    derive_struct!(Root {
+        a: String,
+        b: i32,
+        c: f64,
+        d: {
+            e: String = "world".to_string(),
+            f: i32,
+        }
+    });
+
+    let obj = auto!(Root {
+        a: "hello".to_string(),
+        b: 42,
+        c: std::f64::consts::PI,
+        d: {
+            f: 24,
+            ..Default::default(),
+        }
+    });
+    assert_eq!(obj.a, "hello");
+    assert_eq!(obj.b, 42);
+    assert_eq!(obj.c, std::f64::consts::PI);
+    assert_eq!(obj.d.e, "world");
+    assert_eq!(obj.d.f, 24);
 }
 
 #[test]
