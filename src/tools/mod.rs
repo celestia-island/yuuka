@@ -78,24 +78,37 @@ impl StructName {
 pub(crate) enum StructType {
     Static(TypePath),
     InlineStruct(DeriveStruct),
-    InlineStructVector(DeriveStruct),
     InlineEnum(DeriveEnum),
-    InlineEnumVector(DeriveEnum),
 }
 
 #[derive(Debug, Clone)]
 pub(crate) enum EnumValue {
     Empty,
-    Tuple(Vec<StructType>),
+    Tuple(Vec<(StructType, ExtraTypeWrapper)>),
     Struct(StructMembers),
 }
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub(crate) enum ExtraTypeWrapper {
+    Default,
+    Vec,
+    Option,
+    OptionVec,
+}
+
 #[derive(Debug, Clone)]
 pub(crate) struct ExtraMacrosFlatten {
     pub(crate) derive_macros: Vec<TypePath>,
     pub(crate) attr_macros: Vec<TokenStream>,
 }
 
-pub(crate) type StructMembers = Vec<(Ident, StructType, DefaultValue, ExtraMacros)>;
+pub(crate) type StructMembers = Vec<(
+    Ident,
+    StructType,
+    ExtraTypeWrapper,
+    DefaultValue,
+    ExtraMacros,
+)>;
 pub(crate) type EnumMembers = Vec<(Ident, EnumValue, ExtraMacros)>;
 
 #[derive(Debug, Clone)]
