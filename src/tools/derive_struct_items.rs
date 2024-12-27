@@ -4,6 +4,8 @@ use syn::{
     token, Expr, Ident, Token, TypePath,
 };
 
+use crate::tools::ExtraTypeWrapper;
+
 use super::{DefaultValue, DeriveEnum, DeriveStruct, ExtraMacros, StructMembers, StructType};
 
 #[derive(Debug, Clone)]
@@ -23,6 +25,12 @@ impl Parse for DeriveStructItems {
             };
 
             let key = input.parse::<Ident>()?;
+            let optional = if input.peek(Token![?]) {
+                input.parse::<Token![?]>()?;
+                true
+            } else {
+                false
+            };
             input.parse::<Token![:]>()?;
 
             if input.peek(token::Bracket) {
@@ -45,7 +53,12 @@ impl Parse for DeriveStructItems {
 
                     own_struct.push((
                         key,
-                        StructType::InlineEnumVector(content),
+                        StructType::InlineEnum(content),
+                        if optional {
+                            ExtraTypeWrapper::OptionVec
+                        } else {
+                            ExtraTypeWrapper::Vec
+                        },
                         {
                             if input.peek(Token![=]) {
                                 input.parse::<Token![=]>()?;
@@ -92,7 +105,12 @@ impl Parse for DeriveStructItems {
 
                     own_struct.push((
                         key,
-                        StructType::InlineStructVector(content),
+                        StructType::InlineStruct(content),
+                        if optional {
+                            ExtraTypeWrapper::OptionVec
+                        } else {
+                            ExtraTypeWrapper::Vec
+                        },
                         {
                             if input.peek(Token![=]) {
                                 input.parse::<Token![=]>()?;
@@ -141,6 +159,11 @@ impl Parse for DeriveStructItems {
                 own_struct.push((
                     key.clone(),
                     StructType::InlineEnum(content),
+                    if optional {
+                        ExtraTypeWrapper::Option
+                    } else {
+                        ExtraTypeWrapper::Default
+                    },
                     {
                         if input.peek(Token![=]) {
                             input.parse::<Token![=]>()?;
@@ -167,6 +190,11 @@ impl Parse for DeriveStructItems {
                 own_struct.push((
                     key.clone(),
                     StructType::InlineStruct(content),
+                    if optional {
+                        ExtraTypeWrapper::Option
+                    } else {
+                        ExtraTypeWrapper::Default
+                    },
                     DefaultValue::None,
                     extra_macros,
                 ));
@@ -177,6 +205,11 @@ impl Parse for DeriveStructItems {
                 own_struct.push((
                     key,
                     StructType::Static(ty),
+                    if optional {
+                        ExtraTypeWrapper::Option
+                    } else {
+                        ExtraTypeWrapper::Default
+                    },
                     {
                         if input.peek(Token![=]) {
                             input.parse::<Token![=]>()?;

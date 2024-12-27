@@ -4,6 +4,8 @@ use syn::{
     token, Ident, Token, TypePath,
 };
 
+use crate::tools::ExtraTypeWrapper;
+
 use super::{
     DeriveEnum, DeriveStruct, DeriveStructItems, EnumMembers, EnumValue, ExtraMacros, StructType,
 };
@@ -37,7 +39,7 @@ impl Parse for DeriveEnumItems {
                 // Ident(...),
                 let sub_content;
                 parenthesized!(sub_content in input);
-                let mut tuple: Vec<StructType> = Vec::new();
+                let mut tuple: Vec<(StructType, ExtraTypeWrapper)> = vec![];
 
                 while !sub_content.is_empty() {
                     if sub_content.peek(token::Bracket) {
@@ -60,7 +62,7 @@ impl Parse for DeriveEnumItems {
                                     content
                                 };
 
-                            tuple.push(StructType::InlineEnumVector(content));
+                            tuple.push((StructType::InlineEnum(content), ExtraTypeWrapper::Vec));
                         } else {
                             // Ident([Ident { ... }], ...),
                             // Ident([{ ... }], ...),
@@ -76,7 +78,7 @@ impl Parse for DeriveEnumItems {
                                     content
                                 };
 
-                            tuple.push(StructType::InlineStructVector(content));
+                            tuple.push((StructType::InlineStruct(content), ExtraTypeWrapper::Vec));
                         }
                     } else if sub_content.peek(Token![enum]) {
                         // Ident(enum Ident { ... }, ...),
@@ -92,7 +94,7 @@ impl Parse for DeriveEnumItems {
                             content
                         };
 
-                        tuple.push(StructType::InlineEnum(content));
+                        tuple.push((StructType::InlineEnum(content), ExtraTypeWrapper::Default));
                     } else if sub_content.peek2(token::Brace) {
                         // Ident(Ident { ... }, ...),
                         // Ident({ ... }, ...),
@@ -107,11 +109,11 @@ impl Parse for DeriveEnumItems {
                             content
                         };
 
-                        tuple.push(StructType::InlineStruct(content));
+                        tuple.push((StructType::InlineStruct(content), ExtraTypeWrapper::Default));
                     } else {
                         // Ident (TypePath, ...),
                         let ty: TypePath = sub_content.parse()?;
-                        tuple.push(StructType::Static(ty));
+                        tuple.push((StructType::Static(ty), ExtraTypeWrapper::Default));
                     }
 
                     if sub_content.peek(Token![,]) {
