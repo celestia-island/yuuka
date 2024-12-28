@@ -151,7 +151,10 @@ pub fn auto(input: TokenStream) -> TokenStream {
 
     let macro_ident = Ident::new(&format!("__auto_{}", input.ident), input.ident.span());
     match body {
-        AutoMacrosType::Struct(items) => {
+        AutoMacrosType::Struct {
+            items,
+            expand_exprs,
+        } => {
             let list = items
                 .iter()
                 .map(|(key, value)| {
@@ -161,19 +164,33 @@ pub fn auto(input: TokenStream) -> TokenStream {
                 })
                 .collect::<Vec<_>>();
 
-            quote! {
-                #ident {
-                    #( #list ),*
+            if let Some(expand_exprs) = expand_exprs {
+                quote! {
+                    #ident {
+                        #( #list ),*,
+                        ..#expand_exprs
+                    }
                 }
+                .into()
+            } else {
+                quote! {
+                    #ident {
+                        #( #list ),*
+                    }
+                }
+                .into()
             }
-            .into()
         }
 
-        AutoMacrosType::EnumEmpty(key) => quote! {
+        AutoMacrosType::EnumEmpty { key } => quote! {
             #ident::#key
         }
         .into(),
-        AutoMacrosType::EnumStruct((key, items)) => {
+        AutoMacrosType::EnumStruct {
+            key,
+            items,
+            expand_exprs,
+        } => {
             let list = items
                 .iter()
                 .map(|(item_key, value)| {
@@ -183,14 +200,24 @@ pub fn auto(input: TokenStream) -> TokenStream {
                 })
                 .collect::<Vec<_>>();
 
-            quote! {
-                #ident::#key {
-                    #( #list ),*
+            if let Some(expand_exprs) = expand_exprs {
+                quote! {
+                    #ident::#key {
+                        #( #list ),*,
+                        ..#expand_exprs
+                    }
                 }
+                .into()
+            } else {
+                quote! {
+                    #ident::#key {
+                        #( #list ),*
+                    }
+                }
+                .into()
             }
-            .into()
         }
-        AutoMacrosType::EnumTuple((key, items)) => {
+        AutoMacrosType::EnumTuple { key, items } => {
             if items.len() == 1 {
                 let first_item = items.first().expect("Failed to get first item");
                 quote! {
@@ -214,12 +241,12 @@ pub fn auto(input: TokenStream) -> TokenStream {
                 .into()
             }
         }
-        AutoMacrosType::EnumSinglePath((key, next_key)) => quote! {
+        AutoMacrosType::EnumSinglePath { key, next_key } => quote! {
             #ident::#key(#macro_ident!(#key 0 #next_key))
         }
         .into(),
 
-        AutoMacrosType::Value(items) => {
+        AutoMacrosType::Value { items } => {
             if items.len() == 1 {
                 let first_item = items.first().expect("Failed to get first item");
                 quote! {
