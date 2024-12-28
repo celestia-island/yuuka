@@ -18,7 +18,7 @@ fn basic_struct() {
         c: std::f64::consts::PI,
         d: {
             f: 24,
-            ..Default::default(),
+            ..Default::default()
         }
     });
     assert_eq!(obj.a, "hello");
@@ -162,7 +162,7 @@ fn default_struct_auto() {
         c: std::f64::consts::PI,
         d: {
             f: 24,
-            ..Default::default(),
+            ..Default::default()
         }
     });
     assert_eq!(obj.a, "hello");

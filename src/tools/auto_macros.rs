@@ -8,12 +8,29 @@ use syn::{
 
 #[derive(Debug, Clone)]
 pub enum AutoMacrosType {
-    Struct(Vec<(Ident, TokenStream)>),
-    EnumEmpty(Ident),
-    EnumStruct((Ident, Vec<(Ident, TokenStream)>)),
-    EnumTuple((Ident, Vec<TokenStream>)),
-    EnumSinglePath((Ident, TokenStream)),
-    Value(Vec<Expr>),
+    Struct {
+        items: Vec<(Ident, TokenStream)>,
+        expand_exprs: Option<Expr>,
+    },
+    EnumEmpty {
+        key: Ident,
+    },
+    EnumStruct {
+        key: Ident,
+        items: Vec<(Ident, TokenStream)>,
+        expand_exprs: Option<Expr>,
+    },
+    EnumTuple {
+        key: Ident,
+        items: Vec<TokenStream>,
+    },
+    EnumSinglePath {
+        key: Ident,
+        next_key: TokenStream,
+    },
+    Value {
+        items: Vec<Expr>,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -31,8 +48,25 @@ impl Parse for AutoMacros {
             let content;
             braced!(content in input);
 
-            let mut tokens = vec![];
+            let mut items = vec![];
+            let mut expand_exprs = None;
+
             while !content.is_empty() {
+                if content.peek(Token![..]) {
+                    if expand_exprs.is_some() {
+                        return Err(content.error("Expand expression is already set"));
+                    }
+
+                    content.parse::<Token![..]>()?;
+                    let value: Expr = content.parse()?;
+                    expand_exprs = Some(value);
+
+                    if !content.is_empty() {
+                        return Err(content.error("Expand expression should be the last"));
+                    }
+                    break;
+                }
+
                 let key: Ident = content.parse()?;
                 content.parse::<Token![:]>()?;
 
@@ -40,7 +74,7 @@ impl Parse for AutoMacros {
                     let inner_content;
                     braced!(inner_content in content);
                     let inner_content: TokenStream = inner_content.parse()?;
-                    tokens.push((
+                    items.push((
                         key,
                         quote! {
                             { #inner_content }
@@ -50,7 +84,7 @@ impl Parse for AutoMacros {
                     let inner_content;
                     bracketed!(inner_content in content);
                     let inner_content: TokenStream = inner_content.parse()?;
-                    tokens.push((
+                    items.push((
                         key,
                         quote! {
                              [ #inner_content ]
@@ -60,7 +94,7 @@ impl Parse for AutoMacros {
                     let inner_content;
                     parenthesized!(inner_content in content);
                     let inner_content: TokenStream = inner_content.parse()?;
-                    tokens.push((
+                    items.push((
                         key,
                         quote! {
                             ( #inner_content )
@@ -68,7 +102,7 @@ impl Parse for AutoMacros {
                     ));
                 } else {
                     let value: Expr = content.parse()?;
-                    tokens.push((
+                    items.push((
                         key,
                         quote! {
                             #value
@@ -83,7 +117,10 @@ impl Parse for AutoMacros {
 
             Ok(AutoMacros {
                 ident,
-                body: AutoMacrosType::Struct(tokens),
+                body: AutoMacrosType::Struct {
+                    items,
+                    expand_exprs,
+                },
             })
         } else if input.peek(Token![::]) {
             // Sth::...
@@ -98,7 +135,24 @@ impl Parse for AutoMacros {
                 braced!(content in input);
 
                 let mut items = vec![];
+                let mut expand_exprs = None;
+
                 while !content.is_empty() {
+                    if content.peek(Token![..]) {
+                        if expand_exprs.is_some() {
+                            return Err(content.error("Expand expression is already set"));
+                        }
+
+                        content.parse::<Token![..]>()?;
+                        let value: Expr = content.parse()?;
+                        expand_exprs = Some(value);
+
+                        if !content.is_empty() {
+                            return Err(content.error("Expand expression should be the last"));
+                        }
+                        break;
+                    }
+
                     let key: Ident = content.parse()?;
                     content.parse::<Token![:]>()?;
 
@@ -149,7 +203,11 @@ impl Parse for AutoMacros {
 
                 Ok(AutoMacros {
                     ident,
-                    body: AutoMacrosType::EnumStruct((key, items)),
+                    body: AutoMacrosType::EnumStruct {
+                        key,
+                        items,
+                        expand_exprs,
+                    },
                 })
             } else if input.peek(token::Paren) {
                 // Sth::Sth(key, ...)
@@ -171,7 +229,7 @@ impl Parse for AutoMacros {
 
                 Ok(AutoMacros {
                     ident,
-                    body: AutoMacrosType::EnumTuple((key, items)),
+                    body: AutoMacrosType::EnumTuple { key, items },
                 })
             } else if input.peek(Token![::]) {
                 // Sth::Sth::Sth
@@ -181,14 +239,14 @@ impl Parse for AutoMacros {
 
                 Ok(AutoMacros {
                     ident,
-                    body: AutoMacrosType::EnumSinglePath((key, next_key)),
+                    body: AutoMacrosType::EnumSinglePath { key, next_key },
                 })
             } else {
                 // Sth::Sth
 
                 Ok(AutoMacros {
                     ident,
-                    body: AutoMacrosType::EnumEmpty(key),
+                    body: AutoMacrosType::EnumEmpty { key },
                 })
             }
         } else {
@@ -209,7 +267,7 @@ impl Parse for AutoMacros {
 
             Ok(AutoMacros {
                 ident,
-                body: AutoMacrosType::Value(items),
+                body: AutoMacrosType::Value { items },
             })
         }
     }
