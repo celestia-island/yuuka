@@ -23,7 +23,11 @@ pub(crate) fn flatten(
                     StructType::Static(v) => {
                         items.push((
                             key.clone(),
-                            v.clone(),
+                            match extra_type_wrapper {
+                                ExtraTypeWrapper::Option => parse_quote! { Option<#v> },
+                                ExtraTypeWrapper::OptionVec => parse_quote! { Option<#v> },
+                                _ => v.clone(),
+                            },
                             default_value.clone(),
                             extra_macros.attr_macros.clone(),
                         ));
@@ -159,7 +163,11 @@ pub(crate) fn flatten(
                         for (ty, extra_type_wrapper) in v.iter() {
                             match ty {
                                 StructType::Static(v) => {
-                                    tuple.push(v.clone());
+                                    tuple.push(match extra_type_wrapper {
+                                        ExtraTypeWrapper::Option => parse_quote! { Option<#v> },
+                                        ExtraTypeWrapper::OptionVec => parse_quote! { Option<#v> },
+                                        _ => v.clone(),
+                                    });
                                 }
                                 StructType::InlineStruct(v) => {
                                     let v = v
@@ -264,7 +272,13 @@ pub(crate) fn flatten(
                                 StructType::Static(v) => {
                                     sub_items.push((
                                         key.clone(),
-                                        v.clone(),
+                                        match extra_type_wrapper {
+                                            ExtraTypeWrapper::Option => parse_quote! { Option<#v> },
+                                            ExtraTypeWrapper::OptionVec => {
+                                                parse_quote! { Option<#v> }
+                                            }
+                                            _ => v.clone(),
+                                        },
                                         default_value.clone(),
                                         extra_macros.attr_macros.clone(),
                                     ));
