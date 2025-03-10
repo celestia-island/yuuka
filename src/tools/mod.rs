@@ -131,6 +131,6 @@ pub(crate) type EnumsFlatten = Vec<(
 
 #[derive(Debug, Clone)]
 pub(crate) enum DeriveBox {
-    Struct(DeriveStruct),
-    Enum(DeriveEnum),
+    Struct(Box<DeriveStruct>),
+    Enum(Box<DeriveEnum>),
 }

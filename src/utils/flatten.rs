@@ -54,7 +54,7 @@ pub(crate) fn flatten(
                         let (sub_structs, sub_enums) = flatten(
                             root_name.clone(),
                             unique_id_count.clone(),
-                            DeriveBox::Struct(v.clone()),
+                            DeriveBox::Struct(Box::new(v.clone())),
                         )?;
 
                         structs.extend(sub_structs);
@@ -95,7 +95,7 @@ pub(crate) fn flatten(
                         let (sub_structs, sub_enums) = flatten(
                             root_name.clone(),
                             unique_id_count.clone(),
-                            DeriveBox::Enum(v.clone()),
+                            DeriveBox::Enum(Box::new(v.clone())),
                         )?;
 
                         structs.extend(sub_structs);
@@ -197,7 +197,7 @@ pub(crate) fn flatten(
                                     let (sub_structs, sub_enums) = flatten(
                                         root_name.clone(),
                                         unique_id_count.clone(),
-                                        DeriveBox::Struct(v.clone()),
+                                        DeriveBox::Struct(Box::new(v.clone())),
                                     )?;
 
                                     structs.extend(sub_structs);
@@ -241,7 +241,7 @@ pub(crate) fn flatten(
                                     let (sub_structs, sub_enums) = flatten(
                                         root_name.clone(),
                                         unique_id_count.clone(),
-                                        DeriveBox::Enum(v.clone()),
+                                        DeriveBox::Enum(Box::new(v.clone())),
                                     )?;
 
                                     structs.extend(sub_structs);
@@ -311,7 +311,7 @@ pub(crate) fn flatten(
                                     let (sub_structs, sub_enums) = flatten(
                                         root_name.clone(),
                                         unique_id_count.clone(),
-                                        DeriveBox::Struct(v.clone()),
+                                        DeriveBox::Struct(Box::new(v.clone())),
                                     )?;
 
                                     structs.extend(sub_structs);
@@ -362,7 +362,7 @@ pub(crate) fn flatten(
                                     let (sub_structs, sub_enums) = flatten(
                                         root_name.clone(),
                                         unique_id_count.clone(),
-                                        DeriveBox::Enum(v.clone()),
+                                        DeriveBox::Enum(Box::new(v.clone())),
                                     )?;
 
                                     structs.extend(sub_structs);
