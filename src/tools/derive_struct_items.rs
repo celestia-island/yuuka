@@ -53,7 +53,7 @@ impl Parse for DeriveStructItems {
 
                     own_struct.push((
                         key,
-                        StructType::InlineEnum(content),
+                        StructType::InlineEnum(Box::new(content)),
                         if optional {
                             ExtraTypeWrapper::OptionVec
                         } else {
@@ -105,7 +105,7 @@ impl Parse for DeriveStructItems {
 
                     own_struct.push((
                         key,
-                        StructType::InlineStruct(content),
+                        StructType::InlineStruct(Box::new(content)),
                         if optional {
                             ExtraTypeWrapper::OptionVec
                         } else {
@@ -158,7 +158,7 @@ impl Parse for DeriveStructItems {
 
                 own_struct.push((
                     key.clone(),
-                    StructType::InlineEnum(content),
+                    StructType::InlineEnum(Box::new(content)),
                     if optional {
                         ExtraTypeWrapper::Option
                     } else {
@@ -189,7 +189,7 @@ impl Parse for DeriveStructItems {
 
                 own_struct.push((
                     key.clone(),
-                    StructType::InlineStruct(content),
+                    StructType::InlineStruct(Box::new(content)),
                     if optional {
                         ExtraTypeWrapper::Option
                     } else {

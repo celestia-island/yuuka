@@ -77,8 +77,8 @@ impl StructName {
 #[derive(Debug, Clone)]
 pub(crate) enum StructType {
     Static(TypePath),
-    InlineStruct(DeriveStruct),
-    InlineEnum(DeriveEnum),
+    InlineStruct(Box<DeriveStruct>),
+    InlineEnum(Box<DeriveEnum>),
 }
 
 #[derive(Debug, Clone)]
