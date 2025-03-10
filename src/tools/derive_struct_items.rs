@@ -83,7 +83,7 @@ impl Parse for DeriveStructItems {
                                 } else {
                                     // sth: [enum Ident { ... } = ...],
                                     // sth: [enum { ... } = ...],
-                                    DefaultValue::Single(default_value)
+                                    DefaultValue::Single(Box::new(default_value))
                                 }
                             } else {
                                 DefaultValue::None
@@ -135,7 +135,7 @@ impl Parse for DeriveStructItems {
                                 } else {
                                     // sth: [Ident { ... } = ...],
                                     // sth: [{ ... } = ...],
-                                    DefaultValue::Single(default_value)
+                                    DefaultValue::Single(Box::new(default_value))
                                 }
                             } else {
                                 DefaultValue::None
@@ -168,7 +168,7 @@ impl Parse for DeriveStructItems {
                         if input.peek(Token![=]) {
                             input.parse::<Token![=]>()?;
                             let default_value = input.parse::<Expr>()?;
-                            DefaultValue::Single(default_value)
+                            DefaultValue::Single(Box::new(default_value))
                         } else {
                             DefaultValue::None
                         }
@@ -215,7 +215,7 @@ impl Parse for DeriveStructItems {
                             input.parse::<Token![=]>()?;
                             let default_value = input.parse::<Expr>()?;
 
-                            DefaultValue::Single(default_value)
+                            DefaultValue::Single(Box::new(default_value))
                         } else {
                             DefaultValue::None
                         }
