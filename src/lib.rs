@@ -33,7 +33,7 @@ pub fn derive_struct(input: TokenStream) -> TokenStream {
     let (structs, enums) = flatten(
         root_ident.to_string(),
         Rc::new(RefCell::new(0)),
-        DeriveBox::Struct(input.clone()),
+        DeriveBox::Struct(Box::new(input.clone())),
     )
     .expect("Failed to flatten");
 
@@ -96,7 +96,7 @@ pub fn derive_enum(input: TokenStream) -> TokenStream {
     let (structs, enums) = flatten(
         root_ident.to_string(),
         Rc::new(RefCell::new(0)),
-        DeriveBox::Enum(input.clone()),
+        DeriveBox::Enum(Box::new(input.clone())),
     )
     .expect("Failed to flatten");
 
