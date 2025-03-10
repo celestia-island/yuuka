@@ -33,7 +33,7 @@ pub enum DeriveAutoMacrosVisibility {
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum DefaultValue {
     None,
-    Single(Expr),
+    Single(Box<Expr>),
     Array(Vec<Expr>),
 }
 
