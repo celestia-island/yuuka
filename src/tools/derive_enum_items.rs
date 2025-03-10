@@ -62,7 +62,10 @@ impl Parse for DeriveEnumItems {
                                     content
                                 };
 
-                            tuple.push((StructType::InlineEnum(content), ExtraTypeWrapper::Vec));
+                            tuple.push((
+                                StructType::InlineEnum(Box::new(content)),
+                                ExtraTypeWrapper::Vec,
+                            ));
                         } else {
                             // Ident([Ident { ... }], ...),
                             // Ident([{ ... }], ...),
@@ -78,7 +81,10 @@ impl Parse for DeriveEnumItems {
                                     content
                                 };
 
-                            tuple.push((StructType::InlineStruct(content), ExtraTypeWrapper::Vec));
+                            tuple.push((
+                                StructType::InlineStruct(Box::new(content)),
+                                ExtraTypeWrapper::Vec,
+                            ));
                         }
                     } else if sub_content.peek(Token![enum]) {
                         // Ident(enum Ident { ... }, ...),
@@ -94,7 +100,10 @@ impl Parse for DeriveEnumItems {
                             content
                         };
 
-                        tuple.push((StructType::InlineEnum(content), ExtraTypeWrapper::Default));
+                        tuple.push((
+                            StructType::InlineEnum(Box::new(content)),
+                            ExtraTypeWrapper::Default,
+                        ));
                     } else if sub_content.peek2(token::Brace) {
                         // Ident(Ident { ... }, ...),
                         // Ident({ ... }, ...),
@@ -109,7 +118,10 @@ impl Parse for DeriveEnumItems {
                             content
                         };
 
-                        tuple.push((StructType::InlineStruct(content), ExtraTypeWrapper::Default));
+                        tuple.push((
+                            StructType::InlineStruct(Box::new(content)),
+                            ExtraTypeWrapper::Default,
+                        ));
                     } else {
                         // Ident (TypePath, ...),
                         let ty: TypePath = sub_content.parse()?;
