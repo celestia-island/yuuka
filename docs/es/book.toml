@@ -1,0 +1,17 @@
+[book]
+title = "Documentación de Yuuka"
+description = "Una biblioteca de macros procedurales de Rust para definir jerarquías complejas de structs y enums anidados"
+authors = ["celestia-island"]
+language = "es"
+src = "."
+
+[build]
+build-dir = "../../target/docs/es"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "ayu"
+git-repository-url = "https://github.com/celestia-island/yuuka"
+edit-url-template = "https://github.com/celestia-island/yuuka/edit/next/docs/es/{path}"
+additional-js = ["../theme/lang-switcher.js"]
+additional-css = ["../theme/lang-switcher.css"]

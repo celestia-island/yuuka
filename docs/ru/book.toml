@@ -1,0 +1,17 @@
+[book]
+title = "Документация Yuuka"
+description = "Библиотека процедурных макросов Rust для определения сложных вложенных иерархий struct и enum"
+authors = ["celestia-island"]
+language = "ru"
+src = "."
+
+[build]
+build-dir = "../../target/docs/ru"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "ayu"
+git-repository-url = "https://github.com/celestia-island/yuuka"
+edit-url-template = "https://github.com/celestia-island/yuuka/edit/next/docs/ru/{path}"
+additional-js = ["../theme/lang-switcher.js"]
+additional-css = ["../theme/lang-switcher.css"]

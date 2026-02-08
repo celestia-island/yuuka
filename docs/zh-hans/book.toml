@@ -13,3 +13,5 @@ default-theme = "light"
 preferred-dark-theme = "ayu"
 git-repository-url = "https://github.com/celestia-island/yuuka"
 edit-url-template = "https://github.com/celestia-island/yuuka/edit/next/docs/zh-hans/{path}"
+additional-js = ["../theme/lang-switcher.js"]
+additional-css = ["../theme/lang-switcher.css"]
