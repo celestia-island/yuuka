@@ -1,0 +1,17 @@
+[book]
+title = "وثائق Yuuka"
+description = "مكتبة ماكرو إجرائية في Rust لتعريف تسلسلات هرمية معقدة ومتداخلة من struct و enum"
+authors = ["celestia-island"]
+language = "ar"
+src = "."
+
+[build]
+build-dir = "../../target/docs/ar"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "ayu"
+git-repository-url = "https://github.com/celestia-island/yuuka"
+edit-url-template = "https://github.com/celestia-island/yuuka/edit/next/docs/ar/{path}"
+additional-js = ["../theme/lang-switcher.js"]
+additional-css = ["../theme/lang-switcher.css"]

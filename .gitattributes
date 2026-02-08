@@ -1,5 +1,4 @@
 # Documentation site assets (not source code)
-docs/landing/** linguist-documentation
+docs/theme/** linguist-documentation
 docs/**/book.toml linguist-documentation
 docs/**/SUMMARY.md linguist-documentation
-.github/workflows/docs.yml linguist-documentation

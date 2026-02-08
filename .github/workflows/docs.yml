@@ -2,7 +2,7 @@ name: Deploy Documentation
 
 on:
   push:
-    branches: [next]
+    branches: [master]
     paths:
       - 'docs/**'
       - '.github/workflows/docs.yml'
@@ -28,22 +28,24 @@ jobs:
         with:
           mdbook-version: '0.5.2'
 
-      - name: Build English docs
-        run: mdbook build docs/en
-
-      - name: Build Simplified Chinese docs
-        run: mdbook build docs/zh-hans
-
-      - name: Build Traditional Chinese docs
-        run: mdbook build docs/zh-hant
+      - name: Build all language docs
+        run: |
+          for lang in en zh-hans zh-hant fr es ru ar ja ko; do
+            echo "Building $lang..."
+            mdbook build docs/$lang
+          done
 
       - name: Assemble site
         run: |
-          mkdir -p _site
-          cp docs/landing/index.html _site/
-          cp -r target/docs/en _site/en
-          cp -r target/docs/zh-hans _site/zh-hans
-          cp -r target/docs/zh-hant _site/zh-hant
+          mkdir -p _site/theme
+          # English at root
+          cp -r target/docs/en/* _site/
+          # Other languages in subdirectories
+          for lang in zh-hans zh-hant fr es ru ar ja ko; do
+            cp -r target/docs/$lang _site/$lang
+          done
+          cp docs/theme/lang-switcher.js _site/theme/
+          cp docs/theme/lang-switcher.css _site/theme/
           echo "yuuka.celestia.world" > _site/CNAME
 
       - name: Upload Pages artifact

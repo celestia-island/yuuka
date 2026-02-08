@@ -1,0 +1,177 @@
+/* ===== Language Switcher (fixed bottom-right) ===== */
+
+.lang-switcher {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 1000;
+}
+
+.lang-switcher-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  background: var(--bg, #fafafa);
+  border: 1px solid var(--theme-popup-border, #cccccc);
+  border-radius: 8px;
+  color: var(--fg, #262625);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: box-shadow 0.15s, border-color 0.15s;
+  line-height: 1.4;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.lang-switcher-btn:hover,
+.lang-switcher-btn:focus-visible {
+  border-color: var(--links, #4183c4);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+  outline: none;
+}
+
+.lang-switcher-btn .lang-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.lang-switcher-btn .lang-icon {
+  font-style: normal;
+  font-size: 1rem;
+}
+
+.lang-switcher-btn .lang-arrow {
+  font-size: 0.55rem;
+  opacity: 0.45;
+  transition: transform 0.2s;
+  margin-left: 0.15rem;
+}
+
+.lang-switcher-btn[aria-expanded="true"] .lang-arrow {
+  transform: rotate(180deg);
+}
+
+/* Dropdown (opens upward from button) */
+
+.lang-switcher-dropdown {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 0.4rem);
+  right: 0;
+  min-width: 160px;
+  background: var(--bg, #fafafa);
+  border: 1px solid var(--theme-popup-border, #cccccc);
+  border-radius: 8px;
+  overflow: hidden;
+  overflow-y: auto;
+  max-height: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+  z-index: 1001;
+}
+
+.lang-switcher-dropdown.show {
+  display: block;
+}
+
+.lang-switcher-dropdown a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  color: var(--fg, #262625);
+  text-decoration: none;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  transition: background 0.1s;
+}
+
+.lang-switcher-dropdown a:hover {
+  background: var(--theme-hover, #e6e6e6);
+}
+
+.lang-switcher-dropdown a.active {
+  color: var(--links, #4183c4);
+  font-weight: 600;
+}
+
+.lang-switcher-dropdown a.active::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--links, #4183c4);
+  flex-shrink: 0;
+}
+
+.lang-switcher-dropdown a:not(.active)::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  flex-shrink: 0;
+}
+
+/* ===== Language Detection Notification ===== */
+
+.lang-notification {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.7rem 1rem;
+  margin: 0 0 1rem 0;
+  background: var(--quote-bg, #2a2a3a);
+  border-left: 3px solid var(--sidebar-active, #ffb454);
+  border-radius: 3px;
+  font-size: 0.9rem;
+  color: var(--fg, #c8c9db);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.lang-notification-hide {
+  opacity: 0;
+  transform: translateY(-0.5rem);
+  pointer-events: none;
+}
+
+.lang-notification-text {
+  flex: 1;
+  min-width: 200px;
+  line-height: 1.5;
+}
+
+.lang-notification-switch {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  background: var(--sidebar-active, #ffb454);
+  color: var(--sidebar-bg, #14191f) !important;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.lang-notification-switch:hover {
+  opacity: 0.85;
+}
+
+.lang-notification-dismiss {
+  padding: 0.35rem 0.65rem;
+  background: transparent;
+  border: 1px solid var(--sidebar-spacer, #393939);
+  border-radius: 4px;
+  color: var(--fg, #c8c9db);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.lang-notification-dismiss:hover {
+  background: var(--sidebar-spacer, rgba(255, 255, 255, 0.08));
+}

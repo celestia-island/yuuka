@@ -1,0 +1,17 @@
+[book]
+title = "Yuuka ドキュメント"
+description = "複雑なネスト構造の struct と enum 階層を定義するための Rust 手続きマクロライブラリ"
+authors = ["celestia-island"]
+language = "ja"
+src = "."
+
+[build]
+build-dir = "../../target/docs/ja"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "ayu"
+git-repository-url = "https://github.com/celestia-island/yuuka"
+edit-url-template = "https://github.com/celestia-island/yuuka/edit/next/docs/ja/{path}"
+additional-js = ["../theme/lang-switcher.js"]
+additional-css = ["../theme/lang-switcher.css"]
