@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yuuka Documentation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      text-align: center;
+      padding: 2rem;
+      max-width: 600px;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+      color: #ffffff;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: #a0a0b8;
+      margin-bottom: 2.5rem;
+    }
+
+    .lang-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .lang-link {
+      display: block;
+      padding: 1rem 2rem;
+      background: #16213e;
+      border: 1px solid #0f3460;
+      border-radius: 8px;
+      color: #e0e0e0;
+      text-decoration: none;
+      font-size: 1.1rem;
+      transition: all 0.2s ease;
+    }
+
+    .lang-link:hover {
+      background: #0f3460;
+      border-color: #533483;
+      transform: translateY(-2px);
+    }
+
+    .lang-link .native {
+      font-weight: 600;
+    }
+
+    .lang-link .label {
+      color: #a0a0b8;
+      font-size: 0.9rem;
+      margin-left: 0.5rem;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 1.5rem;
+      color: #606080;
+      font-size: 0.85rem;
+    }
+
+    footer a {
+      color: #7070a0;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Yuuka</h1>
+    <p class="subtitle">A Rust procedural macro library for defining complex nested struct and enum hierarchies</p>
+    <div class="lang-grid">
+      <a class="lang-link" href="./en/">
+        <span class="native">English</span>
+      </a>
+      <a class="lang-link" href="./zh-hans/">
+        <span class="native">简体中文</span>
+        <span class="label">Simplified Chinese</span>
+      </a>
+      <a class="lang-link" href="./zh-hant/">
+        <span class="native">繁體中文</span>
+        <span class="label">Traditional Chinese</span>
+      </a>
+    </div>
+  </div>
+  <footer>
+    <a href="https://github.com/celestia-island/yuuka">GitHub</a> ·
+    <a href="https://crates.io/crates/yuuka">crates.io</a> ·
+    <a href="https://docs.rs/yuuka">docs.rs</a>
+  </footer>
+</body>
+
+</html>

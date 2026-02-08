@@ -1,0 +1,15 @@
+[book]
+title = "Yuuka Documentation"
+description = "A Rust procedural macro library for defining complex nested struct and enum hierarchies"
+authors = ["celestia-island"]
+language = "en"
+src = "."
+
+[build]
+build-dir = "../../target/docs/en"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "ayu"
+git-repository-url = "https://github.com/celestia-island/yuuka"
+edit-url-template = "https://github.com/celestia-island/yuuka/edit/next/docs/en/{path}"

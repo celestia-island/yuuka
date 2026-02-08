@@ -1,0 +1,15 @@
+[book]
+title = "Yuuka 文件"
+description = "一個用於定義複雜巢狀 struct 和 enum 層次結構的 Rust 過程巨集庫"
+authors = ["celestia-island"]
+language = "zh-TW"
+src = "."
+
+[build]
+build-dir = "../../target/docs/zh-hant"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "ayu"
+git-repository-url = "https://github.com/celestia-island/yuuka"
+edit-url-template = "https://github.com/celestia-island/yuuka/edit/next/docs/zh-hant/{path}"

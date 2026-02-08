@@ -1,4 +1,6 @@
-<img src="splash.png" alt="yuuka" />
+# Yuuka
+
+![yuuka](splash.png)
 
 ![Crates.io License](https://img.shields.io/crates/l/yuuka)
 [![Crates.io Version](https://img.shields.io/crates/v/yuuka)](https://docs.rs/yuuka)
@@ -56,4 +58,4 @@ let config = auto!(GameDevelopment {
 });
 ```
 
-More information can be found in the documentation ([English](https://github.com/celestia-island/yuuka/tree/master/docs/introduction.md) | [简体中文](https://github.com/celestia-island/yuuka/tree/master/i18n/zh-hans/introduction.md) | [繁體中文](https://github.com/celestia-island/yuuka/tree/master/i18n/zh-hant/introduction.md)).
+More information can be found in the documentation ([English](https://github.com/celestia-island/yuuka/tree/next/docs/en/introduction.md) | [简体中文](https://github.com/celestia-island/yuuka/tree/next/docs/zh-hans/introduction.md) | [繁體中文](https://github.com/celestia-island/yuuka/tree/next/docs/zh-hant/introduction.md)).
