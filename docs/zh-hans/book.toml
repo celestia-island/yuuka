@@ -1,0 +1,15 @@
+[book]
+title = "Yuuka 文档"
+description = "一个用于定义复杂嵌套 struct 和 enum 层次结构的 Rust 过程宏库"
+authors = ["celestia-island"]
+language = "zh-CN"
+src = "."
+
+[build]
+build-dir = "../../target/docs/zh-hans"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "ayu"
+git-repository-url = "https://github.com/celestia-island/yuuka"
+edit-url-template = "https://github.com/celestia-island/yuuka/edit/next/docs/zh-hans/{path}"

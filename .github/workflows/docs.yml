@@ -1,0 +1,63 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches: [next]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup mdBook
+        uses: peaceiris/actions-mdbook@v2
+        with:
+          mdbook-version: '0.5.2'
+
+      - name: Build English docs
+        run: mdbook build docs/en
+
+      - name: Build Simplified Chinese docs
+        run: mdbook build docs/zh-hans
+
+      - name: Build Traditional Chinese docs
+        run: mdbook build docs/zh-hant
+
+      - name: Assemble site
+        run: |
+          mkdir -p _site
+          cp docs/landing/index.html _site/
+          cp -r target/docs/en _site/en
+          cp -r target/docs/zh-hans _site/zh-hans
+          cp -r target/docs/zh-hant _site/zh-hant
+          echo "yuuka.celestia.world" > _site/CNAME
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
