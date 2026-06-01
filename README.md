@@ -1,6 +1,6 @@
-# Yuuka
+<p align="center"><img src="docs/logo.webp" alt="Yuuka" width="240" /></p>
 
-![yuuka](splash.png)
+<h1 align="center">Yuuka</h1>
 
 ![Crates.io License](https://img.shields.io/crates/l/yuuka)
 [![Crates.io Version](https://img.shields.io/crates/v/yuuka)](https://docs.rs/yuuka)
