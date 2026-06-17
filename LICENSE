@@ -214,15 +214,9 @@ To apply the Synthetic Source License to your work, attach the following boilerp
 Complete the MODEL DISCLOSURE section at the end of this LICENSE file. List the primary AI models on which the Software's main body depends. For each model, include the model name, the organization that provides the model, and the vendor's official website URL. No separate file is required. See Section 2.2 of the License for the full requirement.
 
 To license your software under "SySL-1.0 or any later version," you may include the phrase "or (at your option) any later version" in the boilerplate notice above. If you do not include this phrase, your software is licensed only under Version 1.0.
-                           MODEL DISCLOSURE
-                      (To be completed by Licensor)
-
 Human Author:
-  [Name of the human who directed the AI generation]
+  langyo <sysl.contact@celestia.world>
 
-AI Models Used:
-  List the primary AI models on which the Software’s main body depends. For each model, include the model name, the organization that provides the model, and the vendor’s official website URL. Other models used by contributors may be disclosed in commit messages instead.
-
-  [Model Name] — [Vendor / Organization] — [Vendor Website URL]
-
-  [Model Name] — [Vendor / Organization] — [Vendor Website URL]
+Primary AI Models Used:
+  GLM 4.7 / 5 — Zhipu AI — https://zhipu.ai
+  Copilot (GPT 5.3 Codex / 5.4, Claude Sonnet / Opus 4.6) — GitHub / Anthropic — https://github.com/features/copilot
