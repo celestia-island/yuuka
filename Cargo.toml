@@ -6,7 +6,7 @@ edition = "2021"
 publish = true
 authors = ["langyo <langyo.china@gmail.com>"]
 description = "A helper library to generate complex and nested structures by a simple macro"
-license = "Apache-2.0"
+license = "SySL-1.0"
 repository = "https://github.com/celestia-island/yuuka"
 
 [lib]
