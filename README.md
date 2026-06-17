@@ -2,8 +2,7 @@
 
 <h1 align="center">Yuuka</h1>
 
-![Crates.io License](https://img.shields.io/crates/l/yuuka)
-[![Crates.io Version](https://img.shields.io/crates/v/yuuka)](https://docs.rs/yuuka)
+[![License: SySL](https://img.shields.io/badge/license-SySL%201.0-blue)](./LICENSE.txt)[![Crates.io Version](https://img.shields.io/crates/v/yuuka)](https://docs.rs/yuuka)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/celestia-island/yuuka/test.yml)
 
 ## Introduction
@@ -61,3 +60,7 @@ let config = auto!(GameDevelopment {
 ```
 
 More information can be found in the official documentation at [yuuka.celestia.world](https://yuuka.celestia.world).
+
+## License
+
+Licensed under the [Synthetic Source License (SySL), Version 1.0](./LICENSE.txt).
