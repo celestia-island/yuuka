@@ -2,12 +2,16 @@
 name = "yuuka"
 version = "0.6.2"
 edition = "2021"
+rust-version = "1.75"
 
 publish = true
 authors = ["langyo <langyo.china@gmail.com>"]
-description = "A helper library to generate complex and nested structures by a simple macro"
+description = "Nested structure derivation macro for Rust"
 license = "SySL-1.0"
 repository = "https://github.com/celestia-island/yuuka"
+
+[package.metadata.docs.rs]
+all-features = true
 
 [lib]
 proc-macro = true

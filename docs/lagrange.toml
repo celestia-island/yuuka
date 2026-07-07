@@ -1,0 +1,8 @@
+[site]
+title = "Yuuka"
+description = "A helper library to generate complex and nested structures by a simple macro"
+
+cname = "yuuka.docs.celestia.world"
+[languages]
+default = "en"
+order = ["en", "zhs", "zht", "ja", "ko", "fr", "es", "ru", "ar"]

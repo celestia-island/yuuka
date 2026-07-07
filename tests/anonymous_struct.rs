@@ -29,7 +29,7 @@ fn derive_enum_anonymously() {
             Midori,
             Yuzu,
             Arisu,
-        }
+        } = Momoi,
     });
 }
 
@@ -41,13 +41,13 @@ fn derive_enum_anonymously_multiple() {
             Midori,
             Yuzu,
             Arisu,
-        },
+        } = Momoi,
         b: enum {
             Apple,
             Pen,
             Pineapple,
             ApplePen,
-        }
+        } = Apple,
     });
 }
 

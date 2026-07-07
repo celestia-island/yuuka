@@ -8,7 +8,7 @@ fn enum_type_struct() {
             Midori,
             Yuzu,
             Arisu,
-        },
+        } = Momoi,
     });
 
     let _ = Root { a: Member::Momoi };
@@ -31,7 +31,7 @@ fn enum_type_struct_with_braces() {
                 level: usize
             },
             Arisu { level: usize },
-        },
+        } = Momoi { skill: Default::default() },
     });
 
     let _ = Root {
@@ -57,7 +57,7 @@ fn enum_type_struct_with_parentheses() {
                 usize
             ),
             Arisu (usize),
-        },
+        } = Momoi (Skill { name: String::new() }),
     });
 
     let _ = Root {
@@ -80,7 +80,7 @@ fn enum_type_struct_array_with_parentheses() {
                 usize
             ),
             Arisu (usize),
-        }],
+        } = Momoi (Skill { name: String::new() })],
     });
 
     let _ = Root {
@@ -98,8 +98,8 @@ fn enum_type_struct_with_enum_in_braces() {
             Arisu { ty: enum ArisuType {
                 Arisu,
                 Key
-            } },
-        },
+            } = Arisu },
+        } = Momoi,
     });
 
     let _ = Root {
@@ -117,8 +117,8 @@ fn enum_type_struct_with_enum_array_in_braces() {
             Arisu { ty: [enum ArisuType {
                 Arisu,
                 Key
-            }] },
-        },
+            } = Arisu] },
+        } = Momoi,
     });
 
     let _ = Root {
@@ -139,7 +139,7 @@ fn enum_type_struct_with_enum_in_parentheses() {
                 Arisu,
                 Key
             }),
-        },
+        } = Momoi,
     });
 
     let _ = Root {
@@ -158,7 +158,7 @@ fn enum_type_struct_with_enum_array_in_parentheses() {
                 Arisu,
                 Key
             }]),
-        },
+        } = Momoi,
     });
 
     let _ = Root {

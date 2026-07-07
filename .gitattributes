@@ -1,4 +1,1 @@
-# Documentation site assets (not source code)
-docs/theme/** linguist-documentation
-docs/**/book.toml linguist-documentation
 docs/**/SUMMARY.md linguist-documentation

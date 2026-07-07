@@ -16,7 +16,7 @@ fn main() -> Result<()> {
                 Proxy { host: String },
                 StaticFile { path: String },
                 StaticDir { path: String },
-              }
+              } = Proxy { host: String::new() }
             }]
           }]
         }

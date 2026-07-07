@@ -2,7 +2,7 @@ name: Deploy Documentation
 
 on:
   push:
-    branches: [master]
+    branches: [master, dev]
     paths:
       - 'docs/**'
       - '.github/workflows/docs.yml'
@@ -23,33 +23,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup mdBook
-        uses: peaceiris/actions-mdbook@v2
-        with:
-          mdbook-version: '0.5.2'
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo install lagrange-library --locked || cargo install --git https://github.com/celestia-island/lagrange --branch dev lagrange-library
+      - run: lagrange build --src docs --out _site
 
-      - name: Build all language docs
-        run: |
-          for lang in en zh-hans zh-hant fr es ru ar ja ko; do
-            echo "Building $lang..."
-            mdbook build docs/$lang
-          done
-
-      - name: Assemble site
-        run: |
-          mkdir -p _site/theme
-          # English at root
-          cp -r target/docs/en/* _site/
-          # Other languages in subdirectories
-          for lang in zh-hans zh-hant fr es ru ar ja ko; do
-            cp -r target/docs/$lang _site/$lang
-          done
-          cp docs/theme/lang-switcher.js _site/theme/
-          cp docs/theme/lang-switcher.css _site/theme/
-          echo "yuuka.celestia.world" > _site/CNAME
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 

@@ -1,9 +1,9 @@
-name: Clippy
+name: Test
 
 on:
   pull_request:
     paths:
-      - '.github/workflows/clippy.yml'
+      - '.github/workflows/test.yml'
       - 'src/**/*'
       - 'tests/**/*'
       - 'Cargo.toml'
@@ -11,7 +11,7 @@ on:
     branches: [master]
 
 jobs:
-  clippy:
+  test:
     name: Test
     runs-on: ubuntu-latest
     strategy:

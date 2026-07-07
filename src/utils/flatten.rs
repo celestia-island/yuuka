@@ -25,7 +25,7 @@ pub(crate) fn flatten(
                             key.clone(),
                             match extra_type_wrapper {
                                 ExtraTypeWrapper::Option => parse_quote! { Option<#v> },
-                                ExtraTypeWrapper::OptionVec => parse_quote! { Option<#v> },
+                                ExtraTypeWrapper::OptionVec => parse_quote! { Option<Vec<#v>> },
                                 _ => v.clone(),
                             },
                             default_value.clone(),
@@ -165,7 +165,9 @@ pub(crate) fn flatten(
                                 StructType::Static(v) => {
                                     tuple.push(match extra_type_wrapper {
                                         ExtraTypeWrapper::Option => parse_quote! { Option<#v> },
-                                        ExtraTypeWrapper::OptionVec => parse_quote! { Option<#v> },
+                                        ExtraTypeWrapper::OptionVec => {
+                                            parse_quote! { Option<Vec<#v>> }
+                                        }
                                         _ => v.clone(),
                                     });
                                 }
@@ -275,7 +277,7 @@ pub(crate) fn flatten(
                                         match extra_type_wrapper {
                                             ExtraTypeWrapper::Option => parse_quote! { Option<#v> },
                                             ExtraTypeWrapper::OptionVec => {
-                                                parse_quote! { Option<#v> }
+                                                parse_quote! { Option<Vec<#v>> }
                                             }
                                             _ => v.clone(),
                                         },

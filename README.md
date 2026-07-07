@@ -1,8 +1,10 @@
-<p align="center"><img src="docs/logo.webp" alt="Yuuka" width="240" /></p>
+<p align="center"><img src="https://raw.githubusercontent.com/celestia-island/yuuka/master/docs/logo.webp" alt="Yuuka" width="240" /></p>
 
 <h1 align="center">Yuuka</h1>
 
-[![License: SySL](https://img.shields.io/badge/license-SySL%201.0-blue)](./LICENSE.txt)[![Crates.io Version](https://img.shields.io/crates/v/yuuka)](https://docs.rs/yuuka)
+<p align="center"><strong>Nested structure derivation macro</strong></p>
+
+[![License: SySL](https://img.shields.io/badge/license-SySL%201.0-blue)](./LICENSE)[![Crates.io Version](https://img.shields.io/crates/v/yuuka)](https://docs.rs/yuuka)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/celestia-island/yuuka/test.yml)
 
 ## Introduction
@@ -11,7 +13,7 @@ This is a helper library to generate complex and nested structures by a simple m
 
 The name `yuuka` comes from the character [Yuuka](https://bluearchive.wiki/wiki/Yuuka) in the game [Blue Archive](https://bluearchive.jp/).
 
-For more information, visit the official documentation at [yuuka.celestia.world](https://yuuka.celestia.world)
+For more information, visit the official documentation at [yuuka.docs.celestia.world](https://yuuka.docs.celestia.world)
 
 > Still in development, the API may change in the future.
 
@@ -59,8 +61,8 @@ let config = auto!(GameDevelopment {
 });
 ```
 
-More information can be found in the official documentation at [yuuka.celestia.world](https://yuuka.celestia.world).
+More information can be found in the official documentation at [yuuka.docs.celestia.world](https://yuuka.docs.celestia.world).
 
 ## License
 
-Licensed under the [Synthetic Source License (SySL), Version 1.0](./LICENSE.txt).
+Licensed under the [Synthetic Source License (SySL), Version 1.0](./LICENSE).
