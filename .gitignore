@@ -1,2 +1,15 @@
 target
 Cargo.lock
+
+dist/
+
+# Editor / OS cruft
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# celestia-devtools: staged-on-demand shared justfile recipes (just fetch)
+/.just/
+/celestia-devtools.just

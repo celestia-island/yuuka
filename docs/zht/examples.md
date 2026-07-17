@@ -32,7 +32,7 @@ fn main() {
         display_name: "English".to_string(),
         ..Default::default()
     };
-    
+
     println!("{}", pack.general.ok);       // "OK"
     println!("{}", pack.error.not_found);   // "Not Found"
 }
@@ -106,19 +106,19 @@ derive_struct!(
     #[macro_export]
     pub AppConfig {
         name: String = "MyApp".to_string(),
-        
+
         mode: enum RunMode {
             Development,
             Staging,
             Production,
         } = Development,
-        
+
         database: Database {
             host: String = "localhost".to_string(),
             port: u16 = 5432,
             pool_size: u32 = 10,
         },
-        
+
         features: [{
             name: String,
             enabled: bool = true,
@@ -191,7 +191,7 @@ mod __Root {
     pub(crate) struct Root {
         pub info: Info,
     }
-    
+
     #[derive(Debug, Clone, Default)]
     pub(crate) struct Info {
         pub value: String,
