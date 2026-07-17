@@ -258,7 +258,7 @@ use my_library::Config;
 
 fn main() {
     let cfg = Config::default();
-    
+
     // auto! 可用於匿名類型
     let data = auto!(Config.data {
         value: "hello".to_string(),
@@ -287,13 +287,13 @@ derive_struct!(
     pub AppConfig {
         #[serde(rename = "applicationName")]
         app_name: String = "MyApp".to_string(),
-        
+
         server: ServerConfig {
             #[derive]
             host: String = "0.0.0.0".to_string(),
             port: u16 = 3000,
         },
-        
+
         log_level: enum LogLevel {
             #[serde(rename = "debug")]
             Debug,
@@ -302,7 +302,7 @@ derive_struct!(
             #[serde(rename = "error")]
             Error,
         } = Info,
-        
+
         plugins?: [{
             name: String,
             enabled: bool = true,

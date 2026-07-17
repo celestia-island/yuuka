@@ -9,6 +9,8 @@ authors = ["langyo <langyo.china@gmail.com>"]
 description = "Nested structure derivation macro for Rust"
 license = "SySL-1.0"
 repository = "https://github.com/celestia-island/yuuka"
+keywords = ["proc-macro", "derive", "nested", "macro", "struct"]
+categories = ["rust-patterns"]
 
 [package.metadata.docs.rs]
 all-features = true
