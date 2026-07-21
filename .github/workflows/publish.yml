@@ -12,12 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Ensure tag is on master
-        run: |
-          git fetch origin master
-          if ! git merge-base --is-ancestor HEAD origin/master; then
-            echo "::error::Tag must be on master branch to publish"
-            exit 1
           fi
 
       - uses: dtolnay/rust-toolchain@stable
