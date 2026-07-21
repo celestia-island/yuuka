@@ -12,13 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-          fi
-
       - uses: dtolnay/rust-toolchain@stable
-
       - uses: Swatinem/rust-cache@v2
-      - run: cargo install cargo-release
-
       - run: cargo login ${{ secrets.CRATES_IO_API_TOKEN }}
 
       - name: Skip if already published
@@ -33,11 +28,4 @@ jobs:
         env:
           CRATE: yuuka
 
-      - run: |-
-          cargo release \
-            publish \
-            --all-features \
-            --allow-branch HEAD \
-            --no-confirm \
-            --no-verify \
-            --execute
+      - run: cargo publish --all-features --allow-dirty
