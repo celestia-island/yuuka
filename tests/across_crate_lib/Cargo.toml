@@ -8,4 +8,5 @@ private = false
 crate-type = ["rlib", "dylib"]
 
 [dependencies]
+
 yuuka = { path = "../.." }
