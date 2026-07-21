@@ -11,7 +11,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: cargo login ${{ secrets.CRATES_IO_API_TOKEN }}
