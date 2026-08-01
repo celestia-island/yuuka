@@ -8,14 +8,14 @@ use syn::{
 
 use super::DeriveAutoMacrosVisibility;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Clone, Default)]
 pub struct ExtraDeriveMacros {
     pub derive_macros: Vec<TypePath>,
     pub attr_macros: Vec<TokenStream>,
     pub attr_macros_recursive: Vec<TokenStream>,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Clone, Default)]
 pub struct ExtraMacros {
     pub attr_macros: Vec<TokenStream>,
     pub derive_macros: Option<ExtraDeriveMacros>,

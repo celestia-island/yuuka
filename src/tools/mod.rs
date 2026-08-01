@@ -1,5 +1,6 @@
 use anyhow::Result;
 use proc_macro2::TokenStream;
+use quote::{quote, ToTokens};
 use syn::{Expr, Ident, TypePath};
 
 pub(crate) mod auto_macros;
@@ -30,14 +31,31 @@ pub enum DeriveAutoMacrosVisibility {
     PublicOnCrate,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone)]
 pub(crate) enum DefaultValue {
     None,
     Single(Box<Expr>),
     Array(Vec<Expr>),
 }
 
-#[derive(Debug, Clone, PartialEq)]
+impl PartialEq for DefaultValue {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (DefaultValue::None, DefaultValue::None) => true,
+            (DefaultValue::Single(a), DefaultValue::Single(b)) => {
+                quote!(#a).to_string() == quote!(#b).to_string()
+            }
+            (DefaultValue::Array(a), DefaultValue::Array(b)) => {
+                let a: Vec<String> = a.iter().map(|e| quote!(#e).to_string()).collect();
+                let b: Vec<String> = b.iter().map(|e| quote!(#e).to_string()).collect();
+                a == b
+            }
+            _ => false,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub(crate) enum StructName {
     Named(Ident),
     Unnamed(Option<(String, usize)>),
@@ -74,14 +92,14 @@ impl StructName {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub(crate) enum StructType {
     Static(TypePath),
     InlineStruct(Box<DeriveStruct>),
     InlineEnum(Box<DeriveEnum>),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub(crate) enum EnumValue {
     Empty,
     Tuple(Vec<(StructType, ExtraTypeWrapper)>),
@@ -96,7 +114,7 @@ pub(crate) enum ExtraTypeWrapper {
     OptionVec,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub(crate) struct ExtraMacrosFlatten {
     pub(crate) derive_macros: Vec<TypePath>,
     pub(crate) attr_macros: Vec<TokenStream>,
@@ -111,7 +129,7 @@ pub(crate) type StructMembers = Vec<(
 )>;
 pub(crate) type EnumMembers = Vec<(Ident, EnumValue, ExtraMacros)>;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub(crate) enum EnumValueFlatten {
     Empty,
     Tuple(Vec<TypePath>),
@@ -129,7 +147,7 @@ pub(crate) type EnumsFlatten = Vec<(
     ExtraMacrosFlatten,
 )>;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub(crate) enum DeriveBox {
     Struct(Box<DeriveStruct>),
     Enum(Box<DeriveEnum>),

@@ -8,7 +8,7 @@ use syn::{
 
 use super::{DeriveEnumItems, DeriveVisibility, EnumMembers, ExtraMacros, StructName};
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct DeriveEnum {
     pub visibility: DeriveVisibility,
     pub ident: StructName,
