@@ -8,7 +8,7 @@ use crate::tools::ExtraTypeWrapper;
 
 use super::{DefaultValue, DeriveEnum, DeriveStruct, ExtraMacros, StructMembers, StructType};
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct DeriveStructItems {
     pub items: StructMembers,
 }

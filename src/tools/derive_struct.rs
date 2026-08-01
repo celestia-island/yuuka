@@ -8,7 +8,7 @@ use syn::{
 
 use super::{DeriveStructItems, DeriveVisibility, ExtraMacros, StructMembers, StructName};
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct DeriveStruct {
     pub visibility: DeriveVisibility,
     pub ident: StructName,

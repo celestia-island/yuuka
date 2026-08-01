@@ -6,7 +6,7 @@ use syn::{
     token, Expr, Ident, Token,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub enum AutoMacrosType {
     Struct {
         items: Vec<(Ident, TokenStream)>,
@@ -33,7 +33,7 @@ pub enum AutoMacrosType {
     },
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct AutoMacros {
     pub ident: Ident,
     pub body: AutoMacrosType,

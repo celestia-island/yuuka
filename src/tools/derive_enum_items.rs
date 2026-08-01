@@ -10,7 +10,7 @@ use super::{
     DeriveEnum, DeriveStruct, DeriveStructItems, EnumMembers, EnumValue, ExtraMacros, StructType,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct DeriveEnumItems {
     pub items: EnumMembers,
 }
