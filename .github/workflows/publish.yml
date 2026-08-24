@@ -15,16 +15,37 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo login ${{ secrets.CRATES_IO_API_TOKEN }}
 
-      - name: Skip if already published
-        id: check-exists
+      # Per-crate skip guards: publishing is ordered (macros before facade, the
+      # facade depends on the macros crate from the registry), and a retried
+      # tag run must tolerate the macros crate already being published.
+      # The crates.io API requires a User-Agent header (403 otherwise).
+      - name: Publish yuuka-macros
         run: |
           VERSION="${GITHUB_REF#refs/tags/v}"
-          STATUS=$(curl -sf -o /dev/null -w "%{http_code}" "https://crates.io/api/v1/crates/${CRATE}/${VERSION}" || echo "000")
+          STATUS=$(curl -sf -o /dev/null -w "%{http_code}" -H "User-Agent: celestia-island" "https://crates.io/api/v1/crates/yuuka-macros/${VERSION}" || echo "000")
           if [ "$STATUS" = "200" ]; then
-            echo "::warning::Version ${VERSION} already published — skipping."
-            exit 78
+            echo "::warning::yuuka-macros ${VERSION} already published — skipping."
+          else
+            cargo publish --all-features --allow-dirty -p yuuka-macros
           fi
-        env:
-          CRATE: yuuka
 
-      - run: cargo publish --all-features --allow-dirty
+      - name: Wait for the crates.io index to see yuuka-macros
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          for i in $(seq 1 60); do
+            STATUS=$(curl -sf -o /dev/null -w "%{http_code}" -H "User-Agent: celestia-island" "https://crates.io/api/v1/crates/yuuka-macros/${VERSION}" || echo "000")
+            [ "$STATUS" = "200" ] && exit 0
+            sleep 5
+          done
+          echo "::error::yuuka-macros ${VERSION} never appeared on crates.io within 5 minutes."
+          exit 1
+
+      - name: Publish yuuka
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          STATUS=$(curl -sf -o /dev/null -w "%{http_code}" -H "User-Agent: celestia-island" "https://crates.io/api/v1/crates/yuuka/${VERSION}" || echo "000")
+          if [ "$STATUS" = "200" ]; then
+            echo "::warning::yuuka ${VERSION} already published — skipping."
+          else
+            cargo publish --all-features --allow-dirty -p yuuka
+          fi

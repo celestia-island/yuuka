@@ -63,6 +63,17 @@ let config = auto!(GameDevelopment {
 
 More information can be found in the official documentation at [yuuka.docs.celestia.world](https://yuuka.docs.celestia.world).
 
+## Repository Layout
+
+Since v0.7.0 this repository is a Cargo workspace with two crates:
+
+| Crate | Path | Description |
+|-------|------|-------------|
+| `yuuka` | repository root | Public facade that re-exports every macro, keeping the `yuuka::derive_struct!` and friends paths stable for downstream users |
+| `yuuka-macros` | `macros/` | The `proc-macro` implementation crate providing `derive_struct!`, `derive_enum!` and `auto!` |
+
+Both crates share a single version through `workspace.package.version`. The integration tests under `tests/` invoke the macros through the facade crate, so downstream usage is unaffected by the split.
+
 ## License
 
 Licensed under the [Synthetic Source License (SySL), Version 1.0](./LICENSE).

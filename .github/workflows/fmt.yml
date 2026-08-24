@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/fmt.yml'
       - 'src/**/*'
+      - 'macros/**/*'
       - 'tests/**/*'
       - 'Cargo.toml'
   push:
