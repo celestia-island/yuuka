@@ -1,31 +1,36 @@
-[package]
-name = "yuuka"
-version = "0.6.2"
+[workspace]
+resolver = "2"
+members = ["macros"]
+exclude = ["tests/across_crate_entry", "tests/across_crate_lib"]
+
+[workspace.package]
+version = "0.7.0"
 edition = "2021"
 rust-version = "1.75"
-
-publish = true
 authors = ["langyo <langyo.china@gmail.com>"]
-description = "Nested structure derivation macro for Rust"
 license = "SySL-1.0"
 repository = "https://github.com/celestia-island/yuuka"
+
+[package]
+name = "yuuka"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+description = "Nested structure derivation macro for Rust"
+license.workspace = true
+repository.workspace = true
 keywords = ["proc-macro", "derive", "nested", "macro", "struct"]
 categories = ["rust-patterns"]
+publish = true
 
 [package.metadata.docs.rs]
 all-features = true
 
-[lib]
-proc-macro = true
-
 [dependencies]
+yuuka-macros = { path = "macros", version = "0.7.0" }
 
+[dev-dependencies]
 anyhow = "^1"
-async-trait = "^0.1"
-derive_more = { version = "^1", features = ["full"] }
-proc-macro2 = { version = "^1", features = ["span-locations"] }
-quote = "^1"
 serde = { version = "^1", features = ["derive"] }
 serde_json = "^1"
-strum = { version = "^0.26", features = ["derive"] }
-syn = { version = "^3", features = ["full"] }

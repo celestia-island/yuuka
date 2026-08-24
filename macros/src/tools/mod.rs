@@ -1,6 +1,6 @@
 use anyhow::Result;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::quote;
 use syn::{Expr, Ident, TypePath};
 
 pub(crate) mod auto_macros;

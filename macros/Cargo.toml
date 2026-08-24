@@ -1,0 +1,24 @@
+[package]
+name = "yuuka-macros"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+description = "Procedural macros for the yuuka nested-structure crate"
+license.workspace = true
+repository.workspace = true
+keywords = ["proc-macro", "derive", "nested", "macro", "struct"]
+categories = ["rust-patterns"]
+publish = true
+
+[package.metadata.docs.rs]
+all-features = true
+
+[lib]
+proc-macro = true
+
+[dependencies]
+anyhow = "^1"
+proc-macro2 = "^1"
+quote = "^1"
+syn = { version = "^3", features = ["full"] }
