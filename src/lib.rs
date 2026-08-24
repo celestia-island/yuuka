@@ -24,6 +24,10 @@
 //!   Merge Patch core behind `set` operations.
 //! - [`diff`]: [`diff`](diff::diff) — turn a before/after state pair into
 //!   the op list that reconstructs `after` from `before`.
+//! - [`viewport`]: [`path_in_viewport`](viewport::path_in_viewport) /
+//!   [`snapshot`](viewport::snapshot) — crop the state tree down to the
+//!   path prefixes a client subscribed to (the `Sync.StateSnapshot`
+//!   payload).
 //! - [`path`]: dotted-path helpers (`split` / `join` / `segments` /
 //!   `display`) shared by the modules above.
 
@@ -33,3 +37,4 @@ pub mod diff;
 pub mod merge;
 pub mod patch;
 pub mod path;
+pub mod viewport;
