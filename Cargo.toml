@@ -4,7 +4,7 @@ members = ["macros"]
 exclude = ["tests/across_crate_entry", "tests/across_crate_lib"]
 
 [workspace.package]
-version = "0.7.0"
+version = "0.8.0"
 edition = "2021"
 rust-version = "1.75"
 authors = ["langyo <langyo.china@gmail.com>"]
@@ -28,9 +28,9 @@ publish = true
 all-features = true
 
 [dependencies]
-yuuka-macros = { path = "macros", version = "0.7.0" }
+serde = { version = "^1", features = ["derive"] }
+serde_json = "^1"
+yuuka-macros = { path = "macros", version = "0.8.0" }
 
 [dev-dependencies]
 anyhow = "^1"
-serde = { version = "^1", features = ["derive"] }
-serde_json = "^1"
