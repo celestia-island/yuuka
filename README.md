@@ -24,9 +24,9 @@ For more information, visit the official documentation at [yuuka.docs.celestia.w
 
 Five modules implement the runtime half of the state-tree synchronization protocol. The model is "single server-side writer": the server diffs successive versions of a state tree into patch ops and broadcasts them to clients subscribed to the matching viewport; clients only ever apply. There is no concurrent-writer conflict handling — lost patches are healed by periodic full-snapshot fallbacks, so the protocol self-recovers.
 
-### `patch` — patch operations ([`PatchOp`])
+### `patch` — patch operations (`PatchOp`)
 
-A single operation on a dotted path, applied with [`apply`](patch::apply) / [`apply_all`](patch::apply_all):
+A single operation on a dotted path, applied with `apply` / `apply_all`:
 
 ```rust
 use serde_json::json;
@@ -49,7 +49,7 @@ assert_eq!(
 );
 ```
 
-### `merge` — RFC 7396 core ([`merge_patch`])
+### `merge` — RFC 7396 core (`merge_patch`)
 
 The `MergePatch(Target, Patch)` recursion behind every `set` operation: objects merge key by key, a `null` in the patch deletes the key, anything else replaces outright.
 
@@ -66,9 +66,9 @@ assert_eq!(
 );
 ```
 
-### `diff` — before/after diffing ([`diff`])
+### `diff` — before/after diffing (`diff`)
 
-Turns two versions of a state tree into the op list that reconstructs `after` from `before`. The roundtrip `apply_all(before, diff(prefix, &before, &after)) == after` is pinned by property-based tests.
+Turns two versions of a state tree into the op list that reconstructs `after` from `before`. The roundtrip `apply_all(before, diff("", &before, &after)) == after` (empty prefix = whole tree) is pinned by property-based tests.
 
 ```rust
 use serde_json::json;
@@ -86,7 +86,7 @@ apply_all(&mut root, &ops);
 assert_eq!(root, json!({"state": {"agents": after}}));
 ```
 
-### `viewport` — subscription snapshots ([`snapshot`], [`path_in_viewport`])
+### `viewport` — subscription snapshots (`snapshot`, `path_in_viewport`)
 
 Clients subscribe to path prefixes; the server crops the global tree down to the visible subtrees and pushes them as snapshots.
 
@@ -129,7 +129,7 @@ The merge semantics are an RFC 7396 variant with one deliberate extension:
 - `replace` — wholesale replacement, no deep merge. For enums / tagged unions that must be swapped atomically (e.g. `work_status` going from `{Running:{}}` to `{Completed:{}}`) — the core difference from plain RFC 7396;
 - `del` — delete the key at the path (deleting the root resets it to an empty object rather than `null`).
 
-The serde representation of [`PatchOp`] is **wire-locked** to the historical `plana` `Sync.StatePatch` notification (`op` / `path` / optional `value`, lowercase op tags). The golden-JSON tests in `tests/patch_compat.rs` pin it byte for byte — do not change the serialization shape.
+The serde representation of `PatchOp` is **wire-locked** to the historical `plana` `Sync.StatePatch` notification (`op` / `path` / optional `value`, lowercase op tags). The golden-JSON tests in `tests/patch_compat.rs` pin it byte for byte — do not change the serialization shape.
 
 ## Nested Structure Macros
 
