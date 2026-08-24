@@ -5,9 +5,8 @@
 //! escaping — keys of the state tree are identifiers (UUIDs and the like)
 //! that never contain dots.
 //!
-//! Only the facilities needed by [`crate::patch`] and [`crate::diff`] live
-//! here; the viewport-path helpers stay with the snapshot module of a later
-//! migration phase.
+//! Only the shared facilities needed by [`crate::patch`], [`crate::diff`]
+//! and [`crate::viewport`] live here.
 
 use std::fmt;
 
