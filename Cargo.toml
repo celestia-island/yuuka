@@ -8,7 +8,6 @@ version = "0.10.0"
 edition = "2021"
 rust-version = "1.75"
 authors = ["langyo <langyo.china@gmail.com>"]
-license = "SySL-1.0"
 repository = "https://github.com/celestia-island/yuuka"
 
 [package]
@@ -18,7 +17,7 @@ edition.workspace = true
 rust-version.workspace = true
 authors.workspace = true
 description = "JSON merge patch, diff and viewport snapshot runtime with nested structure construction macros"
-license.workspace = true
+license-file = "LICENSE"
 repository.workspace = true
 keywords = ["json", "merge-patch", "serde", "nested", "macro"]
 categories = ["data-structures", "parser-implementations"]
