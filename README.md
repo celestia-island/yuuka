@@ -18,7 +18,7 @@ The name `yuuka` comes from the character [Yuuka](https://bluearchive.wiki/wiki/
 
 For more information, visit the official documentation at [yuuka.docs.celestia.world](https://yuuka.docs.celestia.world)
 
-> Current release: **1.0.0-rc.1** — the patch wire format is locked; the API is settling ahead of the 1.0.0 final.
+> Current release: **0.10.0** — the patch wire format is locked; the API is settling across the 0.x series ahead of a future 1.0.
 
 ## State Patch Runtime
 
