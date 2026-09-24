@@ -27,6 +27,13 @@
 //! `Sync.StatePatch` notification (`op` / `path` / optional `value`, with
 //! lowercase op tags); the golden-JSON tests in `tests/patch_compat.rs`
 //! pin it byte for byte.
+//!
+//! Malformed ops are never silently swallowed: a `set`/`replace` whose
+//! `value` is missing (the wire format leaves it optional, so a broken
+//! producer can omit it) is logged, skipped and counted (see
+//! [`apply_all_with_skipped_count`]) instead of no-oping unnoticed. The
+//! periodic full-snapshot fallback eventually heals the resulting
+//! divergence.
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
@@ -90,6 +97,17 @@ impl PatchOp {
             value: None,
         }
     }
+
+    /// Whether the op carries everything [`apply`] needs to act on it.
+    ///
+    /// `set`/`replace` write `self.value`, so a missing value cannot be
+    /// applied. The wire format keeps `value` optional (`del` never has
+    /// one), which lets a malformed producer send a valueless `set` —
+    /// such an op is rejected by [`apply`] instead of being silently
+    /// ignored.
+    pub fn is_well_formed(&self) -> bool {
+        !matches!(self.op, PatchKind::Set | PatchKind::Replace) || self.value.is_some()
+    }
 }
 
 /// Applies a single [`PatchOp`] to `root` (in place).
@@ -105,11 +123,16 @@ impl PatchOp {
 /// merge-patches the root itself; an empty-path `replace` swaps the root;
 /// an empty-path `del` resets the root to an empty object (not `null`, so
 /// later descents keep working).
+///
+/// A malformed op (`set`/`replace` without a value) is logged and skipped:
+/// the root is left untouched, and the skip is made visible rather than
+/// silent so client drift against the server is observable.
 pub fn apply(root: &mut Value, op: &PatchOp) {
     let segments = split(&op.path);
     match op.op {
         PatchKind::Set => {
             let Some(new_val) = op.value.clone() else {
+                report_malformed(op);
                 return;
             };
             if segments.is_empty() {
@@ -121,6 +144,7 @@ pub fn apply(root: &mut Value, op: &PatchOp) {
         }
         PatchKind::Replace => {
             let Some(new_val) = op.value.clone() else {
+                report_malformed(op);
                 return;
             };
             if segments.is_empty() {
@@ -147,11 +171,43 @@ pub fn apply(root: &mut Value, op: &PatchOp) {
 }
 
 /// Applies a batch of ops in order. Used by clients merging a received
-/// patch list.
+/// patch list. Malformed ops (`set`/`replace` without a value) are logged
+/// and skipped; see [`apply_all_with_skipped_count`] for a variant that
+/// also reports how many were skipped.
 pub fn apply_all(root: &mut Value, ops: &[PatchOp]) {
+    apply_all_with_skipped_count(root, ops);
+}
+
+/// Same as [`apply_all`], but returns the number of malformed ops that
+/// were skipped (`set`/`replace` without a value). Valid ops still apply
+/// in order; the count lets callers surface client drift against the
+/// server instead of silently absorbing it.
+pub fn apply_all_with_skipped_count(root: &mut Value, ops: &[PatchOp]) -> usize {
+    let mut skipped = 0;
     for op in ops {
+        if !op.is_well_formed() {
+            skipped += 1;
+        }
         apply(root, op);
     }
+    if skipped > 0 {
+        eprintln!(
+            "yuuka::patch: {skipped} of {} patch op(s) were malformed (missing `value`) and skipped",
+            ops.len()
+        );
+    }
+    skipped
+}
+
+/// Logs a malformed op (finding Y2: it used to no-op silently, letting
+/// client state drift away from the server unnoticed). Kept on stderr so
+/// the crate needs no logging facade; journald picks it up in service
+/// deployments.
+fn report_malformed(op: &PatchOp) {
+    eprintln!(
+        "yuuka::patch: skipping malformed {:?} op at path {:?}: `value` is missing",
+        op.op, op.path
+    );
 }
 
 /// Descends along `segments`, auto-creating missing object keys (as empty
@@ -274,5 +330,63 @@ mod tests {
         let mut root = json!({});
         apply(&mut root, &PatchOp::del("a.b.c"));
         assert_eq!(root, json!({"a":{"b":{}}}));
+    }
+
+    // Malformed-op defense: a valueless set/replace (the wire format keeps
+    // `value` optional, so this deserializes fine) must not be a silent
+    // no-op — it is logged, skipped and counted (finding Y2).
+
+    #[test]
+    fn set_without_value_is_skipped_and_counted_not_silent() {
+        let malformed: PatchOp = serde_json::from_str(r#"{"op":"set","path":"state.a"}"#).unwrap();
+        assert_eq!(malformed.value, None);
+        assert!(!malformed.is_well_formed());
+
+        let mut root = json!({"state":{"a":1}});
+        apply(&mut root, &malformed);
+        assert_eq!(
+            root,
+            json!({"state":{"a":1}}),
+            "a malformed op must leave the state untouched"
+        );
+    }
+
+    #[test]
+    fn replace_without_value_is_skipped_and_counted() {
+        let malformed: PatchOp =
+            serde_json::from_str(r#"{"op":"replace","path":"state.a"}"#).unwrap();
+        assert!(!malformed.is_well_formed());
+
+        let mut root = json!({"state":{"a":1}});
+        let skipped = apply_all_with_skipped_count(&mut root, &[malformed]);
+        assert_eq!(skipped, 1, "the malformed op must be counted");
+        assert_eq!(root, json!({"state":{"a":1}}));
+    }
+
+    #[test]
+    fn malformed_ops_are_counted_while_valid_ops_still_apply() {
+        let ops: Vec<PatchOp> = serde_json::from_str(
+            r#"[
+                {"op":"set","path":"a","value":1},
+                {"op":"set","path":"b"},
+                {"op":"replace","path":"c"},
+                {"op":"del","path":"x"}
+            ]"#,
+        )
+        .unwrap();
+        assert_eq!(ops.iter().filter(|op| !op.is_well_formed()).count(), 2);
+
+        let mut root = json!({});
+        let skipped = apply_all_with_skipped_count(&mut root, &ops);
+        assert_eq!(skipped, 2);
+        assert_eq!(root, json!({"a":1}), "valid ops still apply in order");
+    }
+
+    #[test]
+    fn well_formed_ops_pass_the_shape_check() {
+        assert!(PatchOp::set("a", json!(null)).is_well_formed());
+        assert!(PatchOp::replace("a", json!({"x":1})).is_well_formed());
+        // `del` never carries a value — that is its documented shape.
+        assert!(PatchOp::del("a").is_well_formed());
     }
 }

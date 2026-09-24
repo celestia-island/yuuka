@@ -31,6 +31,26 @@ pub enum DeriveAutoMacrosVisibility {
     PublicOnCrate,
 }
 
+/// Rejects attributes written before `#[derive(...)]` on a type.
+///
+/// Flatten only carries the attribute bucket that follows `#[derive(..)]`
+/// onto a generated *type*; an attribute placed before the derive would be
+/// silently dropped (quality-scan finding Y1), so it is rejected with an
+/// error pointing at the attribute instead. Field-level attributes are
+/// parsed separately (`DeriveStructItems` / `DeriveEnumItems`) and keep
+/// their pre-derive placement.
+pub(crate) fn reject_attributes_before_derive(extra_macros: &ExtraMacros) -> syn::Result<()> {
+    match extra_macros.attr_macros_before_derive_span {
+        Some(span) => Err(syn::Error::new(
+            span,
+            "this attribute is written before `#[derive(..)]`, so it would be silently dropped: \
+             type attributes must be placed after `#[derive(..)]` \
+             (or attached to the field they belong to)",
+        )),
+        None => Ok(()),
+    }
+}
+
 #[derive(Clone)]
 pub(crate) enum DefaultValue {
     None,

@@ -4,7 +4,7 @@ members = ["macros"]
 exclude = ["tests/across_crate_entry", "tests/across_crate_lib"]
 
 [workspace.package]
-version = "0.10.0"
+version = "0.10.1"
 edition = "2021"
 rust-version = "1.75"
 authors = ["langyo <langyo.china@gmail.com>"]

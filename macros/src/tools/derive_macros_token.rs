@@ -3,6 +3,7 @@ use quote::quote;
 use syn::{
     bracketed, parenthesized,
     parse::{Parse, ParseStream},
+    spanned::Spanned,
     token, Ident, Token, TypePath,
 };
 
@@ -20,6 +21,13 @@ pub struct ExtraMacros {
     pub attr_macros: Vec<TokenStream>,
     pub derive_macros: Option<ExtraDeriveMacros>,
     pub macros_visibility: DeriveAutoMacrosVisibility,
+    /// Span of the first attribute written *before* `#[derive(...)]`.
+    ///
+    /// On a field such an attribute is applied to the generated field, but
+    /// on a type (the root of `derive_struct!` / `derive_enum!`, or an
+    /// inline type) it would be silently dropped — type-level parsers use
+    /// this span to reject it with a clear error instead.
+    pub attr_macros_before_derive_span: Option<proc_macro2::Span>,
 }
 
 impl ExtraMacros {
@@ -63,6 +71,7 @@ impl ExtraMacros {
 impl Parse for ExtraMacros {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let mut attr_macros_before_derive = vec![];
+        let mut attr_macros_before_derive_span: Option<proc_macro2::Span> = None;
         let mut derive_macros = vec![];
         let mut attr_macros_after_derive = vec![];
         let mut attr_macros_after_derive_recursive = vec![];
@@ -71,7 +80,7 @@ impl Parse for ExtraMacros {
         let mut has_parsed_derive = false;
 
         while input.peek(Token![#]) {
-            input.parse::<Token![#]>()?;
+            let hash = input.parse::<Token![#]>()?;
             let bracked_content;
             bracketed!(bracked_content in input);
 
@@ -106,6 +115,9 @@ impl Parse for ExtraMacros {
                 let token_stream = quote! {
                     #head_ident #token_stream
                 };
+                if attr_macros_before_derive_span.is_none() {
+                    attr_macros_before_derive_span = Some(hash.span());
+                }
                 attr_macros_before_derive.push(token_stream);
             } else {
                 let token_stream = bracked_content.parse::<TokenStream>()?;
@@ -125,6 +137,7 @@ impl Parse for ExtraMacros {
                 } else {
                     DeriveAutoMacrosVisibility::PublicOnCrate
                 },
+                attr_macros_before_derive_span,
             })
         } else {
             Ok(Self {
@@ -139,6 +152,7 @@ impl Parse for ExtraMacros {
                 } else {
                     DeriveAutoMacrosVisibility::PublicOnCrate
                 },
+                attr_macros_before_derive_span,
             })
         }
     }
