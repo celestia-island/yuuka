@@ -1,5 +1,12 @@
 name: Test
 
+# One in-flight run per ref: a superseded push cancels its
+# predecessor instead of queueing behind it (farm-pressure
+# relief, AGENTS ci-ops 8.3.3).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   pull_request:
