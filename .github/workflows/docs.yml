@@ -24,7 +24,10 @@ jobs:
       - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo install --git https://github.com/celestia-island/lagrange --branch dev lagrange-library --locked
+      # lagrange's dev branch is gone (dev branches were retired workspace-wide),
+      # which broke every `--branch dev` install. crates.io first (published
+      # 0.2.9 == git master), with a git-master fallback pinned to the live branch.
+      - run: cargo install lagrange-library --locked || cargo install --git https://github.com/celestia-island/lagrange --branch master lagrange-library
       - run: lagrange build --src docs --out _site
 
       - uses: actions/upload-pages-artifact@v3
