@@ -68,6 +68,13 @@ pub enum PatchKind {
     Replace,
     /// Delete the key at the path.
     Del,
+    /// Audit yuuka-R1-2: an op tag this build does not know. The whole
+    /// patch list used to hard-fail on deserialization (mixed-version
+    /// deployments lost every patch until the ~3s snapshot self-heal);
+    /// unknown tags now decode into this variant and are skipped with
+    /// the rest of the malformed ops.
+    #[serde(other)]
+    Unknown,
 }
 
 impl PatchOp {
@@ -128,8 +135,31 @@ impl PatchOp {
 /// the root is left untouched, and the skip is made visible rather than
 /// silent so client drift against the server is observable.
 pub fn apply(root: &mut Value, op: &PatchOp) {
+    // Audit yuuka-R1-1: refuse op paths deeper than MAX_DEPTH — the
+    // resulting Value tree would abort the process on recursive drop.
+    // Audit yuuka-R1-2: unknown op tags decode into `Unknown` and are
+    // skipped (the snapshot self-heal covers the missing mutation).
+    if op.op == PatchKind::Unknown {
+        eprintln!(
+            "yuuka::patch: skipping unknown op tag at path {:?}",
+            op.path
+        );
+        return;
+    }
+    let depth = op.path.split('.').count();
+    if depth > MAX_DEPTH {
+        eprintln!(
+            "yuuka::patch: refusing op at path depth {depth} (> {MAX_DEPTH}): \
+             deep paths can abort the process via recursive drop"
+        );
+        return;
+    }
+
     let segments = split(&op.path);
     match op.op {
+        PatchKind::Unknown => {
+            // Already logged and skipped by the audit guard above.
+        }
         PatchKind::Set => {
             let Some(new_val) = op.value.clone() else {
                 report_malformed(op);
@@ -161,7 +191,31 @@ pub fn apply(root: &mut Value, op: &PatchOp) {
                 *root = Value::Object(Map::new());
                 return;
             }
+            // Audit yuuka-R1-3: del on a nonexistent path is a TRUE
+            // no-op — descending via descend_mut would auto-create the
+            // ghost parent chain, leaving client state permanently
+            // drifted from the server (snapshot-only self-heal).
             let (parent_segs, leaf) = segments.split_at(segments.len() - 1);
+            // The existence probe walks immutably; only when the whole
+            // parent chain exists does descend_mut run (which would
+            // otherwise auto-create the ghost chain).
+            let parent_exists = {
+                let mut probe = &*root;
+                let mut ok = true;
+                for seg in parent_segs {
+                    match probe.get(*seg) {
+                        Some(v) if v.is_object() => probe = v,
+                        _ => {
+                            ok = false;
+                            break;
+                        }
+                    }
+                }
+                ok
+            };
+            if !parent_exists {
+                return;
+            }
             let parent = descend_mut(root, parent_segs);
             if let Value::Object(map) = parent {
                 map.remove(leaf[0]);
@@ -177,6 +231,13 @@ pub fn apply(root: &mut Value, op: &PatchOp) {
 pub fn apply_all(root: &mut Value, ops: &[PatchOp]) {
     apply_all_with_skipped_count(root, ops);
 }
+
+/// Audit yuuka-R1-1: the maximum op-path depth. Deeper paths build
+/// arbitrarily deep `Value` trees whose recursive Drop (and the recursive
+/// merge/diff walks) abort the process on stack overflow — an
+/// uncataught abort, not a panic. 128 aligns with serde_json's default
+/// recursion limit.
+pub const MAX_DEPTH: usize = 128;
 
 /// Same as [`apply_all`], but returns the number of malformed ops that
 /// were skipped (`set`/`replace` without a value). Valid ops still apply
@@ -325,11 +386,12 @@ mod tests {
         );
         assert_eq!(root, json!({"agents":{"hubris":{"status":"busy"}}}));
 
-        // del through a missing path is a no-op (parents get created, the
-        // final key simply is not there).
+        // Audit yuuka-R1-3: del through a missing path is a TRUE no-op —
+        // the ghost parent chain is no longer created (the old behavior
+        // left client state permanently drifted from the server).
         let mut root = json!({});
         apply(&mut root, &PatchOp::del("a.b.c"));
-        assert_eq!(root, json!({"a":{"b":{}}}));
+        assert_eq!(root, json!({}));
     }
 
     // Malformed-op defense: a valueless set/replace (the wire format keeps
@@ -388,5 +450,51 @@ mod tests {
         assert!(PatchOp::replace("a", json!({"x":1})).is_well_formed());
         // `del` never carries a value — that is its documented shape.
         assert!(PatchOp::del("a").is_well_formed());
+    }
+}
+
+#[cfg(test)]
+mod hardening_tests {
+    use super::*;
+    use serde_json::json;
+
+    /// Audit yuuka-R1-1: op paths deeper than MAX_DEPTH are refused —
+    /// deep trees would abort the process via recursive Drop.
+    #[test]
+    fn deep_paths_are_refused() {
+        let mut root = json!({});
+        let deep_path = vec!["a"; MAX_DEPTH + 1].join(".");
+        apply(&mut root, &PatchOp::set(&deep_path, json!(1)));
+        assert_eq!(root, json!({}), "over-deep path must not build a tree");
+        // At the boundary itself the op still applies.
+        let boundary = vec!["a"; MAX_DEPTH].join(".");
+        apply(&mut root, &PatchOp::set(&boundary, json!(1)));
+        assert!(root
+            .pointer(&format!("/{}", vec!["a"; MAX_DEPTH].join("/")))
+            .is_some());
+    }
+
+    /// Audit yuuka-R1-2: unknown op tags decode into `Unknown` and are
+    /// skipped instead of failing the whole patch list.
+    #[test]
+    fn unknown_op_tag_is_skipped() {
+        let raw = r#"[{"op":"set","path":"x","value":1},{"op":"transmogrify","path":"y"}]"#;
+        let ops: Vec<PatchOp> = serde_json::from_str(raw).expect("decode must not hard-fail");
+        assert_eq!(ops.len(), 2);
+        assert_eq!(ops[1].op, PatchKind::Unknown);
+
+        let mut root = json!({});
+        apply_all(&mut root, &ops);
+        // The unknown op is skipped; the known one applied.
+        assert_eq!(root, json!({"x": 1}));
+    }
+
+    /// Audit yuuka-R1-3: del through a missing parent chain is a true
+    /// no-op — no ghost intermediate objects.
+    #[test]
+    fn del_missing_path_is_true_noop() {
+        let mut root = json!({});
+        apply(&mut root, &PatchOp::del("ghost.path.here"));
+        assert_eq!(root, json!({}), "no ghost parent chain may be created");
     }
 }
