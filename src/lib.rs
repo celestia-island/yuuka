@@ -33,6 +33,7 @@
 
 pub use yuuka_macros::*;
 
+pub mod crdt;
 pub mod diff;
 pub mod merge;
 pub mod patch;
