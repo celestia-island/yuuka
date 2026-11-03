@@ -217,3 +217,74 @@ impl Replica {
         self
     }
 }
+
+// ───────────────────── serde wire round-trips ─────────────────────
+// The module docs promise every type Serialize/Deserialize over
+// serde_json::Value (the wire claim of the whole design). Pin it,
+// tombstones included — a state that never crossed the wire would
+// converge fine and break the first real deployment instead.
+
+#[test]
+fn crdt_types_round_trip_through_serde_json_value() {
+    let mut dvv = Dvv::new();
+    let d1 = dvv.next_dot("s1");
+    let mut set = OrSet::<String>::new();
+    set.add("alpha".to_string(), d1.clone());
+    set.remove(&"alpha".to_string(), &dvv);
+    // set now holds a tombstone — the interesting state to round-trip
+
+    let dot_json = serde_json::to_value(&d1).unwrap();
+    let dot_back: Dot = serde_json::from_value(dot_json).unwrap();
+    assert_eq!(dot_back, d1);
+
+    let dvv_json = serde_json::to_value(&dvv).unwrap();
+    let dvv_back: Dvv = serde_json::from_value(dvv_json).unwrap();
+    assert_eq!(dvv_back, dvv);
+
+    let set_json = serde_json::to_value(&set).unwrap();
+    let set_back: OrSet<String> = serde_json::from_value(set_json).unwrap();
+    assert_eq!(set_back, set);
+
+    let lww = LwwRegister::new("v".to_string(), 7, "s");
+    let lww_back: LwwRegister<String> =
+        serde_json::from_value(serde_json::to_value(&lww).unwrap()).unwrap();
+    assert_eq!(lww_back, lww);
+}
+
+// ───────────────── S2-1: ops interleaved WITH merges ─────────────────
+// The headline convergence driver runs each replica's ops to
+// completion before merging. Real replicas merge mid-stream. Property:
+// driving op→merge→op→merge in arbitrary interleavings still
+// converges (the join is order-independent, so mid-stream merges are
+// just extra idempotent re-merges — but pin it anyway).
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(256))]
+
+    #[test]
+    fn orset_converges_with_merges_interleaved_between_ops(
+        ops1 in proptest::collection::vec(set_op(), 0..16),
+        ops2 in proptest::collection::vec(set_op(), 0..16),
+        merge_every in 1usize..4,
+    ) {
+        let mut r1 = Replica::default();
+        let mut r2 = Replica::default();
+        let n = ops1.len().max(ops2.len());
+        for i in 0..n {
+            if i < ops1.len() { r1.apply(&tag(&ops1[i], "a")); }
+            if i < ops2.len() { r2.apply(&tag(&ops2[i], "b")); }
+            if i % merge_every == 0 {
+                // mid-stream anti-entropy in both directions
+                let (m1, m2) = (r1.clone(), r2.clone());
+                r1.merge_from(&m2);
+                r2.merge_from(&m1);
+            }
+        }
+        // final settle round
+        let (m1, m2) = (r1.clone(), r2.clone());
+        r1.merge_from(&m2);
+        r2.merge_from(&m1);
+        prop_assert_eq!(&r1.set, &r2.set, "mid-stream merges must not block convergence");
+        prop_assert_eq!(&r1.dvv, &r2.dvv);
+    }
+}
