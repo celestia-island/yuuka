@@ -4,8 +4,19 @@ on:
     tags: [v*]
 
 jobs:
+  # Semver gate before publish: a tag whose API diff requires a bigger bump
+  # must never reach crates.io (versioning-audit B2, 2026-11-04). Pinned
+  # devtools ref per H14. Single-crate repo — the gate walks the root
+  # Cargo.toml (the reusable gate scans root-level crates too).
+  semver-checks:
+    name: Semver API diff (published crates)
+    uses: celestia-island/celestia-devtools/.github/workflows/semver-checks.yml@f39afe4c782e4bcf66d2aca291274624afa615dd
+    with:
+      runs-on-json: '["ubuntu-latest"]'
+
   publish:
     name: Publish to crates.io
+    needs: semver-checks
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
