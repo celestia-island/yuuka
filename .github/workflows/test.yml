@@ -33,9 +33,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # One leg on purpose: the full suite runs once per PR, on stable. The
+        # nightly toolchain keeps the static checks (clippy.yml, fmt.yml) but no
+        # longer re-runs the suite — the farm has 4-6 slots and PR jobs already
+        # queue 38-77 minutes, so testing the same tree twice only doubles that.
         toolchain:
           - stable
-          - nightly
 
     steps:
       - uses: actions/checkout@v7
