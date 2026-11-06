@@ -2,6 +2,7 @@ name: Publish crates.io
 on:
   push:
     tags: [v*]
+  workflow_dispatch:
 
 jobs:
   # Semver gate before publish: a tag whose API diff requires a bigger bump

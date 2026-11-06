@@ -9,15 +9,6 @@ concurrency:
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - '.github/workflows/clippy.yml'
-      - 'src/**/*'
-      - 'macros/**/*'
-      - 'tests/**/*'
-      - 'Cargo.toml'
-  push:
-    branches: [master]
 
 jobs:
   clippy:
