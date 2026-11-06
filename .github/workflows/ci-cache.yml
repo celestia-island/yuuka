@@ -8,6 +8,6 @@ on:
 
 jobs:
   cache-policy:
-    uses: celestia-island/celestia-devtools/.github/workflows/ci-cache.yml@2e76d373762dc6b36c1ab7625c1c34842c28ad4a
+    uses: celestia-island/celestia-devtools/.github/workflows/ci-cache.yml@3779c1961f8f08bf60b21458894667a9b6c3599a
     with:
-      devtools-ref: 5f280203dd6794b9e631978c5984d5a4d4f801b1
+      devtools-ref: 3779c1961f8f08bf60b21458894667a9b6c3599a
