@@ -1,4 +1,4 @@
-<p align="center"><img src="https://raw.githubusercontent.com/celestia-island/yuuka/master/docs/logo.webp" alt="Yuuka" width="240" /></p>
+<p align="center"><img src="https://raw.githubusercontent.com/celestia-island/celestia-island.github.io/main/res/logos/yuuka.webp" alt="Yuuka" width="240" /></p>
 
 <h1 align="center">Yuuka</h1>
 
